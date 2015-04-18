@@ -20,6 +20,11 @@ namespace Repositories.Repositories
             return db.Teachers.Single(a => a.Id == id);
         }
 
+        public List<Teacher> FindBySurname(string surname)
+        {
+            return db.Teachers.Where(a => a.Surname == surname.ToLower()).ToList();
+        }
+
         public void Insert(Teacher item)
         {
             db.Teachers.Add(item);
@@ -44,6 +49,21 @@ namespace Repositories.Repositories
         public void Save()
         {
             db.SaveChanges();
+        }
+
+        public List<Classs> GetClasses(int teacherId)
+        {
+            var classes = from classs in db.Classes
+                join subject in db.Subjects
+                    on classs.Id equals subject.ClassId
+                select classs;
+
+            return classes.ToList();
+        }
+
+        public List<Subject> GetSubjects(int teacherId)
+        {
+            return db.Subjects.Where(a => a.TeacherId == teacherId).ToList();
         }
     }
 }

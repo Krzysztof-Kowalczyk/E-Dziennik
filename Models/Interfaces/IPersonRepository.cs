@@ -10,6 +10,7 @@ namespace Models.Interfaces
     {
         List<T> GetAll();
         T FindById(string id);
+        List<T> FindBySurname(string surname);
         void Insert(T item);
         void Update(T item);
         void Delete(string id);

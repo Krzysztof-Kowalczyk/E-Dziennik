@@ -65,6 +65,30 @@ namespace edziennik.Models
 
     public class UserEditViewModel : UserDetailsViewModel { }
 
+
+    public class PersonListItemViewModel
+    {
+        [Display(Name = "Imię")]
+        public string FirstName { get; set; }
+        [Display(Name = "Drugie imię")]
+        public string SecondName { get; set; }
+        [Display(Name = "Nazwisko")]
+        public string Surname { get; set; }
+        [Display(Name = "Pesel")]
+        public string Pesel { get; set; }
+
+    }
+
+    public class StudentListItemViewModel : PersonListItemViewModel
+    {
+        [Display(Name = "Klasa")]
+        public string ClassName { get; set; }
+    }
+
+    public class TeacherListItemViewModel : PersonListItemViewModel
+    {
+    }
+
     public class VerifyCodeViewModel
     {
         [Required]

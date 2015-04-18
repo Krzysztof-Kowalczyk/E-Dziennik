@@ -24,6 +24,9 @@
                     <li>@Html.ActionLink("Home", "Index", "Home")</li>
                     <li>@Html.ActionLink("About", "About", "Home")</li>
                     <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+                    <li>@Html.ActionLink("Klasy", "Index", "Classses")</li>
+                    <li>@Html.ActionLink("KlasyPom", "Index", "Classrooms")</li>
+                    <li>@Html.ActionLink("Przedmioty", "Index", "Subjects")</li>
                     @if (User.IsInRole("Admins"))
                     {
                         <li>@Html.ActionLink("Lista użytkowników", "ShowUsers", "Account")</li>

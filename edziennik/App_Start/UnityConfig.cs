@@ -1,4 +1,9 @@
 using System;
+using System.Data.Entity;
+using edziennik.Controllers;
+using edziennik.Models;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.Configuration;
 using Models.Interfaces;
@@ -42,6 +47,13 @@ namespace edziennik.App_Start
             container.RegisterType<IStudentRepository, StudentRepository>(new PerRequestLifetimeManager());
             container.RegisterType<ITeacherRepository, TeacherRepository>(new PerRequestLifetimeManager());
             container.RegisterType<IClasssRepository, ClasssRepository>(new PerRequestLifetimeManager());
+            container.RegisterType<IClassroomRepository, ClassroomRepository>(new PerRequestLifetimeManager());
+            container.RegisterType<ISubjectRepository, SubjectRepository>(new PerRequestLifetimeManager());
+            container.RegisterType<IUserStore<ApplicationUser>, UserStore<ApplicationUser>>();
+            container.RegisterType<UserManager<ApplicationUser>>();
+            container.RegisterType<DbContext, ApplicationDbContext>();
+            container.RegisterType<ApplicationUserManager>();
+            container.RegisterType<AccountController>(new InjectionConstructor());
         }
     }
 }

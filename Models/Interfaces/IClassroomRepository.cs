@@ -7,9 +7,8 @@ using Models.Models;
 
 namespace Models.Interfaces
 {
-    public interface ITeacherRepository : IPersonRepository<Teacher>
+    public interface IClassroomRepository : IRepository<Classroom>
     {
-        List<Classs> GetClasses(int teacherId);
-        List<Subject> GetSubjects(int teacherId);
+        List<Subject> GetSubjects(int classroomId);
     }
 }

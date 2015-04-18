@@ -20,6 +20,11 @@ namespace Repositories.Repositories
             return db.Students.Single(a => a.Id == id);           
         }
 
+        public List<Student> FindBySurname(string surname)
+        {
+            return db.Students.Where(a => a.Surname == surname.ToLower()).ToList();
+        }
+
         public void Insert(Student item)
         {
             db.Students.Add(item);
@@ -46,6 +51,11 @@ namespace Repositories.Repositories
         public void Save()
         {
             db.SaveChanges();
+        }
+
+        public List<Mark> GetMarks(string studentId)
+        {
+            return db.Marks.Where(a => a.StudentId == studentId).ToList();
         }
     }
 }

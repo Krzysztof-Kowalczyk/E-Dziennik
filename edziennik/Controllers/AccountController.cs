@@ -7,11 +7,13 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Security;
 using edziennik.Resources;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using edziennik.Models;
+using Microsoft.AspNet.Identity.EntityFramework;
 using Models.Models;
 using Repositories.Repositories;
 
@@ -20,9 +22,11 @@ namespace edziennik.Controllers
     [Authorize]
     public class AccountController : Controller
     {
-        private ApplicationUserManager _userManager;
+        private ApplicationUserManager _userManager;       
 
         private StudentRepository srepo=new StudentRepository();
+        private ClasssRepository crepo = new ClasssRepository();
+        private TeacherRepository trepo = new TeacherRepository();
 
         public AccountController()
         {
@@ -49,7 +53,6 @@ namespace edziennik.Controllers
         ////////////////////
         public ActionResult DisplayPhoto()
         {
-            // query the user photo then return the view 
             ViewBag.FilePath = ConstantStrings.DefaultUserAvatar;
             return PartialView("_DisplayPhoto");
         }
@@ -69,6 +72,35 @@ namespace edziennik.Controllers
         }
 
         [Authorize(Roles = "Admins")]
+        public ActionResult ShowStudents()
+        {
+           //var users = Roles.GetUsersInRole("Students").Select(UserManager.FindByName).Select(u => new UserListItemViewModel
+            var students = srepo.GetAll().Select(u => new StudentListItemViewModel
+            {
+                FirstName = u.FirstName,
+                SecondName = u.SecondName,
+                Surname = u.Surname,
+                ClassName = crepo.FindById(u.ClassId).Name,
+                Pesel = u.Pesel
+            }).ToList();
+
+            return View(students);
+        }
+
+        [Authorize(Roles = "Admins")]
+        public ActionResult ShowTeachers()
+        {
+         var teachers = trepo.GetAll().Select(u => new TeacherListItemViewModel
+            {
+                FirstName = u.FirstName,
+                SecondName = u.SecondName,
+                Surname = u.Surname,
+                Pesel = u.Pesel
+            }).ToList();
+            return View(teachers);
+        }
+
+        [Authorize(Roles = "Admins")]
         public ActionResult CreateStudent()
         {
            /* ViewBag.Roles = ApplicationDbContext.Create().Roles.Select(r => new SelectListItem
@@ -80,8 +112,6 @@ namespace edziennik.Controllers
             return View();
         }
 
-        //[Authorize(Roles = "Admins")]
-       // [HttpPost]
         public void Create(RegisterViewModel ruser, string role)
         {
             var hasher = new PasswordHasher();
@@ -98,28 +128,18 @@ namespace edziennik.Controllers
             UserManager.AddToRole(user.Id,role);
             ApplicationDbContext.Create().SaveChanges();
 
-            /*foreach (var role in ruser.UserRoles)
-            {
-                if (role == "Students")
-                {
-                    var student= new Student
-                    {
-                        FirstName = "regerg",
-                        SecondName = "fewewf",
-                        Surname = "ggggg",
-                        ClassId = new
-                        
-                    }
-                }*/
-
-            //}
-
-           // return RedirectToAction("ShowUsers");
         }
-
+        [Authorize(Roles = "Admins")]
+        [HttpPost]
         public ActionResult CreateStudent(StudentRegisterViewModel ruser)
         {
             Create(ruser,"Students");
+            var student = new Student
+            {
+                ClassId=ruser.
+            }
+
+            return RedirectToAction("ShowUsers");
 
         }
 

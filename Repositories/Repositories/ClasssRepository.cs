@@ -27,7 +27,10 @@ namespace Repositories.Repositories
 
         public void Update(Classs item)
         {
-            throw new NotImplementedException();
+            var classs = db.Classes.Single(a => a.Id == item.Id);
+            classs.Id = item.Id;
+            classs.Name = item.Name;
+            classs.Students = item.Students;
         }
 
         public void Delete(int id)

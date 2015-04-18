@@ -195,10 +195,12 @@
     <Compile Include="App_Start\UnityMvcActivator.cs" />
     <Compile Include="App_Start\UserDbInitailizer.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\ClassroomsController.cs" />
     <Compile Include="Controllers\ClasssesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\StudentsController.cs" />
+    <Compile Include="Controllers\SubjectsController.cs" />
     <Compile Include="Controllers\TeachersController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -307,6 +309,19 @@
     <Content Include="Views\Classses\Details.cshtml" />
     <Content Include="Views\Classses\Edit.cshtml" />
     <Content Include="Views\Classses\Index.cshtml" />
+    <Content Include="Views\Account\CreateStudent.cshtml" />
+    <Content Include="Views\Account\ShowStudents.cshtml" />
+    <Content Include="Views\Account\ShowTeachers.cshtml" />
+    <Content Include="Views\Subjects\Create.cshtml" />
+    <Content Include="Views\Subjects\Delete.cshtml" />
+    <Content Include="Views\Subjects\Details.cshtml" />
+    <Content Include="Views\Subjects\Edit.cshtml" />
+    <Content Include="Views\Subjects\Index.cshtml" />
+    <Content Include="Views\Classrooms\Create.cshtml" />
+    <Content Include="Views\Classrooms\Delete.cshtml" />
+    <Content Include="Views\Classrooms\Details.cshtml" />
+    <Content Include="Views\Classrooms\Edit.cshtml" />
+    <Content Include="Views\Classrooms\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

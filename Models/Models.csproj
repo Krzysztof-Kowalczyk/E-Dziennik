@@ -68,16 +68,20 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interfaces\IClassroomRepository.cs" />
     <Compile Include="Interfaces\IClasssRepository.cs" />
     <Compile Include="Interfaces\IMarkRepository.cs" />
     <Compile Include="Interfaces\IPersonRepository.cs" />
     <Compile Include="Interfaces\IRepository.cs" />
     <Compile Include="Interfaces\IStudentRepository.cs" />
+    <Compile Include="Interfaces\ISubjectRepository.cs" />
     <Compile Include="Interfaces\ITeacherRepository.cs" />
+    <Compile Include="Models\Classroom.cs" />
     <Compile Include="Models\Classs.cs" />
     <Compile Include="Models\Mark.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Models\Student.cs" />
+    <Compile Include="Models\Subject.cs" />
     <Compile Include="Models\Teacher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
