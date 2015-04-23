@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.Linq;
+﻿
 using System.Net;
 using System.Web.Mvc;
+using edziennik.Models;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 using Models.Models;
 using Repositories.Repositories;
 
@@ -13,10 +12,15 @@ namespace edziennik.Controllers
     public class ClassroomsController : Controller
     {
         private readonly ClassroomRepository repo;
+        protected ApplicationDbContext ApplicationDbContext { get; set; }
+        protected UserManager<ApplicationUser> UserManager { get; set; }
 
         public ClassroomsController(ClassroomRepository cr)
         {
             repo = cr;
+            ApplicationDbContext = new ApplicationDbContext();
+            UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(ApplicationDbContext));
+
         }
 
         // GET: Classrooms

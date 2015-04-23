@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
+using edziennik.Models;
+using edziennik.Resources;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 using Models.Models;
-using Repositories;
 using Repositories.Repositories;
 
 namespace edziennik.Controllers
@@ -15,10 +13,18 @@ namespace edziennik.Controllers
     public class StudentsController : Controller
     {
         private readonly StudentRepository repo;
+        
+        private ClasssRepository crepo = new ClasssRepository();
+        protected ApplicationDbContext ApplicationDbContext { get; set; }
+        protected UserManager<ApplicationUser> UserManager { get; set; }
 
         public StudentsController(StudentRepository _repo)
         {
             repo = _repo;
+            ApplicationDbContext = new ApplicationDbContext();
+            UserManager = new UserManager<ApplicationUser>
+                (new UserStore<ApplicationUser>(ApplicationDbContext));
+
         }
 
         // GET: Students
@@ -42,9 +48,35 @@ namespace edziennik.Controllers
             return View(student);
         }
 
-        // GET: Students/Create
-      /*  public ActionResult Create()
+        public string CreateUser(RegisterViewModel ruser)
         {
+            var hasher = new PasswordHasher();
+            var user = new ApplicationUser
+            {
+                UserName = ruser.Login,
+                PasswordHash = hasher.HashPassword(ruser.Password),
+                Email = ruser.Email,
+                EmailConfirmed = true,
+                AvatarUrl = ConstantStrings.DefaultUserAvatar
+            };
+
+            UserManager.Create(user, ruser.Password);
+            UserManager.AddToRole(user.Id,"Students");
+            ApplicationDbContext.Create().SaveChanges();
+
+            return user.Id;
+        }
+
+        // GET: Students/Create
+        public ActionResult Create()
+        {
+             var klasa = crepo.GetAll().Select(r => new SelectListItem
+            {
+                Value = r.Id.ToString(),
+                Text = r.Name
+            });
+
+            ViewBag.ClassId= new SelectList(crepo.GetAll(), "Id", "Name");
             return View();
         }
 
@@ -53,17 +85,34 @@ namespace edziennik.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,ClassId,Number,FirstName,SecondName,Surname,Pesel")] Student student)
+        public ActionResult Create(StudentRegisterViewModel studentVM)
         {
             if (ModelState.IsValid)
             {
-                db.Students.Add(student);
-                db.SaveChanges();
+                var userid = CreateUser(studentVM);
+                var student = new Student()
+                {
+                    Id= userid,
+                    ClassId = studentVM.ClassId,
+                    FirstName = studentVM.FirstName,
+                    SecondName = studentVM.SecondName,
+                    Surname = studentVM.Surname,
+                    Number = studentVM.Number,
+                    Pesel = studentVM.Surname.Substring(1, 3) + studentVM.Login.Substring(6, 4)
+                };
+                repo.Insert(student);
+                repo.Save();
                 return RedirectToAction("Index");
             }
+           ViewBag.Klasa = crepo.GetAll().Select(r => new SelectListItem
+            {
+                Value = r.Id.ToString(),
+                Text = r.Name
+            }).ToList();
+           ViewBag.ClassId = new SelectList(crepo.GetAll(), "Id", "Name");
 
-            return View(student);
-        }*/
+           return View(studentVM);
+        }
 
         // GET: Students/Edit/5
         public ActionResult Edit(string id)

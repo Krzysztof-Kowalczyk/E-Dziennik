@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.Linq;
-using System.Net;
-using System.Web;
+﻿using System.Net;
 using System.Web.Mvc;
+using edziennik.Models;
+using edziennik.Resources;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 using Models.Models;
-using Repositories;
 using Repositories.Repositories;
 
 namespace edziennik.Controllers
@@ -15,10 +12,15 @@ namespace edziennik.Controllers
     public class TeachersController : Controller
     {
         private readonly TeacherRepository repo;
+        protected ApplicationDbContext ApplicationDbContext { get; set; }
+        protected UserManager<ApplicationUser> UserManager { get; set; }
 
         public TeachersController(TeacherRepository _repo)
         {
             repo = _repo;
+            ApplicationDbContext = new ApplicationDbContext();
+            UserManager = new UserManager<ApplicationUser>
+                (new UserStore<ApplicationUser>(ApplicationDbContext));
         }
 
         // GET: Teachers
@@ -42,6 +44,26 @@ namespace edziennik.Controllers
             return View(teacher);
         }
 
+        public string CreateUser(RegisterViewModel ruser)
+        {
+            var hasher = new PasswordHasher();
+            var user = new ApplicationUser
+            {
+                UserName = ruser.Login,
+                PasswordHash = hasher.HashPassword(ruser.Password),
+                Email = ruser.Email,
+                EmailConfirmed = true,
+                AvatarUrl = ConstantStrings.DefaultUserAvatar
+            };
+
+            UserManager.Create(user, ruser.Password);
+            UserManager.AddToRole(user.Id, "Teachers");
+            ApplicationDbContext.Create().SaveChanges();
+
+            return user.Id;
+
+        }
+
         // GET: Teachers/Create
         public ActionResult Create()
         {
@@ -53,16 +75,25 @@ namespace edziennik.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,FirstName,SecondName,Surname,Pesel")] Teacher teacher)
+        public ActionResult Create(TeacherRegisterViewModel teacherVM)
         {
             if (ModelState.IsValid)
             {
+                var userid = CreateUser(teacherVM);
+                var teacher = new Teacher()
+                {
+                    Id = userid,
+                    FirstName = teacherVM.FirstName,
+                    SecondName = teacherVM.SecondName,
+                    Surname = teacherVM.Surname,
+                    Pesel = teacherVM.Surname.Substring(1, 3) + teacherVM.Login.Substring(6, 4)
+                };
                 repo.Insert(teacher);
                 repo.Save();
                 return RedirectToAction("Index");
             }
 
-            return View(teacher);
+            return View(teacherVM);
         }
 
         // GET: Teachers/Edit/5

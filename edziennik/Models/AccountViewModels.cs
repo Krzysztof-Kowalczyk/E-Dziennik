@@ -166,8 +166,11 @@ namespace edziennik.Models
 
     public class StudentRegisterViewModel : RegisterViewModel
     {
-        
+      public int ClassId { get; set; }
+      public int Number { get; set; }
+
     }
+
 
     public class TeacherRegisterViewModel : RegisterViewModel
     {
