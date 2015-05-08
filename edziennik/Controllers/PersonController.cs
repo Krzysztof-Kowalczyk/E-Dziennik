@@ -55,5 +55,13 @@ namespace edziennik.Controllers
            return "Error";
        }
 
+       protected void DeleteUser(string id)
+       {
+           var user = UserManager.FindById(id);
+           UserManager.Delete(user);
+           ApplicationDbContext.Create().SaveChanges();
+       }
+
+
     }
 }

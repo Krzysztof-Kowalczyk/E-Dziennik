@@ -2,9 +2,6 @@
 using System.Net;
 using System.Web.Mvc;
 using edziennik.Models;
-using edziennik.Resources;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
 using Models.Models;
 using Repositories.Repositories;
 
@@ -47,12 +44,6 @@ namespace edziennik.Controllers
         // GET: Students/Create
         public ActionResult Create()
         {
-             var klasa = crepo.GetAll().Select(r => new SelectListItem
-            {
-                Value = r.Id.ToString(),
-                Text = r.Name
-            });
-
             ViewBag.ClassId= new SelectList(crepo.GetAll(), "Id", "Name");
             return View();
         }
@@ -146,6 +137,7 @@ namespace edziennik.Controllers
         {
             repo.Delete(id);
             repo.Save();
+            DeleteUser(id);
             return RedirectToAction("Index");
         }
 

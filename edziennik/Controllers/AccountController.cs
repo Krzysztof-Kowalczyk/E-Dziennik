@@ -1,21 +1,16 @@
 ﻿using System;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using System.Web.Security;
 using edziennik.Resources;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using edziennik.Models;
-using Microsoft.AspNet.Identity.EntityFramework;
-using Models.Models;
-using Repositories.Repositories;
+
 
 namespace edziennik.Controllers
 {

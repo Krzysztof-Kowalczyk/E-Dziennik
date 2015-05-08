@@ -17,12 +17,15 @@ namespace edziennik.Controllers
         private readonly SubjectRepository subjectRepo;
         private readonly TeacherRepository teacherRepo;
         private readonly ClassroomRepository classroomRepo;
+        private readonly ClasssRepository classRepo;
        
-        public SubjectsController(SubjectRepository sr, TeacherRepository tr, ClassroomRepository cr)
+        public SubjectsController(SubjectRepository sr, TeacherRepository tr, 
+                                  ClassroomRepository crr, ClasssRepository  cr)
         {
             subjectRepo = sr;
             teacherRepo = tr;
-            classroomRepo = cr;
+            classroomRepo = crr;
+            classRepo = cr;
         }
 
         // GET: Subjects
@@ -62,9 +65,17 @@ namespace edziennik.Controllers
                 Text = c.Name
 
             }).ToList();
+
+            var classes = classRepo.GetAll().Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = c.Name
+
+            }).ToList();
             
             ViewBag.Teachers = teachers;
             ViewBag.ClassRooms = classrooms;
+            ViewBag.Classes = classes;
 
             return View();
         }

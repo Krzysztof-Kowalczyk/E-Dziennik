@@ -11,22 +11,17 @@ namespace edziennik.Controllers
 {
     public class ClassroomsController : Controller
     {
-        private readonly ClassroomRepository repo;
-        protected ApplicationDbContext ApplicationDbContext { get; set; }
-        protected UserManager<ApplicationUser> UserManager { get; set; }
+        private readonly ClassroomRepository classroomRepo;
 
         public ClassroomsController(ClassroomRepository cr)
         {
-            repo = cr;
-            ApplicationDbContext = new ApplicationDbContext();
-            UserManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(ApplicationDbContext));
-
+            classroomRepo = cr;
         }
 
         // GET: Classrooms
         public ActionResult Index()
         {
-            return View(repo.GetAll());
+            return View(classroomRepo.GetAll());
         }
 
         // GET: Classrooms/Details/5
@@ -36,7 +31,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Classroom classroom = repo.FindById((int) id);
+            Classroom classroom = classroomRepo.FindById((int) id);
             if (classroom == null)
             {
                 return HttpNotFound();
@@ -59,8 +54,8 @@ namespace edziennik.Controllers
         {
             if (ModelState.IsValid)
             {
-                repo.Insert(classroom);
-                repo.Save();
+                classroomRepo.Insert(classroom);
+                classroomRepo.Save();
                 return RedirectToAction("Index");
             }
 
@@ -74,7 +69,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Classroom classroom = repo.FindById((int) id);
+            Classroom classroom = classroomRepo.FindById((int) id);
             if (classroom == null)
             {
                 return HttpNotFound();
@@ -91,8 +86,8 @@ namespace edziennik.Controllers
         {
             if (ModelState.IsValid)
             {
-                repo.Update(classroom);
-                repo.Save();
+                classroomRepo.Update(classroom);
+                classroomRepo.Save();
                 return RedirectToAction("Index");
             }
             return View(classroom);
@@ -105,7 +100,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Classroom classroom = repo.FindById((int) id);
+            Classroom classroom = classroomRepo.FindById((int) id);
             if (classroom == null)
             {
                 return HttpNotFound();
@@ -118,8 +113,8 @@ namespace edziennik.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            repo.Delete(id);
-            repo.Save();
+            classroomRepo.Delete(id);
+            classroomRepo.Save();
             return RedirectToAction("Index");
         }
 

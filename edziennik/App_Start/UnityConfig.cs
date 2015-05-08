@@ -5,7 +5,6 @@ using edziennik.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Practices.Unity;
-using Microsoft.Practices.Unity.Configuration;
 using Models.Interfaces;
 using Repositories.Repositories;
 

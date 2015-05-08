@@ -127,6 +127,7 @@ namespace edziennik.Controllers
         {
             repo.Delete(id);
             repo.Save();
+            DeleteUser(id);
             return RedirectToAction("Index");
         }
 
