@@ -21,5 +21,8 @@ namespace Models.Models
 
         [Display(Name = "Id klasy (pomieszczenia)")]
         public int ClassroomId { get; set; }
+
+        [Display(Name = "Data zajęć")]
+        public DateTime Date { get; set; }
     }
 }

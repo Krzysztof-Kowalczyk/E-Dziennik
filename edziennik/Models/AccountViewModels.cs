@@ -114,8 +114,8 @@ namespace edziennik.Models
 
     public class LoginViewModel
     {
-        [Required(ErrorMessage = "Pole Login jest wymagane.")]
-        [Display(Name = "Login")]
+        [Required(ErrorMessage = "Pole Pesel jest wymagane.")]
+        [Display(Name = "Pesel")]
         public string Login { get; set; }
 
         [Required(ErrorMessage = "Pole Hasło jest wymagane.")]
@@ -131,6 +131,7 @@ namespace edziennik.Models
     {
         [Required(ErrorMessage = "Pole Pesel jest wymagane.")]
         [Display(Name = "Pesel")]
+        [StringLength(11, ErrorMessage = "{0} musi się składać minimum z {2} znaków.", MinimumLength = 11)]
         public string Login { get; set; }
 
         [Required(ErrorMessage = "Pole Imię jest wymagane.")]
@@ -151,23 +152,11 @@ namespace edziennik.Models
         [Display(Name = "Email")]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "Pole Hasło jest wymagane.")]
-        [StringLength(100, ErrorMessage = "{0} musi się składać minimum z {2} znaków.", MinimumLength = 6)]
-        [DataType(DataType.Password)]
-        [Display(Name = "Hasło")]
-        public string Password { get; set; }
-
-        [DataType(DataType.Password)]
-        [Display(Name = "Potwierdź hasło")]
-        [System.ComponentModel.DataAnnotations.Compare("Password", ErrorMessage = "Podane hasła nie są takie same.")]
-        public string ConfirmPassword { get; set; }
-
     }
 
     public class StudentRegisterViewModel : RegisterViewModel
     {
       public int ClassId { get; set; }
-      public int Number { get; set; }
 
     }
 

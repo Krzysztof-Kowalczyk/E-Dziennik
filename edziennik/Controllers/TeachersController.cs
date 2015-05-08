@@ -47,21 +47,26 @@ namespace edziennik.Controllers
         public string CreateUser(RegisterViewModel ruser)
         {
             var hasher = new PasswordHasher();
+            var password = ruser.Surname.Substring(0, 3) + ruser.Login.Substring(6, 4);
             var user = new ApplicationUser
             {
                 UserName = ruser.Login,
-                PasswordHash = hasher.HashPassword(ruser.Password),
+                PasswordHash = hasher.HashPassword(password),
                 Email = ruser.Email,
                 EmailConfirmed = true,
                 AvatarUrl = ConstantStrings.DefaultUserAvatar
             };
 
-            UserManager.Create(user, ruser.Password);
-            UserManager.AddToRole(user.Id, "Teachers");
-            ApplicationDbContext.Create().SaveChanges();
+            var result = UserManager.Create(user, password);
+            if (result.Succeeded)
+            {
+                UserManager.AddToRole(user.Id, "Teachers");
+                ApplicationDbContext.Create().SaveChanges();
 
-            return user.Id;
-
+                return user.Id;
+            }
+            AddErrors(result);
+            return "Error";
         }
 
         // GET: Teachers/Create
@@ -80,17 +85,20 @@ namespace edziennik.Controllers
             if (ModelState.IsValid)
             {
                 var userid = CreateUser(teacherVM);
-                var teacher = new Teacher()
+                if (userid != "Error")
                 {
-                    Id = userid,
-                    FirstName = teacherVM.FirstName,
-                    SecondName = teacherVM.SecondName,
-                    Surname = teacherVM.Surname,
-                    Pesel = teacherVM.Surname.Substring(1, 3) + teacherVM.Login.Substring(6, 4)
-                };
-                repo.Insert(teacher);
-                repo.Save();
-                return RedirectToAction("Index");
+                    var teacher = new Teacher()
+                    {
+                        Id = userid,
+                        FirstName = teacherVM.FirstName,
+                        SecondName = teacherVM.SecondName,
+                        Surname = teacherVM.Surname,
+                        Pesel = teacherVM.Login
+                    };
+                    repo.Insert(teacher);
+                    repo.Save();
+                    return RedirectToAction("Index");
+                }
             }
 
             return View(teacherVM);
@@ -150,6 +158,14 @@ namespace edziennik.Controllers
             repo.Delete(id);
             repo.Save();
             return RedirectToAction("Index");
+        }
+
+        private void AddErrors(IdentityResult result)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error);
+            }
         }
 
        /* protected override void Dispose(bool disposing)

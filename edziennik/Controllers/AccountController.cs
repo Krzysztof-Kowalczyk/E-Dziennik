@@ -71,16 +71,17 @@ namespace edziennik.Controllers
         public void Create(RegisterViewModel ruser, string role)
         {
             var hasher = new PasswordHasher();
+            var password = ruser.Surname.Substring(0, 3) + ruser.Login.Substring(6, 4);
             var user = new ApplicationUser
             {
                 UserName = ruser.Login,
-                PasswordHash = hasher.HashPassword(ruser.Password),
+                PasswordHash = hasher.HashPassword(password),
                 Email = ruser.Email,
                 EmailConfirmed = true,
                 AvatarUrl = ConstantStrings.DefaultUserAvatar
             };
 
-            UserManager.Create(user, ruser.Password);
+            UserManager.Create(user, password);
             UserManager.AddToRole(user.Id,role);
             ApplicationDbContext.Create().SaveChanges();
         }
@@ -344,8 +345,9 @@ namespace edziennik.Controllers
         {
             if (ModelState.IsValid)
             {
+                var password = model.Surname.Substring(0, 3) + model.Login.Substring(6, 4);
                 var user = new ApplicationUser { UserName = model.Login, Email = model.Email, AvatarUrl = ConstantStrings.DefaultUserAvatar };
-                var result = await UserManager.CreateAsync(user, model.Password);
+                var result = await UserManager.CreateAsync(user, password);
                 if (result.Succeeded)
                 {
                     var code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);

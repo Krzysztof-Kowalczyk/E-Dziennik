@@ -13,14 +13,15 @@ namespace edziennik.Controllers
     public class StudentsController : Controller
     {
         private readonly StudentRepository repo;
-        
-        private ClasssRepository crepo = new ClasssRepository();
+
+        private readonly ClasssRepository crepo;
         protected ApplicationDbContext ApplicationDbContext { get; set; }
         protected UserManager<ApplicationUser> UserManager { get; set; }
 
-        public StudentsController(StudentRepository _repo)
-        {
+        public StudentsController(StudentRepository _repo, ClasssRepository _crepo)
+        { 
             repo = _repo;
+            crepo = _crepo;
             ApplicationDbContext = new ApplicationDbContext();
             UserManager = new UserManager<ApplicationUser>
                 (new UserStore<ApplicationUser>(ApplicationDbContext));
@@ -51,20 +52,26 @@ namespace edziennik.Controllers
         public string CreateUser(RegisterViewModel ruser)
         {
             var hasher = new PasswordHasher();
+            var password= ruser.Surname.Substring(0, 3) + ruser.Login.Substring(6, 4);
             var user = new ApplicationUser
             {
                 UserName = ruser.Login,
-                PasswordHash = hasher.HashPassword(ruser.Password),
+                PasswordHash = hasher.HashPassword(password),
                 Email = ruser.Email,
                 EmailConfirmed = true,
                 AvatarUrl = ConstantStrings.DefaultUserAvatar
             };
 
-            UserManager.Create(user, ruser.Password);
-            UserManager.AddToRole(user.Id,"Students");
-            ApplicationDbContext.Create().SaveChanges();
+            var result=UserManager.Create(user, password);
+            if (result.Succeeded)
+            {
+                UserManager.AddToRole(user.Id, "Students");
+                ApplicationDbContext.Create().SaveChanges();
 
-            return user.Id;
+                return user.Id;
+            }
+            AddErrors(result);
+            return "Error";
         }
 
         // GET: Students/Create
@@ -90,19 +97,21 @@ namespace edziennik.Controllers
             if (ModelState.IsValid)
             {
                 var userid = CreateUser(studentVM);
-                var student = new Student()
+                if (userid != "Error")
                 {
-                    Id= userid,
-                    ClassId = studentVM.ClassId,
-                    FirstName = studentVM.FirstName,
-                    SecondName = studentVM.SecondName,
-                    Surname = studentVM.Surname,
-                    Number = studentVM.Number,
-                    Pesel = studentVM.Surname.Substring(1, 3) + studentVM.Login.Substring(6, 4)
-                };
-                repo.Insert(student);
-                repo.Save();
-                return RedirectToAction("Index");
+                    var student = new Student()
+                    {
+                        Id = userid,
+                        ClassId = studentVM.ClassId,
+                        FirstName = studentVM.FirstName,
+                        SecondName = studentVM.SecondName,
+                        Surname = studentVM.Surname,
+                        Pesel = studentVM.Login
+                    };
+                    repo.Insert(student);
+                    repo.Save();
+                    return RedirectToAction("Index");
+                }
             }
            ViewBag.Klasa = crepo.GetAll().Select(r => new SelectListItem
             {
@@ -168,6 +177,14 @@ namespace edziennik.Controllers
             repo.Delete(id);
             repo.Save();
             return RedirectToAction("Index");
+        }
+
+        private void AddErrors(IdentityResult result)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error);
+            }
         }
 
        /* protected override void Dispose(bool disposing)
