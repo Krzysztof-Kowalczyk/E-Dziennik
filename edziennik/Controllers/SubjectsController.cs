@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using edziennik.Resources;
 using Models.Models;
 using Repositories;
 using Repositories.Repositories;
@@ -15,15 +16,13 @@ namespace edziennik.Controllers
     public class SubjectsController : Controller
     {
         private readonly SubjectRepository subjectRepo;
-        private readonly TeacherRepository teacherRepo;
         private readonly ClassroomRepository classroomRepo;
         private readonly ClasssRepository classRepo;
        
-        public SubjectsController(SubjectRepository sr, TeacherRepository tr, 
-                                  ClassroomRepository crr, ClasssRepository  cr)
+        public SubjectsController(SubjectRepository sr, ClassroomRepository crr, 
+                                  ClasssRepository  cr)
         {
             subjectRepo = sr;
-            teacherRepo = tr;
             classroomRepo = crr;
             classRepo = cr;
         }
@@ -41,7 +40,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Subject subject = subjectRepo.FindById((int) id);
+            var subject = subjectRepo.FindById((int) id);
             if (subject == null)
             {
                 return HttpNotFound();
@@ -51,31 +50,10 @@ namespace edziennik.Controllers
 
         // GET: Subjects/Create
         public ActionResult Create()
-        {
-            var teachers = teacherRepo.GetAll().Select(c => new SelectListItem
-            {
-                Value = c.Id,
-                Text = c.FirstName + c.Surname
-
-            }).ToList();
-
-            var classrooms = classroomRepo.GetAll().Select(c => new SelectListItem
-            {
-                Value = c.Id.ToString(),
-                Text = c.Name
-
-            }).ToList();
-
-            var classes = classRepo.GetAll().Select(c => new SelectListItem
-            {
-                Value = c.Id.ToString(),
-                Text = c.Name
-
-            }).ToList();
-            
-            ViewBag.Teachers = teachers;
-            ViewBag.ClassRooms = classrooms;
-            ViewBag.Classes = classes;
+        {         
+            ViewBag.Teachers = ConstantStrings.getTeachersSL();
+            ViewBag.ClassRooms = new SelectList(classroomRepo.GetAll(), "Id", "Name"); ;
+            ViewBag.Classes = new SelectList(classRepo.GetAll(), "Id", "Name");
 
             return View();
         }
@@ -93,6 +71,10 @@ namespace edziennik.Controllers
                 subjectRepo.Save();
                 return RedirectToAction("Index");
             }
+
+            ViewBag.Teachers = ConstantStrings.getTeachersSL(); ;
+            ViewBag.ClassRooms = new SelectList(classroomRepo.GetAll(), "Id", "Name"); ;
+            ViewBag.Classes = new SelectList(classRepo.GetAll(), "Id", "Name");
 
             return View(subject);
         }

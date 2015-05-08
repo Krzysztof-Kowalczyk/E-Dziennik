@@ -33,7 +33,7 @@ namespace Repositories.Repositories
         public void Update(Student item)
         {
             var student = db.Students.Single(a => a.Id == item.Id);
-            student.ClassId = item.ClassId;
+            student.ClasssId = item.ClasssId;
             student.Marks = item.Marks;
             student.FirstName = item.FirstName;
             student.SecondName = item.SecondName;

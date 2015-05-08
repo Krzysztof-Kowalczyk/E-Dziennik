@@ -55,7 +55,7 @@ namespace Repositories.Repositories
         {
             var classes = from classs in db.Classes
                 join subject in db.Subjects
-                    on classs.Id equals subject.ClassId
+                    on classs.Id equals subject.ClasssId
                 select classs;
 
             return classes.ToList();

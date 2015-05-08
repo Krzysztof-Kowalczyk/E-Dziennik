@@ -17,12 +17,12 @@ namespace Models.Models
         public int TeacherId { get; set; }
 
         [Display(Name = "Id klasy")]
-        public int ClassId { get; set; }
+        public int ClasssId { get; set; }
 
-        [Display(Name = "Id klasy (pomieszczenia)")]
+        [Display(Name = "Id sali")]
         public int ClassroomId { get; set; }
 
         [Display(Name = "Data zajęć")]
-        public DateTime Date { get; set; }
+        public LessonHour Date { get; set; }
     }
 }

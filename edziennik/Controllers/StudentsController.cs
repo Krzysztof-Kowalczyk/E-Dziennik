@@ -63,7 +63,7 @@ namespace edziennik.Controllers
                     var student = new Student()
                     {
                         Id = userid,
-                        ClassId = studentVM.ClassId,
+                        ClasssId = studentVM.ClassId,
                         FirstName = studentVM.FirstName,
                         SecondName = studentVM.SecondName,
                         Surname = studentVM.Surname,
@@ -74,11 +74,7 @@ namespace edziennik.Controllers
                     return RedirectToAction("Index");
                 }
             }
-           ViewBag.Klasa = crepo.GetAll().Select(r => new SelectListItem
-            {
-                Value = r.Id.ToString(),
-                Text = r.Name
-            }).ToList();
+
            ViewBag.ClassId = new SelectList(crepo.GetAll(), "Id", "Name");
 
            return View(studentVM);

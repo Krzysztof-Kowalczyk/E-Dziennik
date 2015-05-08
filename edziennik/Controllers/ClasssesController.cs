@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using edziennik.Resources;
 using Models.Models;
 using Repositories;
 using Repositories.Repositories;
@@ -35,6 +36,7 @@ namespace edziennik.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             Classs classs = repo.FindById((int)id);
+
             if (classs == null)
             {
                 return HttpNotFound();
@@ -45,6 +47,7 @@ namespace edziennik.Controllers
         // GET: Classses/Create
         public ActionResult Create()
         {
+            ViewBag.Teachers = ConstantStrings.getTeachersSL();
             return View();
         }
 
@@ -61,7 +64,7 @@ namespace edziennik.Controllers
                 repo.Save();
                 return RedirectToAction("Index");
             }
-
+            ViewBag.Teachers = ConstantStrings.getTeachersSL();
             return View(classs);
         }
 

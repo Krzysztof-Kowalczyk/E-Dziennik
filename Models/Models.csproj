@@ -78,6 +78,8 @@
     <Compile Include="Interfaces\ITeacherRepository.cs" />
     <Compile Include="Models\Classroom.cs" />
     <Compile Include="Models\Classs.cs" />
+    <Compile Include="Models\LessonDay.cs" />
+    <Compile Include="Models\LessonHour.cs" />
     <Compile Include="Models\Mark.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Models\Student.cs" />

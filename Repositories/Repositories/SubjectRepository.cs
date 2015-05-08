@@ -29,7 +29,7 @@ namespace Repositories.Repositories
         public void Update(Subject item)
         {
             var subject = db.Subjects.Single(a => a.Id == item.Id);
-            subject.ClassId = item.Id;
+            subject.ClasssId = item.Id;
             subject.ClassroomId = item.ClassroomId;
             subject.Id = item.Id;
             subject.Name = item.Name;
