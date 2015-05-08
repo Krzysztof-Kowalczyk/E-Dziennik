@@ -14,19 +14,21 @@ namespace edziennik.Controllers
 {
     public class SubjectsController : Controller
     {
-        private readonly SubjectRepository repo;
-        private  TeacherRepository trepo = new TeacherRepository();
-        private ClassroomRepository crepo = new ClassroomRepository();
+        private readonly SubjectRepository subjectRepo;
+        private readonly TeacherRepository teacherRepo;
+        private readonly ClassroomRepository classroomRepo;
        
-        public SubjectsController(SubjectRepository sr)
+        public SubjectsController(SubjectRepository sr, TeacherRepository tr, ClassroomRepository cr)
         {
-            repo = sr;
+            subjectRepo = sr;
+            teacherRepo = tr;
+            classroomRepo = cr;
         }
 
         // GET: Subjects
         public ActionResult Index()
         {
-            return View(repo.GetAll());
+            return View(subjectRepo.GetAll());
         }
 
         // GET: Subjects/Details/5
@@ -36,7 +38,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Subject subject = repo.FindById((int) id);
+            Subject subject = subjectRepo.FindById((int) id);
             if (subject == null)
             {
                 return HttpNotFound();
@@ -47,14 +49,14 @@ namespace edziennik.Controllers
         // GET: Subjects/Create
         public ActionResult Create()
         {
-            var teachers = trepo.GetAll().Select(c => new SelectListItem
+            var teachers = teacherRepo.GetAll().Select(c => new SelectListItem
             {
                 Value = c.Id,
                 Text = c.FirstName + c.Surname
 
             }).ToList();
 
-            var classrooms = crepo.GetAll().Select(c => new SelectListItem
+            var classrooms = classroomRepo.GetAll().Select(c => new SelectListItem
             {
                 Value = c.Id.ToString(),
                 Text = c.Name
@@ -76,8 +78,8 @@ namespace edziennik.Controllers
         {
             if (ModelState.IsValid)
             {
-                repo.Insert(subject);
-                repo.Save();
+                subjectRepo.Insert(subject);
+                subjectRepo.Save();
                 return RedirectToAction("Index");
             }
 
@@ -91,7 +93,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Subject subject = repo.FindById((int) id);
+            Subject subject = subjectRepo.FindById((int) id);
             if (subject == null)
             {
                 return HttpNotFound();
@@ -108,8 +110,8 @@ namespace edziennik.Controllers
         {
             if (ModelState.IsValid)
             {
-                repo.Update(subject);
-                repo.Save();
+                subjectRepo.Update(subject);
+                subjectRepo.Save();
                 return RedirectToAction("Index");
             }
             return View(subject);
@@ -122,7 +124,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Subject subject = repo.FindById((int) id);
+            Subject subject = subjectRepo.FindById((int) id);
             if (subject == null)
             {
                 return HttpNotFound();
@@ -135,8 +137,8 @@ namespace edziennik.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            repo.Delete(id);
-            repo.Save();
+            subjectRepo.Delete(id);
+            subjectRepo.Save();
             return RedirectToAction("Index");
         }
 

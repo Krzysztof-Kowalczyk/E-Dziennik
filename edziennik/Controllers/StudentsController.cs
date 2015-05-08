@@ -10,22 +10,16 @@ using Repositories.Repositories;
 
 namespace edziennik.Controllers
 {
-    public class StudentsController : Controller
+    public class StudentsController : PersonController
     {
         private readonly StudentRepository repo;
 
         private readonly ClasssRepository crepo;
-        protected ApplicationDbContext ApplicationDbContext { get; set; }
-        protected UserManager<ApplicationUser> UserManager { get; set; }
 
         public StudentsController(StudentRepository _repo, ClasssRepository _crepo)
         { 
             repo = _repo;
             crepo = _crepo;
-            ApplicationDbContext = new ApplicationDbContext();
-            UserManager = new UserManager<ApplicationUser>
-                (new UserStore<ApplicationUser>(ApplicationDbContext));
-
         }
 
         // GET: Students
@@ -49,30 +43,6 @@ namespace edziennik.Controllers
             return View(student);
         }
 
-        public string CreateUser(RegisterViewModel ruser)
-        {
-            var hasher = new PasswordHasher();
-            var password= ruser.Surname.Substring(0, 3) + ruser.Login.Substring(6, 4);
-            var user = new ApplicationUser
-            {
-                UserName = ruser.Login,
-                PasswordHash = hasher.HashPassword(password),
-                Email = ruser.Email,
-                EmailConfirmed = true,
-                AvatarUrl = ConstantStrings.DefaultUserAvatar
-            };
-
-            var result=UserManager.Create(user, password);
-            if (result.Succeeded)
-            {
-                UserManager.AddToRole(user.Id, "Students");
-                ApplicationDbContext.Create().SaveChanges();
-
-                return user.Id;
-            }
-            AddErrors(result);
-            return "Error";
-        }
 
         // GET: Students/Create
         public ActionResult Create()
@@ -96,7 +66,7 @@ namespace edziennik.Controllers
         {
             if (ModelState.IsValid)
             {
-                var userid = CreateUser(studentVM);
+                var userid = CreateUser(studentVM,"Students");
                 if (userid != "Error")
                 {
                     var student = new Student()
@@ -179,13 +149,6 @@ namespace edziennik.Controllers
             return RedirectToAction("Index");
         }
 
-        private void AddErrors(IdentityResult result)
-        {
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError("", error);
-            }
-        }
 
        /* protected override void Dispose(bool disposing)
         {

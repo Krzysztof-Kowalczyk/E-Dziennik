@@ -9,18 +9,13 @@ using Repositories.Repositories;
 
 namespace edziennik.Controllers
 {
-    public class TeachersController : Controller
+    public class TeachersController : PersonController
     {
         private readonly TeacherRepository repo;
-        protected ApplicationDbContext ApplicationDbContext { get; set; }
-        protected UserManager<ApplicationUser> UserManager { get; set; }
 
         public TeachersController(TeacherRepository _repo)
         {
             repo = _repo;
-            ApplicationDbContext = new ApplicationDbContext();
-            UserManager = new UserManager<ApplicationUser>
-                (new UserStore<ApplicationUser>(ApplicationDbContext));
         }
 
         // GET: Teachers
@@ -44,31 +39,6 @@ namespace edziennik.Controllers
             return View(teacher);
         }
 
-        public string CreateUser(RegisterViewModel ruser)
-        {
-            var hasher = new PasswordHasher();
-            var password = ruser.Surname.Substring(0, 3) + ruser.Login.Substring(6, 4);
-            var user = new ApplicationUser
-            {
-                UserName = ruser.Login,
-                PasswordHash = hasher.HashPassword(password),
-                Email = ruser.Email,
-                EmailConfirmed = true,
-                AvatarUrl = ConstantStrings.DefaultUserAvatar
-            };
-
-            var result = UserManager.Create(user, password);
-            if (result.Succeeded)
-            {
-                UserManager.AddToRole(user.Id, "Teachers");
-                ApplicationDbContext.Create().SaveChanges();
-
-                return user.Id;
-            }
-            AddErrors(result);
-            return "Error";
-        }
-
         // GET: Teachers/Create
         public ActionResult Create()
         {
@@ -84,7 +54,7 @@ namespace edziennik.Controllers
         {
             if (ModelState.IsValid)
             {
-                var userid = CreateUser(teacherVM);
+                var userid = CreateUser(teacherVM, "Teachers");
                 if (userid != "Error")
                 {
                     var teacher = new Teacher()
@@ -158,14 +128,6 @@ namespace edziennik.Controllers
             repo.Delete(id);
             repo.Save();
             return RedirectToAction("Index");
-        }
-
-        private void AddErrors(IdentityResult result)
-        {
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError("", error);
-            }
         }
 
        /* protected override void Dispose(bool disposing)
