@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Linq;
+using System.Net;
 using System.Web.Mvc;
 using edziennik.Models;
 using edziennik.Resources;
@@ -34,7 +35,24 @@ namespace edziennik.Controllers
             {
                 return HttpNotFound();
             }
-            return View(student);
+
+            var markVM = student.Marks.Select(m => new MarkViewModel
+            {
+                Subject = ConstantStrings.subjectRepo.FindById(m.SubjectId).Name,
+                Teacher = ConstantStrings.teacherRepo.FindById(m.TeacherId).FullName,
+                Value = m.Value
+            }).ToList();
+            
+            var studentVM = new StudentListItemViewModel()
+            {
+                ClassName = ConstantStrings.classRepo.FindById(student.ClasssId).Name,
+                FirstName = student.FirstName,
+                SecondName = student.SecondName,
+                Surname = student.Surname,
+                Pesel = student.Pesel,
+                Marks = markVM
+            };
+            return View(studentVM);
         }
 
 

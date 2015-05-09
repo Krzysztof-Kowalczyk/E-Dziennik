@@ -84,10 +84,26 @@ namespace edziennik.Models
     {
         [Display(Name = "Klasa")]
         public string ClassName { get; set; }
+
+        public List<MarkViewModel> Marks { get; set; }
     }
 
     public class TeacherListItemViewModel : PersonListItemViewModel
     {
+    }
+
+    public class MarkViewModel
+    {
+        [Display(Name = "Nauczyciel")]
+        public string Teacher { get; set; }
+
+        [Display(Name = "Przedmiot")]
+        public string Subject { get; set; }
+
+        [Display(Name = "Ocena")]
+        public double Value { get; set; }
+        
+        
     }
 
     public class VerifyCodeViewModel

@@ -42,12 +42,22 @@ namespace edziennik.Controllers
         // GET: Marks/Create
         public ActionResult Create(string studentId)
         {
+            if (studentId == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            var student = ConstantStrings.studentRepo.FindById(studentId);
+            if (student == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
             var mark = new Mark
             {
                 StudentId = studentId,
                 TeacherId = User.Identity.GetUserId()
             };
-            var student = ConstantStrings.studentRepo.FindById(studentId);
+
             ViewBag.SubjectId = ConstantStrings.getStudentSubjectsSL(student.ClasssId);
             ViewBag.Value = ConstantStrings.getMarksSL();
             return View(mark);

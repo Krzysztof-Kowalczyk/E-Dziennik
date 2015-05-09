@@ -228,7 +228,6 @@
     <Content Include="Views\Account\ShowUsers.cshtml" />
     <Content Include="Views\Manage\ChangeAvatar.cshtml" />
     <Content Include="Views\Students\Delete.cshtml" />
-    <Content Include="Views\Students\Details.cshtml" />
     <Content Include="Views\Students\Edit.cshtml" />
     <Content Include="Views\Students\Index.cshtml" />
     <Content Include="Views\Teachers\Delete.cshtml" />
@@ -260,6 +259,7 @@
     <Content Include="Views\Marks\Details.cshtml" />
     <Content Include="Views\Marks\Edit.cshtml" />
     <Content Include="Views\Marks\Index.cshtml" />
+    <Content Include="Views\Students\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

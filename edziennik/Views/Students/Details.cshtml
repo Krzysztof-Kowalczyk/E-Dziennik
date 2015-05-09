@@ -1,23 +1,16 @@
-﻿@model Models.Models.Student
+﻿@model edziennik.Models.StudentListItemViewModel
 
 @{
     ViewBag.Title = "Details";
+    var i = 1;
 }
 
 <h2>Details</h2>
 
 <div>
-    <h4>Student</h4>
+    <h4>StudentListItemViewModel</h4>
     <hr />
     <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.ClasssId)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.ClasssId)
-        </dd>
-
         <dt>
             @Html.DisplayNameFor(model => model.FirstName)
         </dt>
@@ -50,9 +43,27 @@
             @Html.DisplayFor(model => model.Pesel)
         </dd>
 
+        <dt>
+            @Html.DisplayNameFor(model => model.ClassName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ClassName)
+        </dd>
+
     </dl>
+
+
+    <label>Lista ocen</label>
+    @foreach (var mark in Model.Marks)
+    {
+
+        var name = mark.Subject + " " + mark.Teacher + " " + mark.Value;
+        <p>@i. @name</p>
+        i++;
+    }
 </div>
 <p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |
     @Html.ActionLink("Back to List", "Index")
 </p>
