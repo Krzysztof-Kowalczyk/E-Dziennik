@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
+using System.Net;
+using System.Net.Mail;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using System.Web;
+using edziennik.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
 using Microsoft.Owin.Security;
-using edziennik.Models;
 
 namespace edziennik
 {
@@ -25,20 +23,20 @@ namespace edziennik
             const string pwd = "jedznaplus123";
 
             // Configure the client:
-            var client = new System.Net.Mail.SmtpClient("smtp.gmail.com")
+            var client = new SmtpClient("smtp.gmail.com")
             {
                 Port = 587,
-                DeliveryMethod = System.Net.Mail.SmtpDeliveryMethod.Network,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
                 UseDefaultCredentials = false
             };
 
             // Creatte the credentials:
-            var credentials = new System.Net.NetworkCredential(credentialUserName, pwd);
+            var credentials = new NetworkCredential(credentialUserName, pwd);
             client.EnableSsl = true;
             client.Credentials = credentials;
 
             // Create the message:
-            var mail = new System.Net.Mail.MailMessage(sentFrom, message.Destination)
+            var mail = new MailMessage(sentFrom, message.Destination)
             {
                 Subject = message.Subject,
                 Body = message.Body,

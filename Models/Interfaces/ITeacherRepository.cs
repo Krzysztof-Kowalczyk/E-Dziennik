@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Models.Models;
 
 namespace Models.Interfaces
 {
     public interface ITeacherRepository : IPersonRepository<Teacher>
     {
-        List<Classs> GetClasses(int teacherId);
-        List<Subject> GetSubjects(int teacherId);
+        List<Classs> GetClasses(string teacherId);
+        List<Subject> GetSubjects(string teacherId);
     }
 }

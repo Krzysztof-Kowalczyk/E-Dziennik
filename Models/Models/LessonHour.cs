@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using Models.Models;
-
-namespace Models.Models
+﻿namespace Models.Models
 {
     public enum SchoolDay
     {
-        Monday,
-        Thuesday,
-        Wednesday,
-        Thursday,
-        Friday
+       Poniedziałek,
+        Wtorek,
+        Środa,
+        Czwartek,
+        Piątek
     }
 
     public class LessonHour

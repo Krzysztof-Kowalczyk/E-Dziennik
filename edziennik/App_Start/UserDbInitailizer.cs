@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Web;
+﻿using System.Data.Entity;
 using edziennik.Models;
 using edziennik.Resources;
 using Microsoft.AspNet.Identity;

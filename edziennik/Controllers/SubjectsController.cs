@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.Linq;
-using System.Net;
-using System.Web;
+﻿using System.Net;
 using System.Web.Mvc;
 using edziennik.Resources;
 using Models.Models;
-using Repositories;
 using Repositories.Repositories;
 
 namespace edziennik.Controllers
@@ -16,15 +9,10 @@ namespace edziennik.Controllers
     public class SubjectsController : Controller
     {
         private readonly SubjectRepository subjectRepo;
-        private readonly ClassroomRepository classroomRepo;
-        private readonly ClasssRepository classRepo;
        
-        public SubjectsController(SubjectRepository sr, ClassroomRepository crr, 
-                                  ClasssRepository  cr)
+        public SubjectsController(SubjectRepository sr)
         {
             subjectRepo = sr;
-            classroomRepo = crr;
-            classRepo = cr;
         }
 
         // GET: Subjects
@@ -51,9 +39,11 @@ namespace edziennik.Controllers
         // GET: Subjects/Create
         public ActionResult Create()
         {         
-            ViewBag.Teachers = ConstantStrings.getTeachersSL();
-            ViewBag.ClassRooms = new SelectList(classroomRepo.GetAll(), "Id", "Name"); ;
-            ViewBag.Classes = new SelectList(classRepo.GetAll(), "Id", "Name");
+            ViewBag.TeacherId = ConstantStrings.getTeachersSL();
+            ViewBag.ClassroomId = ConstantStrings.getClassroomsSL();
+            ViewBag.ClasssId = ConstantStrings.getClassesSL();
+            ViewBag.Day = ConstantStrings.getSchoolDays();
+            ViewBag.Hour = ConstantStrings.getSchoolHours();
 
             return View();
         }
@@ -72,10 +62,11 @@ namespace edziennik.Controllers
                 return RedirectToAction("Index");
             }
 
-            ViewBag.Teachers = ConstantStrings.getTeachersSL(); ;
-            ViewBag.ClassRooms = new SelectList(classroomRepo.GetAll(), "Id", "Name"); ;
-            ViewBag.Classes = new SelectList(classRepo.GetAll(), "Id", "Name");
-
+            ViewBag.TeacherId = ConstantStrings.getTeachersSL(); ;
+            ViewBag.ClassroomId = ConstantStrings.getClassroomsSL();
+            ViewBag.ClasssId = ConstantStrings.getClassesSL();
+            ViewBag.Day = ConstantStrings.getSchoolDays();
+            ViewBag.Hour = ConstantStrings.getSchoolHours();
             return View(subject);
         }
 

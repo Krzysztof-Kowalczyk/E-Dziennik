@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using edziennik.Models;
 using edziennik.Resources;
 using Microsoft.AspNet.Identity;
@@ -33,7 +29,7 @@ namespace edziennik.Controllers
        protected string CreateUser(RegisterViewModel ruser, string role)
        {
            var hasher = new PasswordHasher();
-           var password = ruser.Surname.Substring(0, 3) + ruser.Login.Substring(6, 4);
+           var password = ruser.Surname.Substring(0, 3) + ruser.Login.Substring(7, 4);
            var user = new ApplicationUser
            {
                UserName = ruser.Login,

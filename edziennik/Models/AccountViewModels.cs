@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
+using Models.Models;
 
 namespace edziennik.Models
 {
@@ -104,6 +105,38 @@ namespace edziennik.Models
 
         public bool RememberMe { get; set; }
     }
+
+    public class StudentSubjectMarks
+    {
+        public string Id { get; set; }
+
+        [Display(Name = "Imię")]
+        public string FirstName { get; set; }
+        [Display(Name = "Drugie imię")]
+        public string SecondName { get; set; }
+        [Display(Name = "Nazwisko")]
+        public string Surname { get; set; }
+        public List<Mark> Marks { get; set; }
+
+    }
+
+    public class StudentAddMark
+    {
+        public string Id { get; set; }
+
+        [Display(Name = "Imię")]
+        public string FirstName { get; set; }
+        [Display(Name = "Drugie imię")]
+        public string SecondName { get; set; }
+        [Display(Name = "Nazwisko")]
+        public string Surname { get; set; }
+        [Display(Name = "Przedmiot")]
+        public int SubjectId { get; set; }
+        [Display(Name = "Ocena")]
+        public double Mark { get; set; }
+
+    }
+
 
     public class ForgotViewModel
     {

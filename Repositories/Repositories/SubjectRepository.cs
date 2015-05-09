@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using Models.Interfaces;
 using Models.Models;
 
@@ -45,6 +42,12 @@ namespace Repositories.Repositories
         public void Save()
         {
             db.SaveChanges();
+        }
+
+        public List<Subject> FindByClassId(int classId)
+        {
+            var subjects = db.Subjects.Where(a => a.ClasssId == classId).ToList();
+            return subjects;
         }
     }
 }

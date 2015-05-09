@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.Linq;
-using System.Net;
-using System.Web;
+﻿using System.Net;
 using System.Web.Mvc;
 using edziennik.Resources;
 using Models.Models;
-using Repositories;
 using Repositories.Repositories;
 
 namespace edziennik.Controllers

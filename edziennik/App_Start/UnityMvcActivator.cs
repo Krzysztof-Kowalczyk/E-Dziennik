@@ -1,9 +1,11 @@
 using System.Linq;
 using System.Web.Mvc;
+using edziennik.App_Start;
 using Microsoft.Practices.Unity.Mvc;
+using WebActivatorEx;
 
-[assembly: WebActivatorEx.PreApplicationStartMethod(typeof(edziennik.App_Start.UnityWebActivator), "Start")]
-[assembly: WebActivatorEx.ApplicationShutdownMethod(typeof(edziennik.App_Start.UnityWebActivator), "Shutdown")]
+[assembly: PreApplicationStartMethod(typeof(UnityWebActivator), "Start")]
+[assembly: ApplicationShutdownMethod(typeof(UnityWebActivator), "Shutdown")]
 
 namespace edziennik.App_Start
 {

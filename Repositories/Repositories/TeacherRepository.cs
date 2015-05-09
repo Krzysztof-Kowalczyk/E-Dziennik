@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using Models.Interfaces;
 using Models.Models;
 
@@ -51,7 +49,7 @@ namespace Repositories.Repositories
             db.SaveChanges();
         }
 
-        public List<Classs> GetClasses(int teacherId)
+        public List<Classs> GetClasses(string teacherId)
         {
             var classes = from classs in db.Classes
                 join subject in db.Subjects
@@ -61,7 +59,7 @@ namespace Repositories.Repositories
             return classes.ToList();
         }
 
-        public List<Subject> GetSubjects(int teacherId)
+        public List<Subject> GetSubjects(string teacherId)
         {
             return db.Subjects.Where(a => a.TeacherId == teacherId).ToList();
         }

@@ -1,9 +1,6 @@
 ﻿using System.Net;
 using System.Web.Mvc;
 using edziennik.Models;
-using edziennik.Resources;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
 using Models.Models;
 using Repositories.Repositories;
 

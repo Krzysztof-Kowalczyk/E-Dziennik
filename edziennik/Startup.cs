@@ -1,7 +1,8 @@
-﻿using Microsoft.Owin;
+﻿using edziennik;
+using Microsoft.Owin;
 using Owin;
 
-[assembly: OwinStartupAttribute(typeof(edziennik.Startup))]
+[assembly: OwinStartup(typeof(Startup))]
 namespace edziennik
 {
     public partial class Startup

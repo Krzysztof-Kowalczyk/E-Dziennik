@@ -1,7 +1,7 @@
-﻿using System.Linq;
-using System.Net;
+﻿using System.Net;
 using System.Web.Mvc;
 using edziennik.Models;
+using edziennik.Resources;
 using Models.Models;
 using Repositories.Repositories;
 
@@ -9,20 +9,17 @@ namespace edziennik.Controllers
 {
     public class StudentsController : PersonController
     {
-        private readonly StudentRepository repo;
+        private readonly StudentRepository studentRepo;
 
-        private readonly ClasssRepository crepo;
-
-        public StudentsController(StudentRepository _repo, ClasssRepository _crepo)
+        public StudentsController(StudentRepository _repo)
         { 
-            repo = _repo;
-            crepo = _crepo;
+            studentRepo = _repo;
         }
 
         // GET: Students
         public ActionResult Index()
         {
-            return View(repo.GetAll());
+            return View(studentRepo.GetAll());
         }
 
         // GET: Students/Details/5
@@ -32,7 +29,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Student student = repo.FindById(id);
+            Student student = studentRepo.FindById(id);
             if (student == null)
             {
                 return HttpNotFound();
@@ -44,7 +41,7 @@ namespace edziennik.Controllers
         // GET: Students/Create
         public ActionResult Create()
         {
-            ViewBag.ClassId= new SelectList(crepo.GetAll(), "Id", "Name");
+            ViewBag.ClassId = ConstantStrings.getClassesSL();
             return View();
         }
 
@@ -57,25 +54,32 @@ namespace edziennik.Controllers
         {
             if (ModelState.IsValid)
             {
-                var userid = CreateUser(studentVM,"Students");
-                if (userid != "Error")
+                if (ConstantStrings.getClassStudentCount(studentVM.ClassId) != 30)
                 {
-                    var student = new Student()
+                    var userid = CreateUser(studentVM, "Students");
+                    if (userid != "Error")
                     {
-                        Id = userid,
-                        ClasssId = studentVM.ClassId,
-                        FirstName = studentVM.FirstName,
-                        SecondName = studentVM.SecondName,
-                        Surname = studentVM.Surname,
-                        Pesel = studentVM.Login
-                    };
-                    repo.Insert(student);
-                    repo.Save();
-                    return RedirectToAction("Index");
+                        var student = new Student()
+                        {
+                            Id = userid,
+                            ClasssId = studentVM.ClassId,
+                            FirstName = studentVM.FirstName,
+                            SecondName = studentVM.SecondName,
+                            Surname = studentVM.Surname,
+                            Pesel = studentVM.Login
+                        };
+                        studentRepo.Insert(student);
+                        studentRepo.Save();
+                        return RedirectToAction("Index");
+                    }
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Ta klasa posiada już maksymalną ilość uczniów !");
                 }
             }
 
-           ViewBag.ClassId = new SelectList(crepo.GetAll(), "Id", "Name");
+            ViewBag.ClassId = ConstantStrings.getClassesSL();
 
            return View(studentVM);
         }
@@ -87,7 +91,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Student student = repo.FindById(id);
+            Student student = studentRepo.FindById(id);
             if (student == null)
             {
                 return HttpNotFound();
@@ -104,8 +108,8 @@ namespace edziennik.Controllers
         {
             if (ModelState.IsValid)
             {
-                repo.Update(student);
-                repo.Save();
+                studentRepo.Update(student);
+                studentRepo.Save();
                 return RedirectToAction("Index");
             }
             return View(student);
@@ -118,7 +122,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Student student = repo.FindById(id);
+            Student student = studentRepo.FindById(id);
             if (student == null)
             {
                 return HttpNotFound();
@@ -131,11 +135,38 @@ namespace edziennik.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(string id)
         {
-            repo.Delete(id);
-            repo.Save();
+            studentRepo.Delete(id);
+            studentRepo.Save();
             DeleteUser(id);
             return RedirectToAction("Index");
         }
+
+       /* public ActionResult AddMark(string id)
+        {         
+            var student = repo.FindById(id);
+            var studentMark = new StudentAddMark
+            {
+                FirstName = student.FirstName,
+                SecondName = student.SecondName,
+                Surname = student.Surname,
+                Id = student.Id
+            };
+            ViewBag.SubjectId = ConstantStrings.getStudentSubjectsSL(student.ClasssId);
+            ViewBag.Mark = ConstantStrings.getMarksSL();
+            return View(studentMark);
+        }
+        [HttpPost]
+        public ActionResult AddMark(StudentAddMark sam)
+        {
+            if (ModelState.IsValid)
+            {
+                var student = repo.FindById(sam.Id);
+                student.Marks
+                repo.Save();
+                return RedirectToAction("Index");
+            }
+            return View(sam);
+        }*/
 
 
        /* protected override void Dispose(bool disposing)

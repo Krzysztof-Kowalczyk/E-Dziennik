@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Web;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Models.Models
 {
@@ -14,7 +10,7 @@ namespace Models.Models
         public string Name { get; set; }
 
         [Display(Name = "Id nauczyciela")]
-        public int TeacherId { get; set; }
+        public string TeacherId { get; set; }
 
         [Display(Name = "Id klasy")]
         public int ClasssId { get; set; }
@@ -22,7 +18,13 @@ namespace Models.Models
         [Display(Name = "Id sali")]
         public int ClassroomId { get; set; }
 
-        [Display(Name = "Data zajęć")]
-        public LessonHour Date { get; set; }
+        //[Display(Name = "Data zajęć")]
+        //public LessonHour Date { get; set; }
+
+        [Display(Name = "Dzień zajęć")]
+        public SchoolDay Day { get; set; }
+
+        [Display(Name = "Godzina zajęć")]
+        public int Hour { get; set; }
     }
 }
