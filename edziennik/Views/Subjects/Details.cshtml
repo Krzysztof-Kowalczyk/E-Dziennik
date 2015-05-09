@@ -1,4 +1,4 @@
-﻿@model Models.Models.Subject
+﻿@model edziennik.Models.SubjectViewModel
 
 @{
     ViewBag.Title = "Details";
@@ -7,7 +7,7 @@
 <h2>Details</h2>
 
 <div>
-    <h4>Subject</h4>
+    <h4>SubjectViewModel</h4>
     <hr />
     <dl class="dl-horizontal">
         <dt>
@@ -19,37 +19,28 @@
         </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.TeacherId)
+            @Html.DisplayNameFor(model => model.Teacher)
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.TeacherId)
+            @Html.DisplayFor(model => model.Teacher)
         </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.ClasssId)
+            @Html.DisplayNameFor(model => model.Classs)
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.ClasssId)
+            @Html.DisplayFor(model => model.Classs)
         </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.ClassroomId)
+            @Html.DisplayNameFor(model => model.Classroom)
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.ClassroomId)
+            @Html.DisplayFor(model => model.Classroom)
         </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Day)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Day)
-        </dd>
-
 
         <dt>
             @Html.DisplayNameFor(model => model.Hour)

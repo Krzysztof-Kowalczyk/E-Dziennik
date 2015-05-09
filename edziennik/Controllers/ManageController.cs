@@ -99,6 +99,7 @@ namespace edziennik.Controllers
             return View();
         }
 
+        [NonAction]
         public void DeleteImg(string relativePath)
         {
             if (relativePath != ConstantStrings.DefaultUserAvatar)

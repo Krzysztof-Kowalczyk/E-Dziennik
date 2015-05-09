@@ -18,9 +18,6 @@ namespace Models.Models
         [Display(Name = "Id sali")]
         public int ClassroomId { get; set; }
 
-        //[Display(Name = "Data zajęć")]
-        //public LessonHour Date { get; set; }
-
         [Display(Name = "Dzień zajęć")]
         public SchoolDay Day { get; set; }
 

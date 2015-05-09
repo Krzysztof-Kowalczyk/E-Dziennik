@@ -8,6 +8,7 @@ using Repositories.Repositories;
 
 namespace edziennik.Controllers
 {
+    [Authorize]
     public class StudentsController : PersonController
     {
         private readonly StudentRepository studentRepo;
@@ -56,7 +57,7 @@ namespace edziennik.Controllers
         }
 
 
-        // GET: Students/Create
+        [Authorize(Roles = "Admins")]
         public ActionResult Create()
         {
             ViewBag.ClassId = ConstantStrings.getClassesSL();
@@ -68,6 +69,7 @@ namespace edziennik.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admins")]
         public ActionResult Create(StudentRegisterViewModel studentVM)
         {
             if (ModelState.IsValid)
@@ -102,7 +104,7 @@ namespace edziennik.Controllers
            return View(studentVM);
         }
 
-        // GET: Students/Edit/5
+        [Authorize(Roles = "Admins")]
         public ActionResult Edit(string id)
         {
             if (id == null)
@@ -122,6 +124,7 @@ namespace edziennik.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admins")]
         public ActionResult Edit([Bind(Include = "Id,ClassId,Number,FirstName,SecondName,Surname,Pesel")] Student student)
         {
             if (ModelState.IsValid)
@@ -134,6 +137,7 @@ namespace edziennik.Controllers
         }
 
         // GET: Students/Delete/5
+        [Authorize(Roles = "Admins")]
         public ActionResult Delete(string id)
         {
             if (id == null)
@@ -151,6 +155,7 @@ namespace edziennik.Controllers
         // POST: Students/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admins")]
         public ActionResult DeleteConfirmed(string id)
         {
             studentRepo.Delete(id);

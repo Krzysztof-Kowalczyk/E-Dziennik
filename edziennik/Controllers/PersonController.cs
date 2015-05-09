@@ -17,7 +17,8 @@ namespace edziennik.Controllers
             UserManager = new UserManager<ApplicationUser>
                 (new UserStore<ApplicationUser>(ApplicationDbContext));
         }
-
+       
+       [NonAction]
        protected void AddErrors(IdentityResult result)
         {
             foreach (var error in result.Errors)
@@ -26,6 +27,7 @@ namespace edziennik.Controllers
             }
         }
 
+       [NonAction]
        protected string CreateUser(RegisterViewModel ruser, string role)
        {
            var hasher = new PasswordHasher();
@@ -51,6 +53,7 @@ namespace edziennik.Controllers
            return "Error";
        }
 
+       [NonAction]
        protected void DeleteUser(string id)
        {
            var user = UserManager.FindById(id);

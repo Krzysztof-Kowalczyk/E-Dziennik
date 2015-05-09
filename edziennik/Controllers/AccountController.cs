@@ -42,6 +42,7 @@ namespace edziennik.Controllers
             }
         }
         ////////////////////
+        
         public ActionResult DisplayPhoto()
         {
             ViewBag.FilePath = ConstantStrings.DefaultUserAvatar;
@@ -125,6 +126,7 @@ namespace edziennik.Controllers
             return View(vm);
         }
 
+        [NonAction]
         public void DeleteAvatar(string relativePath)
         {
             if (relativePath != ConstantStrings.DefaultUserAvatar)

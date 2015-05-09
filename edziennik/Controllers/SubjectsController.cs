@@ -1,11 +1,14 @@
-﻿using System.Net;
+﻿using System.Linq;
+using System.Net;
 using System.Web.Mvc;
+using edziennik.Models;
 using edziennik.Resources;
 using Models.Models;
 using Repositories.Repositories;
 
 namespace edziennik.Controllers
 {
+    [Authorize(Roles = "Admins")]
     public class SubjectsController : Controller
     {
         private readonly SubjectRepository subjectRepo;
@@ -18,7 +21,19 @@ namespace edziennik.Controllers
         // GET: Subjects
         public ActionResult Index()
         {
-            return View(subjectRepo.GetAll());
+            /*var subjects = subjectRepo.GetAll().Select(a => new SubjectViewModel
+            {
+                Id = a.Id,
+                Classroom = ConstantStrings.classroomRepo.FindById(a.ClassroomId).Name,
+                Classs = ConstantStrings.classRepo.FindById(a.ClasssId).Name,
+                Day = a.Day,
+                Hour = a.Hour,
+                Name = a.Name,
+                Teacher = ConstantStrings.teacherRepo.FindById(a.TeacherId).FullName
+            });*/
+            var subjects = subjectRepo.GetAll();
+            
+            return View(subjects);
         }
 
         // GET: Subjects/Details/5
@@ -29,11 +44,22 @@ namespace edziennik.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             var subject = subjectRepo.FindById((int) id);
+
             if (subject == null)
             {
                 return HttpNotFound();
             }
-            return View(subject);
+            var subjectVM = new SubjectViewModel
+            {
+                Id = subject.Id,
+                Classroom = ConstantStrings.classroomRepo.FindById(subject.ClassroomId).Name,
+                Classs = ConstantStrings.classRepo.FindById(subject.ClasssId).Name,
+                Day = subject.Day,
+                Hour = subject.Hour,
+                Name = subject.Name,
+                Teacher = ConstantStrings.teacherRepo.FindById(subject.TeacherId).FullName
+            };
+            return View(subjectVM);
         }
 
         // GET: Subjects/Create

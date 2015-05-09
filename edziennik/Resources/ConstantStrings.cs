@@ -30,9 +30,11 @@ namespace edziennik.Resources
             return students;
         }
 
-        public static SelectList getStudentSubjectsSL(int classId)
+        public static SelectList getStudentSubjectsSL(int classId, string teacherId)
         {
-            var subjects = new SelectList(subjectRepo.FindByClassId(classId), "Id", "Name");
+            //var subjects = new SelectList(subjectRepo.FindByClassId(classId), "Id", "Name");
+            var subjects = new SelectList(subjectRepo.FindByClassId
+                                                           (classId).Where(a=>a.TeacherId==teacherId), "Id", "Name");
 
             return subjects;
             

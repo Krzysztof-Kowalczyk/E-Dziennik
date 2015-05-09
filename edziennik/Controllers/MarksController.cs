@@ -14,6 +14,7 @@ using Repositories.Repositories;
 
 namespace edziennik.Controllers
 {
+    [Authorize(Roles = "Teachers")]
     public class MarksController : Controller
     {
         private readonly MarkRepository markRepo = new MarkRepository();
@@ -58,7 +59,8 @@ namespace edziennik.Controllers
                 TeacherId = User.Identity.GetUserId()
             };
 
-            ViewBag.SubjectId = ConstantStrings.getStudentSubjectsSL(student.ClasssId);
+            ViewBag.SubjectId = ConstantStrings.getStudentSubjectsSL
+                                                  (student.ClasssId,User.Identity.GetUserId());
             ViewBag.Value = ConstantStrings.getMarksSL();
             return View(mark);
         }
@@ -77,7 +79,8 @@ namespace edziennik.Controllers
                 return RedirectToAction("Index");
             }
             var student = ConstantStrings.studentRepo.FindById(mark.StudentId);
-            ViewBag.SubjectId = ConstantStrings.getStudentSubjectsSL(student.ClasssId);
+            ViewBag.SubjectId = ConstantStrings.getStudentSubjectsSL
+                                                  (student.ClasssId, User.Identity.GetUserId());
             ViewBag.Value = ConstantStrings.getMarksSL();
 
             return View(mark);

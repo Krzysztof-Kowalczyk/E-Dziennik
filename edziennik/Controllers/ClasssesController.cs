@@ -6,6 +6,7 @@ using Repositories.Repositories;
 
 namespace edziennik.Controllers
 {
+    [Authorize(Roles = "Admins")]
     public class ClasssesController : Controller
     {
         private readonly ClasssRepository repo;
