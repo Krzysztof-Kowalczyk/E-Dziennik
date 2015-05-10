@@ -3,6 +3,7 @@ using System.Net;
 using System.Web.Mvc;
 using edziennik.Models;
 using edziennik.Resources;
+using Microsoft.AspNet.Identity;
 using Models.Models;
 using Repositories.Repositories;
 
@@ -14,14 +15,24 @@ namespace edziennik.Controllers
         private readonly StudentRepository studentRepo;
 
         public StudentsController(StudentRepository _repo)
-        { 
+        {
             studentRepo = _repo;
         }
 
         // GET: Students
         public ActionResult Index()
         {
-            return View(studentRepo.GetAll());
+            var students = studentRepo.GetAll().Select(a => new StudentListItemViewModel
+            {
+                FirstName = a.FirstName,
+                SecondName = a.SecondName,
+                Surname = a.Surname,
+                ClassName = ConstantStrings.classRepo.FindById(a.ClasssId).Name,
+                Pesel = a.Pesel,
+                Id = a.Id
+            });
+
+            return View(students);
         }
 
         // GET: Students/Details/5
@@ -43,15 +54,16 @@ namespace edziennik.Controllers
                 Teacher = ConstantStrings.teacherRepo.FindById(m.TeacherId).FullName,
                 Value = m.Value
             }).ToList();
-            
-            var studentVM = new StudentListItemViewModel()
+
+            var studentVM = new StudentViewModel()
             {
                 ClassName = ConstantStrings.classRepo.FindById(student.ClasssId).Name,
                 FirstName = student.FirstName,
                 SecondName = student.SecondName,
                 Surname = student.Surname,
                 Pesel = student.Pesel,
-                Marks = markVM
+                Marks = markVM,
+                Id = student.Id
             };
             return View(studentVM);
         }
@@ -101,7 +113,7 @@ namespace edziennik.Controllers
 
             ViewBag.ClassId = ConstantStrings.getClassesSL();
 
-           return View(studentVM);
+            return View(studentVM);
         }
 
         [Authorize(Roles = "Admins")]
@@ -116,7 +128,20 @@ namespace edziennik.Controllers
             {
                 return HttpNotFound();
             }
-            return View(student);
+
+            var studentEditVM = new StudentEditViewModel
+            {
+                FirstName = student.FirstName,
+                ClassId = student.ClasssId,
+                Email = UserManager.FindById(student.Id).Email,
+                Id = student.Id,
+                Login = student.Pesel,
+                SecondName = student.SecondName,
+                Surname = student.Surname
+            };
+            ViewBag.ClassId = ConstantStrings.getClassesSL();
+
+            return View(studentEditVM);
         }
 
         // POST: Students/Edit/5
@@ -125,14 +150,20 @@ namespace edziennik.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admins")]
-        public ActionResult Edit([Bind(Include = "Id,ClassId,Number,FirstName,SecondName,Surname,Pesel")] Student student)
+        public ActionResult Edit(StudentEditViewModel student)
         {
             if (ModelState.IsValid)
             {
-                studentRepo.Update(student);
-                studentRepo.Save();
+                UpdateFromEditVM(student);
+                var user = UserManager.FindById(student.Id);
+                user.Email = student.Email;
+                user.UserName = student.Login;
+                ApplicationDbContext.Create().SaveChanges();
+                
                 return RedirectToAction("Index");
             }
+            ViewBag.ClassId = ConstantStrings.getClassesSL();
+
             return View(student);
         }
 
@@ -149,6 +180,16 @@ namespace edziennik.Controllers
             {
                 return HttpNotFound();
             }
+
+            var studentVM = new StudentListItemViewModel()
+            {
+                ClassName = ConstantStrings.classRepo.FindById(student.ClasssId).Name,
+                FirstName = student.FirstName,
+                SecondName = student.SecondName,
+                Surname = student.Surname,
+                Pesel = student.Pesel
+            };
+
             return View(student);
         }
 
@@ -164,41 +205,24 @@ namespace edziennik.Controllers
             return RedirectToAction("Index");
         }
 
-       /* public ActionResult AddMark(string id)
-        {         
-            var student = repo.FindById(id);
-            var studentMark = new StudentAddMark
-            {
-                FirstName = student.FirstName,
-                SecondName = student.SecondName,
-                Surname = student.Surname,
-                Id = student.Id
-            };
-            ViewBag.SubjectId = ConstantStrings.getStudentSubjectsSL(student.ClasssId);
-            ViewBag.Mark = ConstantStrings.getMarksSL();
-            return View(studentMark);
+        private void UpdateFromEditVM(StudentEditViewModel studentEVM)
+        {
+            var studentToUpdate = studentRepo.FindById(studentEVM.Id);
+            studentToUpdate.ClasssId = studentEVM.ClassId;
+            studentToUpdate.FirstName = studentEVM.FirstName;
+            studentToUpdate.Pesel = studentEVM.Login;
+            studentToUpdate.SecondName = studentEVM.SecondName;
+            studentToUpdate.Surname = studentEVM.Surname;
+            studentRepo.Save();
         }
-        [HttpPost]
-        public ActionResult AddMark(StudentAddMark sam)
-        {
-            if (ModelState.IsValid)
-            {
-                var student = repo.FindById(sam.Id);
-                student.Marks
-                repo.Save();
-                return RedirectToAction("Index");
-            }
-            return View(sam);
-        }*/
 
-
-       /* protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
-        }*/
+        /* protected override void Dispose(bool disposing)
+         {
+             if (disposing)
+             {
+                 db.Dispose();
+             }
+             base.Dispose(disposing);
+         }*/
     }
 }

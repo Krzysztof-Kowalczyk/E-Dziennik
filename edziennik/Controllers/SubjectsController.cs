@@ -21,7 +21,7 @@ namespace edziennik.Controllers
         // GET: Subjects
         public ActionResult Index()
         {
-            /*var subjects = subjectRepo.GetAll().Select(a => new SubjectViewModel
+            var subjects = subjectRepo.GetAll().Select(a => new SubjectViewModel
             {
                 Id = a.Id,
                 Classroom = ConstantStrings.classroomRepo.FindById(a.ClassroomId).Name,
@@ -30,8 +30,7 @@ namespace edziennik.Controllers
                 Hour = a.Hour,
                 Name = a.Name,
                 Teacher = ConstantStrings.teacherRepo.FindById(a.TeacherId).FullName
-            });*/
-            var subjects = subjectRepo.GetAll();
+            });
             
             return View(subjects);
         }

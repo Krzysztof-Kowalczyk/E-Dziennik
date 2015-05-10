@@ -1,4 +1,4 @@
-﻿@model edziennik.Models.StudentListItemViewModel
+﻿@model edziennik.Models.StudentViewModel
 
 @{
     ViewBag.Title = "Details";
@@ -8,7 +8,7 @@
 <h2>Details</h2>
 
 <div>
-    <h4>StudentListItemViewModel</h4>
+    <h4>StudentViewModel</h4>
     <hr />
     <dl class="dl-horizontal">
         <dt>
@@ -53,7 +53,6 @@
 
     </dl>
 
-
     <label>Lista ocen</label>
     @foreach (var mark in Model.Marks)
     {
@@ -64,6 +63,6 @@
     }
 </div>
 <p>
-    @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
     @Html.ActionLink("Back to List", "Index")
 </p>

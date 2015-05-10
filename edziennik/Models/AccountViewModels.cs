@@ -67,8 +67,13 @@ namespace edziennik.Models
     public class UserEditViewModel : UserDetailsViewModel { }
 
 
-    public class PersonListItemViewModel
+
+ 
+
+    public class PersonViewModel
     {
+        public string Id { get; set; }
+
         [Display(Name = "Imię")]
         public string FirstName { get; set; }
         [Display(Name = "Drugie imię")]
@@ -80,7 +85,7 @@ namespace edziennik.Models
 
     }
 
-    public class StudentListItemViewModel : PersonListItemViewModel
+    public class StudentViewModel : PersonViewModel
     {
         [Display(Name = "Klasa")]
         public string ClassName { get; set; }
@@ -88,7 +93,13 @@ namespace edziennik.Models
         public List<MarkViewModel> Marks { get; set; }
     }
 
-    public class TeacherListItemViewModel : PersonListItemViewModel
+    public class StudentListItemViewModel : PersonViewModel
+    {
+        [Display(Name = "Klasa")]
+        public string ClassName { get; set; }
+    }
+
+    public class TeacherViewModel : PersonViewModel
     {
     }
 
@@ -227,7 +238,11 @@ namespace edziennik.Models
     public class StudentRegisterViewModel : RegisterViewModel
     {
       public int ClassId { get; set; }
+    }
 
+    public class StudentEditViewModel : StudentRegisterViewModel
+    {
+        public string Id { get; set;}
     }
 
 
