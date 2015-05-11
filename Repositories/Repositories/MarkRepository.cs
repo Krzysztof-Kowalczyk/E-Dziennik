@@ -27,6 +27,7 @@ namespace Repositories.Repositories
         {
             var mark = db.Marks.Single(a => a.Id == item.Id);
             mark.Value = item.Value;
+            mark.Description = item.Description;
             mark.StudentId = item.StudentId;
             mark.SubjectId = item.SubjectId;
         }

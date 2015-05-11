@@ -15,5 +15,6 @@ namespace Repositories
         public DbSet<Classs> Classes { get; set; }
         public DbSet<Classroom> Classrooms { get; set; }
         public DbSet<Subject> Subjects { get; set; }
+
     }
 }

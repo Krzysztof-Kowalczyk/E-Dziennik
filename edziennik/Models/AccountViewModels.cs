@@ -115,9 +115,11 @@ namespace edziennik.Models
         public double Value { get; set; }               
     }
 
-    public class MarkListItemViewModel
+    public class MarkListItemViewModel : MarkViewModel
     {
         public int Id { get; set; }
+
+        public string TeacherId { get; set; }
 
         [Display(Name = "Klasa")]
         public string Classs { get; set; } 
@@ -125,14 +127,6 @@ namespace edziennik.Models
         [Display(Name = "Uczeń")]
         public string  Student { get; set; }
 
-        [Display(Name = "Nauczyciel")]
-        public string Teacher { get; set; }
-
-        [Display(Name = "Przedmiot")]
-        public string Subject { get; set; }
-
-        [Display(Name = "Ocena")]
-        public double Value { get; set; }
 
     }
 
