@@ -115,6 +115,33 @@ namespace edziennik.Models
         public double Value { get; set; }               
     }
 
+    public class MarkListItemViewModel
+    {
+        public int Id { get; set; }
+
+        [Display(Name = "Klasa")]
+        public string Classs { get; set; } 
+
+        [Display(Name = "Uczeń")]
+        public string  Student { get; set; }
+
+        [Display(Name = "Nauczyciel")]
+        public string Teacher { get; set; }
+
+        [Display(Name = "Przedmiot")]
+        public string Subject { get; set; }
+
+        [Display(Name = "Ocena")]
+        public double Value { get; set; }
+
+    }
+
+    public class MarkDetailsViewModel : MarkListItemViewModel
+    {
+        [Display(Name = "Opis")]
+        public string Description { get; set; }
+    }
+
     public class SubjectViewModel
     {
         public int Id { get; set; }

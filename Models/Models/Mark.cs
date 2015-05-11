@@ -17,5 +17,10 @@ namespace Models.Models
 
         [Display(Name = "Id nauczyciela")]
         public string TeacherId { get; set; }
+
+        [Display(Name = "Opis")]
+        public string Description { get; set; }
+
+
     }
 }

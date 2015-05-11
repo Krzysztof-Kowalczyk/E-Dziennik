@@ -11,10 +11,11 @@ using Microsoft.AspNet.Identity;
 using Models.Models;
 using Repositories;
 using Repositories.Repositories;
+using edziennik.Models;
 
 namespace edziennik.Controllers
 {
-    [Authorize(Roles = "Teachers")]
+    [Authorize(Roles = "Teachers, Admins")]
     public class MarksController : Controller
     {
         private readonly MarkRepository markRepo = new MarkRepository();
@@ -22,7 +23,18 @@ namespace edziennik.Controllers
         // GET: Marks
         public ActionResult Index()
         {
-            return View(markRepo.GetAll());
+            var marks = markRepo.GetAll().Select(a=> new MarkListItemViewModel
+                {
+                    Student = ConstantStrings.studentRepo.FindById(a.StudentId).FullName,
+                    Teacher = ConstantStrings.teacherRepo.FindById(a.TeacherId).FullName,
+                    Subject = ConstantStrings.subjectRepo.FindById(a.SubjectId).Name,
+                    Value   = a.Value,
+                    Classs  = ConstantStrings.classRepo.FindByStudent(ConstantStrings.studentRepo.FindByMark(a.Id).Id).Name,
+                    Id = a.Id
+                    
+                });
+           
+            return View(marks);
         }
 
         // GET: Marks/Details/5
@@ -37,7 +49,20 @@ namespace edziennik.Controllers
             {
                 return HttpNotFound();
             }
-            return View(mark);
+
+            var markVM = new MarkDetailsViewModel
+            {
+                Student = ConstantStrings.studentRepo.FindById(mark.StudentId).FullName,
+                Teacher = ConstantStrings.teacherRepo.FindById(mark.TeacherId).FullName,
+                Subject = ConstantStrings.subjectRepo.FindById(mark.SubjectId).Name,
+                Value = mark.Value,
+                Classs = ConstantStrings.classRepo.FindByStudent(ConstantStrings.studentRepo.FindByMark(mark.Id).Id).Name,
+                Id = mark.Id,
+                Description = mark.Description
+
+            };
+
+            return View(markVM);
         }
 
         // GET: Marks/Create

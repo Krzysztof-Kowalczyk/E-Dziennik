@@ -41,5 +41,22 @@ namespace Repositories.Repositories
         {
             db.SaveChanges();
         }
+       
+        public Classs FindByStudent(string studentId)
+        {
+            var student = db.Students.Single(a => a.Id == studentId);
+           
+            return db.Classes.Single(a => a.Id == student.ClasssId);
+        }
+
+       public  Classs FindByMark(int markId)
+        {
+            var mark = db.Marks.Single(a => a.Id == markId);
+
+            var student = db.Students.Single(a=>a.Id == mark.StudentId);
+
+            return db.Classes.Single(a=>a.Id == student.ClasssId);
+
+        }
     }
 }

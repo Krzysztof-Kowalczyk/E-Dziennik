@@ -257,15 +257,15 @@
     <Content Include="Views\Teachers\Create.cshtml" />
     <Content Include="Views\Marks\Create.cshtml" />
     <Content Include="Views\Marks\Delete.cshtml" />
-    <Content Include="Views\Marks\Details.cshtml" />
     <Content Include="Views\Marks\Edit.cshtml" />
-    <Content Include="Views\Marks\Index.cshtml" />
     <Content Include="Views\Subjects\Details.cshtml" />
     <Content Include="Views\Students\Index.cshtml" />
     <Content Include="Views\Students\Delete.cshtml" />
     <Content Include="Views\Students\Edit.cshtml" />
     <Content Include="Views\Subjects\Index.cshtml" />
     <Content Include="Views\Students\Details.cshtml" />
+    <Content Include="Views\Marks\Index.cshtml" />
+    <Content Include="Views\Marks\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

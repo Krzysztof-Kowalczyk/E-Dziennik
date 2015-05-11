@@ -47,6 +47,7 @@ namespace Repositories.Repositories
         public List<Subject> FindByClassId(int classId)
         {
             var subjects = db.Subjects.Where(a => a.ClasssId == classId).ToList();
+            
             return subjects;
         }
     }
