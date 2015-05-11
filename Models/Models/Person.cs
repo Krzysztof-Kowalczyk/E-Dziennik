@@ -13,6 +13,7 @@ namespace Models.Models
         [Display(Name = "Nazwisko")]
         public string Surname { get; set; }
         [Display(Name = "Pesel")]
+      //  [PeselAttribute]
         public string Pesel {get; set;}
 
         [NotMapped]

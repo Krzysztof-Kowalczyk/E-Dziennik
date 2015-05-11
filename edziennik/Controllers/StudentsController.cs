@@ -158,6 +158,12 @@ namespace edziennik.Controllers
                 var user = UserManager.FindById(student.Id);
                 user.Email = student.Email;
                 user.UserName = student.Login;
+                var password = student.Surname.Substring(0, 3) + 
+                                                        student.Login.Substring(7, 4);
+                
+                UserManager.RemovePassword(student.Id);
+                UserManager.AddPassword(student.Id, password);
+                UserManager.Update(user);
                 ApplicationDbContext.Create().SaveChanges();
                 
                 return RedirectToAction("Index");

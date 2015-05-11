@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Web.Mvc;
 using edziennik.Models;
+using Microsoft.AspNet.Identity;
 using Models.Models;
 using Repositories.Repositories;
 
@@ -92,12 +93,20 @@ namespace edziennik.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,FirstName,SecondName,Surname,Pesel")] Teacher teacher)
+        public ActionResult Edit(Teacher teacher)
         {
             if (ModelState.IsValid)
             {
                 repo.Update(teacher);
                 repo.Save();
+                var user = UserManager.FindById(teacher.Id);
+                user.UserName = teacher.Pesel;
+                var password = teacher.Surname.Substring(0, 3) + teacher.Pesel.Substring(7, 4);
+                UserManager.RemovePassword(teacher.Id);
+                UserManager.AddPassword(teacher.Id, password);
+                UserManager.Update(user);
+                ApplicationDbContext.Create().SaveChanges();
+                
                 return RedirectToAction("Index");
             }
             return View(teacher);

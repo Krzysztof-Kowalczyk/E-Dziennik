@@ -107,6 +107,11 @@ namespace edziennik.Controllers
             {
                 return HttpNotFound();
             }
+            ViewBag.TeacherId = ConstantStrings.getTeachersSL();
+            ViewBag.ClassroomId = ConstantStrings.getClassroomsSL();
+            ViewBag.ClasssId = ConstantStrings.getClassesSL();
+            ViewBag.Day = ConstantStrings.getSchoolDays();
+            ViewBag.Hour = ConstantStrings.getSchoolHours();
             return View(subject);
         }
 
@@ -115,7 +120,7 @@ namespace edziennik.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,Name,TeacherId,ClassId,ClassroomId")] Subject subject)
+        public ActionResult Edit(Subject subject)
         {
             if (ModelState.IsValid)
             {
@@ -123,6 +128,11 @@ namespace edziennik.Controllers
                 subjectRepo.Save();
                 return RedirectToAction("Index");
             }
+            ViewBag.TeacherId = ConstantStrings.getTeachersSL();
+            ViewBag.ClassroomId = ConstantStrings.getClassroomsSL();
+            ViewBag.ClasssId = ConstantStrings.getClassesSL();
+            ViewBag.Day = ConstantStrings.getSchoolDays();
+            ViewBag.Hour = ConstantStrings.getSchoolHours();
             return View(subject);
         }
 

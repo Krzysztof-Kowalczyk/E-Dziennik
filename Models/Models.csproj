@@ -86,6 +86,7 @@
     <Compile Include="Models\Subject.cs" />
     <Compile Include="Models\Teacher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Validators\PeselAttribute.cs" />
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>
