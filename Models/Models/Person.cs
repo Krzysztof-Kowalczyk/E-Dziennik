@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Models.Validators;
 
 namespace Models.Models
 {
     public class Person
     {
+        [Unique]
         public string Id { get; set; }
         [Display (Name= "Imię")]
         public string FirstName { get; set; }
@@ -12,8 +14,9 @@ namespace Models.Models
         public string SecondName { get; set; }
         [Display(Name = "Nazwisko")]
         public string Surname { get; set; }
+       
         [Display(Name = "Pesel")]
-      //  [PeselAttribute]
+        [Pesel]
         public string Pesel {get; set;}
 
         [NotMapped]

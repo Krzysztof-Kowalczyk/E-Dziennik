@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
 using Models.Models;
+using Models.Validators;
 
 namespace edziennik.Models
 {
@@ -233,7 +234,7 @@ namespace edziennik.Models
     {
         [Required(ErrorMessage = "Pole Pesel jest wymagane.")]
         [Display(Name = "Pesel")]
-        [StringLength(11, ErrorMessage = "{0} musi się składać minimum z {2} znaków.", MinimumLength = 11)]
+        [Pesel (ErrorMessage = "Wprowadzono nie prawidłowy numer pesel")]
         public string Login { get; set; }
 
         [Required(ErrorMessage = "Pole Imię jest wymagane.")]
