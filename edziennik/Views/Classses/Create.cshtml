@@ -1,4 +1,4 @@
-﻿@model Models.Models.Classs
+﻿@model edziennik.Models.ClassCreateViewModel
 
 @{
     ViewBag.Title = "Create";
@@ -25,7 +25,7 @@
         <div class="form-group">
             <label class="control-label col-md-2">Nauczyciel</label>
             <div class="col-md-10">
-                @Html.DropDownList("Teachers")
+                @Html.DropDownListFor(m=>m.TeacherId, Model.Teachers)
                 @Html.ValidationMessageFor(model => model.TeacherId, "", new { @class = "text-danger" })
             </div>
         </div>

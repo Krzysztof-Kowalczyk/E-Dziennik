@@ -3,6 +3,7 @@ using edziennik.Models;
 using edziennik.Resources;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Models.Models;
 
 namespace edziennik.Controllers
 {
@@ -60,6 +61,18 @@ namespace edziennik.Controllers
            UserManager.Delete(user);
            ApplicationDbContext.Create().SaveChanges();
        }
+
+        [NonAction]
+        protected void UpdateUser(ApplicationUser user, Person person)
+        {
+            var password = person.Surname.Substring(0, 3) +
+                                        person.Pesel.Substring(7, 4);
+
+            UserManager.RemovePassword(person.Id);
+            UserManager.AddPassword(person.Id, password);
+            UserManager.Update(user);
+            ApplicationDbContext.Create().SaveChanges();
+        }
 
 
     }

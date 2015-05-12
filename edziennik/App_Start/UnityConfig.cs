@@ -48,6 +48,7 @@ namespace edziennik.App_Start
             container.RegisterType<IClasssRepository, ClasssRepository>(new PerRequestLifetimeManager());
             container.RegisterType<IClassroomRepository, ClassroomRepository>(new PerRequestLifetimeManager());
             container.RegisterType<ISubjectRepository, SubjectRepository>(new PerRequestLifetimeManager());
+            container.RegisterType<IMarkRepository, MarkRepository>(new PerRequestLifetimeManager());
             container.RegisterType<IUserStore<ApplicationUser>, UserStore<ApplicationUser>>();
             container.RegisterType<UserManager<ApplicationUser>>();
             container.RegisterType<DbContext, ApplicationDbContext>();

@@ -6,7 +6,6 @@ namespace Models.Models
 {
     public class Person
     {
-        [Unique]
         public string Id { get; set; }
         [Display (Name= "Imię")]
         public string FirstName { get; set; }

@@ -19,21 +19,35 @@ namespace edziennik.Controllers
     [Authorize(Roles = "Teachers, Admins")]
     public class MarksController : Controller
     {
-        private readonly MarkRepository markRepo = new MarkRepository();
+        private readonly MarkRepository markRepo;
+        private readonly StudentRepository studentRepo;
+        private readonly TeacherRepository teacherRepo;
+        private readonly SubjectRepository subjectRepo;
+        private readonly ClasssRepository classRepo;
+
+        public MarksController(MarkRepository _markRepo, StudentRepository _studentRepo, 
+                               TeacherRepository _teacherRepo, SubjectRepository _subjectRepo,
+                               ClasssRepository _classRepo)
+        {
+            markRepo = _markRepo;
+            studentRepo = _studentRepo;
+            teacherRepo = _teacherRepo;
+            subjectRepo = _subjectRepo;
+            classRepo = _classRepo;
+        }
 
         // GET: Marks
         public ActionResult Index()
         {
             var marks = markRepo.GetAll().Select(a=> new MarkListItemViewModel
                 {
-                    Student = ConstantStrings.studentRepo.FindById(a.StudentId).FullName,
-                    Teacher = ConstantStrings.teacherRepo.FindById(a.TeacherId).FullName,
-                    Subject = ConstantStrings.subjectRepo.FindById(a.SubjectId).Name,
+                    Student = studentRepo.FindById(a.StudentId).FullName,
+                    Teacher = teacherRepo.FindById(a.TeacherId).FullName,
+                    Subject = subjectRepo.FindById(a.SubjectId).Name,
                     Value   = a.Value,
-                    Classs  = ConstantStrings.classRepo.FindByStudent(ConstantStrings.studentRepo.FindByMark(a.Id).Id).Name,
+                    Classs  = classRepo.FindByMarkId(a.Id).Name,
                     Id = a.Id,
-                    TeacherId = a.TeacherId
-                    
+                    TeacherId = a.TeacherId                   
                 });
            
             return View(marks);
@@ -52,19 +66,19 @@ namespace edziennik.Controllers
                 return HttpNotFound();
             }
 
-            var markVM = new MarkDetailsViewModel
+            var markVm = new MarkDetailsViewModel
             {
-                Student = ConstantStrings.studentRepo.FindById(mark.StudentId).FullName,
-                Teacher = ConstantStrings.teacherRepo.FindById(mark.TeacherId).FullName,
-                Subject = ConstantStrings.subjectRepo.FindById(mark.SubjectId).Name,
+                Student = studentRepo.FindById(mark.StudentId).FullName,
+                Teacher = teacherRepo.FindById(mark.TeacherId).FullName,
+                Subject = subjectRepo.FindById(mark.SubjectId).Name,
                 Value = mark.Value,
-                Classs = ConstantStrings.classRepo.FindByStudent(ConstantStrings.studentRepo.FindByMark(mark.Id).Id).Name,
+                Classs = classRepo.FindByMarkId(mark.Id).Name,
                 Id = mark.Id,
                 TeacherId = mark.TeacherId,
                 Description = mark.Description
             };
 
-            return View(markVM);
+            return View(markVm);
         }
 
         // GET: Marks/Create
@@ -74,22 +88,21 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            var student = ConstantStrings.studentRepo.FindById(studentId);
+            var student = studentRepo.FindById(studentId);
             if (student == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
-            var mark = new Mark
+            var markVm = new MarkCreateViewModel
             {
                 StudentId = studentId,
-                TeacherId = User.Identity.GetUserId()
+                TeacherId = User.Identity.GetUserId(),
+                Subjects = ConstantStrings.getStudentSubjectsSL(student.ClasssId,User.Identity.GetUserId()),
+                Values = ConstantStrings.getMarksSL()
             };
 
-            ViewBag.SubjectId = ConstantStrings.getStudentSubjectsSL
-                                                  (student.ClasssId,User.Identity.GetUserId());
-            ViewBag.Value = ConstantStrings.getMarksSL();
-            return View(mark);
+            return View(markVm);
         }
 
         // POST: Marks/Create
@@ -97,21 +110,26 @@ namespace edziennik.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Mark mark)
+        public ActionResult Create(MarkCreateViewModel markVm)
         {
             if (ModelState.IsValid)
             {
+                var mark = new Mark
+                {
+                    Description = markVm.Description,
+                    Id = markVm.Id,
+                    StudentId = markVm.StudentId,
+                    SubjectId = markVm.SubjectId,
+                    TeacherId = markVm.TeacherId,
+                    Value = markVm.Value
+                };
+
                 markRepo.Insert(mark);
                 markRepo.Save();
                 return RedirectToAction("Index");
             }
-            
-            var student = ConstantStrings.studentRepo.FindById(mark.StudentId);
-            ViewBag.SubjectId = ConstantStrings.getStudentSubjectsSL
-                                                  (student.ClasssId, User.Identity.GetUserId());
-            ViewBag.Value = ConstantStrings.getMarksSL();
-
-            return View(mark);
+           
+            return View(markVm);
         }
 
         // GET: Marks/Edit/5
@@ -127,11 +145,23 @@ namespace edziennik.Controllers
             {
                 return HttpNotFound();
             }
-            var student = ConstantStrings.studentRepo.FindById(mark.StudentId);
-            ViewBag.SubjectId = ConstantStrings.getStudentSubjectsSL
-                                                  (student.ClasssId, User.Identity.GetUserId());
-            ViewBag.Value = ConstantStrings.getMarksSL();
-            return View(mark);
+            var student = studentRepo.FindById(mark.StudentId);
+
+            if (student == null)
+            {
+                return HttpNotFound();
+            }
+
+            var markVm = new MarkCreateViewModel
+            {
+                StudentId = mark.StudentId,
+                TeacherId = User.Identity.GetUserId(),
+                Subjects = ConstantStrings.getStudentSubjectsSL(student.ClasssId, User.Identity.GetUserId()),
+                Values = ConstantStrings.getMarksSL(),
+                Description = mark.Description
+            };
+
+            return View(markVm);
         }
 
         // POST: Marks/Edit/5
@@ -139,19 +169,25 @@ namespace edziennik.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(Mark mark)
+        public ActionResult Edit(MarkCreateViewModel markVm)
         {
             if (ModelState.IsValid)
             {
+                var mark = new Mark
+                {
+                    Description = markVm.Description,
+                    Id = markVm.Id,
+                    StudentId = markVm.StudentId,
+                    SubjectId = markVm.SubjectId,
+                    TeacherId = markVm.TeacherId,
+                    Value = markVm.Value
+                };
+
                 markRepo.Update(mark);
                 markRepo.Save();
                 return RedirectToAction("Index");
             }
-            var student = ConstantStrings.studentRepo.FindById(mark.StudentId);
-            ViewBag.SubjectId = ConstantStrings.getStudentSubjectsSL
-                                                  (student.ClasssId, User.Identity.GetUserId());
-            ViewBag.Value = ConstantStrings.getMarksSL();
-            return View(mark);
+            return View(markVm);
         }
 
         // GET: Marks/Delete/5
@@ -167,19 +203,19 @@ namespace edziennik.Controllers
                 return HttpNotFound();
             }
 
-            var markVM = new MarkDetailsViewModel
+            var markVm = new MarkDetailsViewModel
             {
-                Student = ConstantStrings.studentRepo.FindById(mark.StudentId).FullName,
-                Teacher = ConstantStrings.teacherRepo.FindById(mark.TeacherId).FullName,
-                Subject = ConstantStrings.subjectRepo.FindById(mark.SubjectId).Name,
+                Student = studentRepo.FindById(mark.StudentId).FullName,
+                Teacher = teacherRepo.FindById(mark.TeacherId).FullName,
+                Subject = subjectRepo.FindById(mark.SubjectId).Name,
                 Value = mark.Value,
-                Classs = ConstantStrings.classRepo.FindByStudent(ConstantStrings.studentRepo.FindByMark(mark.Id).Id).Name,
+                Classs = classRepo.FindByMarkId(mark.Id).Name,
                 Id = mark.Id,
                 TeacherId= mark.TeacherId,
                 Description = mark.Description
             };
             
-            return View(markVM);
+            return View(markVm);
         }
 
         // POST: Marks/Delete/5
@@ -189,6 +225,7 @@ namespace edziennik.Controllers
         {
             markRepo.Delete(id);
             markRepo.Save();
+            
             return RedirectToAction("Index");
         }
 

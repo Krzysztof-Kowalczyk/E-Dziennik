@@ -10,17 +10,17 @@ namespace edziennik.Controllers
     [Authorize(Roles = "Admins")]
     public class TeachersController : PersonController
     {
-        private readonly TeacherRepository repo;
+        private readonly TeacherRepository teacherRepo;
 
         public TeachersController(TeacherRepository _repo)
         {
-            repo = _repo;
+            teacherRepo = _repo;
         }
 
         // GET: Teachers
         public ActionResult Index()
         {
-            return View(repo.GetAll());
+            return View(teacherRepo.GetAll());
         }
 
         // GET: Teachers/Details/5
@@ -30,7 +30,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Teacher teacher = repo.FindById(id);
+            Teacher teacher = teacherRepo.FindById(id);
             if (teacher == null)
             {
                 return HttpNotFound();
@@ -49,28 +49,28 @@ namespace edziennik.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(TeacherRegisterViewModel teacherVM)
+        public ActionResult Create(TeacherRegisterViewModel teacherVm)
         {
             if (ModelState.IsValid)
             {
-                var userid = CreateUser(teacherVM, "Teachers");
-                if (userid != "Error")
+                var userid = CreateUser(teacherVm, "Teachers");
+                
+                if (userid == "Error") return View(teacherVm);
+                
+                var teacher = new Teacher()
                 {
-                    var teacher = new Teacher()
-                    {
-                        Id = userid,
-                        FirstName = teacherVM.FirstName,
-                        SecondName = teacherVM.SecondName,
-                        Surname = teacherVM.Surname,
-                        Pesel = teacherVM.Login
-                    };
-                    repo.Insert(teacher);
-                    repo.Save();
-                    return RedirectToAction("Index");
-                }
+                    Id = userid,
+                    FirstName = teacherVm.FirstName,
+                    SecondName = teacherVm.SecondName,
+                    Surname = teacherVm.Surname,
+                    Pesel = teacherVm.Login
+                };
+                teacherRepo.Insert(teacher);
+                teacherRepo.Save();
+                return RedirectToAction("Index");
             }
 
-            return View(teacherVM);
+            return View(teacherVm);
         }
 
         // GET: Teachers/Edit/5
@@ -80,7 +80,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Teacher teacher = repo.FindById(id);
+            Teacher teacher = teacherRepo.FindById(id);
             if (teacher == null)
             {
                 return HttpNotFound();
@@ -97,15 +97,11 @@ namespace edziennik.Controllers
         {
             if (ModelState.IsValid)
             {
-                repo.Update(teacher);
-                repo.Save();
+                teacherRepo.Update(teacher);
+                teacherRepo.Save();
                 var user = UserManager.FindById(teacher.Id);
                 user.UserName = teacher.Pesel;
-                var password = teacher.Surname.Substring(0, 3) + teacher.Pesel.Substring(7, 4);
-                UserManager.RemovePassword(teacher.Id);
-                UserManager.AddPassword(teacher.Id, password);
-                UserManager.Update(user);
-                ApplicationDbContext.Create().SaveChanges();
+                UpdateUser(user,teacher);
                 
                 return RedirectToAction("Index");
             }
@@ -119,7 +115,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Teacher teacher = repo.FindById(id);
+            Teacher teacher = teacherRepo.FindById(id);
             if (teacher == null)
             {
                 return HttpNotFound();
@@ -132,8 +128,8 @@ namespace edziennik.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(string id)
         {
-            repo.Delete(id);
-            repo.Save();
+            teacherRepo.Delete(id);
+            teacherRepo.Save();
             DeleteUser(id);
             return RedirectToAction("Index");
         }

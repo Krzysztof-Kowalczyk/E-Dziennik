@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Web.Mvc;
+using edziennik.Models;
 using edziennik.Resources;
 using Models.Models;
 using Repositories.Repositories;
@@ -9,17 +10,17 @@ namespace edziennik.Controllers
     [Authorize(Roles = "Admins")]
     public class ClasssesController : Controller
     {
-        private readonly ClasssRepository repo;
+        private readonly ClasssRepository classRepo;
 
         public ClasssesController(ClasssRepository _repo)
         {
-            repo = _repo;
+            classRepo = _repo;
         }
 
         // GET: Classses
         public ActionResult Index()
         {
-            return View(repo.GetAll());
+            return View(classRepo.GetAll());
         }
 
         // GET: Classses/Details/5
@@ -29,7 +30,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Classs classs = repo.FindById((int)id);
+            Classs classs = classRepo.FindById((int)id);
 
             if (classs == null)
             {
@@ -41,8 +42,12 @@ namespace edziennik.Controllers
         // GET: Classses/Create
         public ActionResult Create()
         {
-            ViewBag.Teachers = ConstantStrings.getTeachersSL();
-            return View();
+            var classVm = new ClassCreateViewModel
+            {
+                Teachers = ConstantStrings.getTeachersSL()
+            };
+
+            return View(classVm);
         }
 
         // POST: Classses/Create
@@ -50,16 +55,23 @@ namespace edziennik.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,Name")] Classs classs)
+        public ActionResult Create(ClassCreateViewModel classVm)
         {
             if (ModelState.IsValid)
             {
-                repo.Insert(classs);
-                repo.Save();
+                var classs = new Classs()
+                {
+                    Id = classVm.Id,
+                    Name = classVm.Name,
+                    TeacherId = classVm.TeacherId
+                };
+
+                classRepo.Insert(classs);
+                classRepo.Save();
                 return RedirectToAction("Index");
             }
-            ViewBag.Teachers = ConstantStrings.getTeachersSL();
-            return View(classs);
+
+            return View(classVm);
         }
 
         // GET: Classses/Edit/5
@@ -69,12 +81,20 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Classs classs = repo.FindById((int)id);
+            Classs classs = classRepo.FindById((int)id);
             if (classs == null)
             {
                 return HttpNotFound();
             }
-            return View(classs);
+            var classVm = new ClassCreateViewModel
+            {
+                Teachers = ConstantStrings.getTeachersSL(),
+                Id = classs.Id,
+                Name = classs.Name,
+                TeacherId = classs.TeacherId
+            };
+
+            return View(classVm);
         }
 
         // POST: Classses/Edit/5
@@ -82,15 +102,22 @@ namespace edziennik.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,Name")] Classs classs)
+        public ActionResult Edit([Bind(Include = "Id,Name,TeacherId")] ClassCreateViewModel classVm)
         {
             if (ModelState.IsValid)
             {
-                repo.Update(classs);
-                repo.Save();
+                var classs = new Classs()
+                {
+                    Id = classVm.Id,
+                    Name = classVm.Name,
+                    TeacherId = classVm.TeacherId
+                };
+
+                classRepo.Update(classs);
+                classRepo.Save();
                 return RedirectToAction("Index");
             }
-            return View(classs);
+            return View(classVm);
         }
 
         // GET: Classses/Delete/5
@@ -100,7 +127,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Classs classs = repo.FindById((int) id);
+            Classs classs = classRepo.FindById((int) id);
             if (classs == null)
             {
                 return HttpNotFound();
@@ -113,8 +140,8 @@ namespace edziennik.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            repo.Delete(id);
-            repo.Save();
+            classRepo.Delete(id);
+            classRepo.Save();
             return RedirectToAction("Index");
         }
 

@@ -67,9 +67,83 @@ namespace edziennik.Models
 
     public class UserEditViewModel : UserDetailsViewModel { }
 
+    public class SubjectCreateViewModel
+    {
+        public int Id { get; set; }
 
+        [Display(Name = "Nazwa")]
+        public string Name { get; set; }
 
- 
+        [Display(Name = "Id nauczyciela")]
+        public string TeacherId { get; set; }
+
+        [Display(Name = "Id klasy")]
+        public int ClasssId { get; set; }
+
+        [Display(Name = "Id sali")]
+        public int ClassroomId { get; set; }
+
+        [Display(Name = "Dzień zajęć")]
+        public SchoolDay Day { get; set; }
+
+        [Display(Name = "Godzina zajęć")]
+        public int Hour { get; set; }
+
+        public List<SelectListItem> Teachers { get; set; }
+
+        public SelectList Classrooms { get; set; }
+
+        public SelectList Classes { get; set; }
+
+        public List<SelectListItem> Days { get; set; }
+
+        public List<SelectListItem> Hours { get; set; }
+
+    }
+
+    public class MarkCreateViewModel
+    {
+        public int Id { get; set; }
+
+        [Display(Name = "Wartość")]
+        public double Value { get; set; }
+
+        [Display(Name = "Id ucznia")]
+        public string StudentId { get; set; }
+
+        [Display(Name = "Id przedmiotu")]
+        public int SubjectId { get; set; }
+
+        [Display(Name = "Id nauczyciela")]
+        public string TeacherId { get; set; }
+
+        [Display(Name = "Opis")]
+        public string Description { get; set; }
+
+        public SelectList Subjects {get; set;}
+
+        public List<SelectListItem> Values { get; set; }
+    }
+
+    public class ClassCreateViewModel
+    {
+        public int Id { get; set; }
+
+        [Display(Name = "Nazwa")]
+        public string Name { get; set; }
+
+        [Display(Name = "Id wychowawcy")]
+        public int TeacherId { get; set; }
+
+        public List<SelectListItem> Teachers { get; set; }
+
+    }
+
+    public class ClassEditViewModel : ClassCreateViewModel
+    {
+        public List<Student> Students { get; set; }
+    }
+          
 
     public class PersonViewModel
     {
@@ -260,6 +334,7 @@ namespace edziennik.Models
     public class StudentRegisterViewModel : RegisterViewModel
     {
       public int ClassId { get; set; }
+      public SelectList Classes { get; set; }
     }
 
     public class StudentEditViewModel : StudentRegisterViewModel

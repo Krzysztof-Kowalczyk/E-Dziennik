@@ -21,6 +21,5 @@ namespace Models.Models
         [Display(Name = "Opis")]
         public string Description { get; set; }
 
-
     }
 }

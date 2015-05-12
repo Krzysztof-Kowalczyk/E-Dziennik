@@ -56,7 +56,7 @@ namespace Repositories.Repositories
             return db.Marks.Where(a => a.StudentId == studentId).ToList();
         }
 
-        public Student FindByMark(int markId)
+        public Student FindByMarkId(int markId)
         {
             var mark = db.Marks.Single(a => a.Id == markId);
 

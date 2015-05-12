@@ -4,8 +4,8 @@ namespace Models.Interfaces
 {
     public interface IClasssRepository : IRepository<Classs>
     {
-        Classs FindByStudent(string studentId);
+        Classs FindByStudentId(string studentId);
 
-        Classs FindByMark(int markId);
+        Classs FindByMarkId(int markId);
     }
 }

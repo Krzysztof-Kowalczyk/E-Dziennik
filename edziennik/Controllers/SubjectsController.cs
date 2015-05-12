@@ -12,10 +12,17 @@ namespace edziennik.Controllers
     public class SubjectsController : Controller
     {
         private readonly SubjectRepository subjectRepo;
-       
-        public SubjectsController(SubjectRepository sr)
+        private readonly ClasssRepository classRepo;
+        private readonly ClassroomRepository classroomRepo;
+        private readonly TeacherRepository teacherRepo;
+
+        public SubjectsController(SubjectRepository sr, ClasssRepository _classsRepo,
+                                  ClassroomRepository _classroomRepo, TeacherRepository _teacherRepo)
         {
             subjectRepo = sr;
+            classRepo = _classsRepo;
+            classroomRepo = _classroomRepo;
+            teacherRepo = _teacherRepo;
         }
 
         // GET: Subjects
@@ -24,12 +31,12 @@ namespace edziennik.Controllers
             var subjects = subjectRepo.GetAll().Select(a => new SubjectViewModel
             {
                 Id = a.Id,
-                Classroom = ConstantStrings.classroomRepo.FindById(a.ClassroomId).Name,
-                Classs = ConstantStrings.classRepo.FindById(a.ClasssId).Name,
+                Classroom = classroomRepo.FindById(a.ClassroomId).Name,
+                Classs = classRepo.FindById(a.ClasssId).Name,
                 Day = a.Day,
                 Hour = a.Hour,
                 Name = a.Name,
-                Teacher = ConstantStrings.teacherRepo.FindById(a.TeacherId).FullName
+                Teacher = teacherRepo.FindById(a.TeacherId).FullName
             });
             
             return View(subjects);
@@ -48,29 +55,33 @@ namespace edziennik.Controllers
             {
                 return HttpNotFound();
             }
-            var subjectVM = new SubjectViewModel
+            var subjectVm = new SubjectViewModel
             {
                 Id = subject.Id,
-                Classroom = ConstantStrings.classroomRepo.FindById(subject.ClassroomId).Name,
-                Classs = ConstantStrings.classRepo.FindById(subject.ClasssId).Name,
+                Classroom = classroomRepo.FindById(subject.ClassroomId).Name,
+                Classs = classRepo.FindById(subject.ClasssId).Name,
                 Day = subject.Day,
                 Hour = subject.Hour,
                 Name = subject.Name,
-                Teacher = ConstantStrings.teacherRepo.FindById(subject.TeacherId).FullName
+                Teacher = teacherRepo.FindById(subject.TeacherId).FullName
             };
-            return View(subjectVM);
+
+            return View(subjectVm);
         }
 
         // GET: Subjects/Create
         public ActionResult Create()
-        {         
-            ViewBag.TeacherId = ConstantStrings.getTeachersSL();
-            ViewBag.ClassroomId = ConstantStrings.getClassroomsSL();
-            ViewBag.ClasssId = ConstantStrings.getClassesSL();
-            ViewBag.Day = ConstantStrings.getSchoolDays();
-            ViewBag.Hour = ConstantStrings.getSchoolHours();
+        {
+            var subjectVm = new SubjectCreateViewModel
+            {
+                Classes = ConstantStrings.getClassesSL(),
+                Classrooms = ConstantStrings.getClassroomsSL(),
+                Days = ConstantStrings.getSchoolDays(),
+                Hours = ConstantStrings.getSchoolHours(),
+                Teachers = ConstantStrings.getTeachersSL()
+            };
 
-            return View();
+            return View(subjectVm);
         }
 
         // POST: Subjects/Create
@@ -78,21 +89,27 @@ namespace edziennik.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Subject subject)
+        public ActionResult Create(SubjectCreateViewModel subjectVm)
         {
             if (ModelState.IsValid)
             {
+                var subject = new Subject
+                {
+                    ClassroomId = subjectVm.ClassroomId,
+                    ClasssId = subjectVm.ClasssId,
+                    Day = subjectVm.Day,
+                    Hour = subjectVm.Hour,
+                    Id = subjectVm.Id,
+                    Name = subjectVm.Name,
+                    TeacherId = subjectVm.TeacherId
+                };
+
                 subjectRepo.Insert(subject);
                 subjectRepo.Save();
                 return RedirectToAction("Index");
             }
 
-            ViewBag.TeacherId = ConstantStrings.getTeachersSL(); ;
-            ViewBag.ClassroomId = ConstantStrings.getClassroomsSL();
-            ViewBag.ClasssId = ConstantStrings.getClassesSL();
-            ViewBag.Day = ConstantStrings.getSchoolDays();
-            ViewBag.Hour = ConstantStrings.getSchoolHours();
-            return View(subject);
+            return View(subjectVm);
         }
 
         // GET: Subjects/Edit/5
@@ -107,12 +124,24 @@ namespace edziennik.Controllers
             {
                 return HttpNotFound();
             }
-            ViewBag.TeacherId = ConstantStrings.getTeachersSL();
-            ViewBag.ClassroomId = ConstantStrings.getClassroomsSL();
-            ViewBag.ClasssId = ConstantStrings.getClassesSL();
-            ViewBag.Day = ConstantStrings.getSchoolDays();
-            ViewBag.Hour = ConstantStrings.getSchoolHours();
-            return View(subject);
+
+            var subjectVm = new SubjectCreateViewModel
+            {
+                Classes = ConstantStrings.getClassesSL(),
+                Classrooms = ConstantStrings.getClassroomsSL(),
+                Days = ConstantStrings.getSchoolDays(),
+                Hours = ConstantStrings.getSchoolHours(),
+                Teachers = ConstantStrings.getTeachersSL(),
+                ClassroomId = subject.ClassroomId,
+                ClasssId = subject.ClasssId,
+                Day = subject.Day,
+                Hour = subject.Hour,
+                Id = subject.Id,
+                TeacherId = subject.TeacherId,
+                Name = subject.Name
+            };
+
+            return View(subjectVm);
         }
 
         // POST: Subjects/Edit/5
@@ -120,20 +149,28 @@ namespace edziennik.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(Subject subject)
+        public ActionResult Edit(SubjectCreateViewModel subjectVm)
         {
             if (ModelState.IsValid)
             {
+                var subject = new Subject
+                {
+                    ClassroomId = subjectVm.ClassroomId,
+                    ClasssId = subjectVm.ClasssId,
+                    Day = subjectVm.Day,
+                    Hour = subjectVm.Hour,
+                    Id = subjectVm.Id,
+                    Name = subjectVm.Name,
+                    TeacherId = subjectVm.TeacherId
+                };
+
                 subjectRepo.Update(subject);
                 subjectRepo.Save();
+                
                 return RedirectToAction("Index");
             }
-            ViewBag.TeacherId = ConstantStrings.getTeachersSL();
-            ViewBag.ClassroomId = ConstantStrings.getClassroomsSL();
-            ViewBag.ClasssId = ConstantStrings.getClassesSL();
-            ViewBag.Day = ConstantStrings.getSchoolDays();
-            ViewBag.Hour = ConstantStrings.getSchoolHours();
-            return View(subject);
+
+            return View(subjectVm);
         }
 
         // GET: Subjects/Delete/5

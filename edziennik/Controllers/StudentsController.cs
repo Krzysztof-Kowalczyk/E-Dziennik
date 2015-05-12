@@ -13,10 +13,17 @@ namespace edziennik.Controllers
     public class StudentsController : PersonController
     {
         private readonly StudentRepository studentRepo;
+        private readonly ClasssRepository classRepo;
+        private readonly SubjectRepository subjectRepo;
+        private readonly TeacherRepository teacherRepo;
 
-        public StudentsController(StudentRepository _repo)
+        public StudentsController(StudentRepository _repo, ClasssRepository _classsRepo,
+                                  SubjectRepository _subjectRepo, TeacherRepository _teacherRepo)
         {
             studentRepo = _repo;
+            classRepo = _classsRepo;
+            teacherRepo = _teacherRepo;
+            subjectRepo = _subjectRepo;
         }
 
         // GET: Students
@@ -27,7 +34,7 @@ namespace edziennik.Controllers
                 FirstName = a.FirstName,
                 SecondName = a.SecondName,
                 Surname = a.Surname,
-                ClassName = ConstantStrings.classRepo.FindById(a.ClasssId).Name,
+                ClassName = classRepo.FindById(a.ClasssId).Name,
                 Pesel = a.Pesel,
                 Id = a.Id
             });
@@ -48,32 +55,33 @@ namespace edziennik.Controllers
                 return HttpNotFound();
             }
 
-            var markVM = student.Marks.Select(m => new MarkViewModel
+            var markVm = student.Marks.Select(m => new MarkViewModel
             {
-                Subject = ConstantStrings.subjectRepo.FindById(m.SubjectId).Name,
-                Teacher = ConstantStrings.teacherRepo.FindById(m.TeacherId).FullName,
+                Subject = subjectRepo.FindById(m.SubjectId).Name,
+                Teacher = teacherRepo.FindById(m.TeacherId).FullName,
                 Value = m.Value
             }).ToList();
 
-            var studentVM = new StudentViewModel()
+            var studentVm = new StudentViewModel()
             {
-                ClassName = ConstantStrings.classRepo.FindById(student.ClasssId).Name,
+                ClassName = classRepo.FindById(student.ClasssId).Name,
                 FirstName = student.FirstName,
                 SecondName = student.SecondName,
                 Surname = student.Surname,
                 Pesel = student.Pesel,
-                Marks = markVM,
+                Marks = markVm,
                 Id = student.Id
             };
-            return View(studentVM);
+            return View(studentVm);
         }
 
 
         [Authorize(Roles = "Admins")]
         public ActionResult Create()
         {
-            ViewBag.ClassId = ConstantStrings.getClassesSL();
-            return View();
+            var student = new StudentRegisterViewModel {Classes = ConstantStrings.getClassesSL()};
+
+            return View(student);
         }
 
         // POST: Students/Create
@@ -82,38 +90,34 @@ namespace edziennik.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admins")]
-        public ActionResult Create(StudentRegisterViewModel studentVM)
+        public ActionResult Create(StudentRegisterViewModel studentVm)
         {
             if (ModelState.IsValid)
             {
-                if (ConstantStrings.getClassStudentCount(studentVM.ClassId) != 30)
+                if (ConstantStrings.getClassStudentCount(studentVm.ClassId) != 30)
                 {
-                    var userid = CreateUser(studentVM, "Students");
-                    if (userid != "Error")
+                    var userid = CreateUser(studentVm, "Students");
+                    if (userid == "Error") return View(studentVm);
+                    
+                    var student = new Student()
                     {
-                        var student = new Student()
-                        {
-                            Id = userid,
-                            ClasssId = studentVM.ClassId,
-                            FirstName = studentVM.FirstName,
-                            SecondName = studentVM.SecondName,
-                            Surname = studentVM.Surname,
-                            Pesel = studentVM.Login
-                        };
-                        studentRepo.Insert(student);
-                        studentRepo.Save();
-                        return RedirectToAction("Index");
-                    }
+                        Id = userid,
+                        ClasssId = studentVm.ClassId,
+                        FirstName = studentVm.FirstName,
+                        SecondName = studentVm.SecondName,
+                        Surname = studentVm.Surname,
+                        Pesel = studentVm.Login
+                    };
+                        
+                    studentRepo.Insert(student);
+                    studentRepo.Save();
+                    return RedirectToAction("Index");
                 }
-                else
-                {
-                    ModelState.AddModelError("", "Ta klasa posiada już maksymalną ilość uczniów !");
-                }
+
+                ModelState.AddModelError("", "Ta klasa posiada już maksymalną ilość uczniów !");
             }
 
-            ViewBag.ClassId = ConstantStrings.getClassesSL();
-
-            return View(studentVM);
+            return View(studentVm);
         }
 
         [Authorize(Roles = "Admins")]
@@ -129,7 +133,7 @@ namespace edziennik.Controllers
                 return HttpNotFound();
             }
 
-            var studentEditVM = new StudentEditViewModel
+            var studentEditVm = new StudentEditViewModel
             {
                 FirstName = student.FirstName,
                 ClassId = student.ClasssId,
@@ -137,11 +141,11 @@ namespace edziennik.Controllers
                 Id = student.Id,
                 Login = student.Pesel,
                 SecondName = student.SecondName,
-                Surname = student.Surname
+                Surname = student.Surname,
+                Classes = ConstantStrings.getClassesSL()
             };
-            ViewBag.ClassId = ConstantStrings.getClassesSL();
 
-            return View(studentEditVM);
+            return View(studentEditVm);
         }
 
         // POST: Students/Edit/5
@@ -150,27 +154,21 @@ namespace edziennik.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admins")]
-        public ActionResult Edit(StudentEditViewModel student)
+        public ActionResult Edit(StudentEditViewModel studentEvm)
         {
             if (ModelState.IsValid)
             {
-                UpdateFromEditVM(student);
-                var user = UserManager.FindById(student.Id);
-                user.Email = student.Email;
-                user.UserName = student.Login;
-                var password = student.Surname.Substring(0, 3) + 
-                                                        student.Login.Substring(7, 4);
-                
-                UserManager.RemovePassword(student.Id);
-                UserManager.AddPassword(student.Id, password);
-                UserManager.Update(user);
-                ApplicationDbContext.Create().SaveChanges();
-                
+                UpdateFromEditVm(studentEvm);
+                var user = UserManager.FindById(studentEvm.Id);
+                user.Email = studentEvm.Email;
+                user.UserName = studentEvm.Login;
+                var student = studentRepo.FindById(studentEvm.Id);
+                UpdateUser(user,student);
+               
                 return RedirectToAction("Index");
             }
-            ViewBag.ClassId = ConstantStrings.getClassesSL();
 
-            return View(student);
+            return View(studentEvm);
         }
 
         // GET: Students/Delete/5
@@ -187,15 +185,6 @@ namespace edziennik.Controllers
                 return HttpNotFound();
             }
 
-            var studentVM = new StudentListItemViewModel()
-            {
-                ClassName = ConstantStrings.classRepo.FindById(student.ClasssId).Name,
-                FirstName = student.FirstName,
-                SecondName = student.SecondName,
-                Surname = student.Surname,
-                Pesel = student.Pesel
-            };
-
             return View(student);
         }
 
@@ -211,14 +200,14 @@ namespace edziennik.Controllers
             return RedirectToAction("Index");
         }
 
-        private void UpdateFromEditVM(StudentEditViewModel studentEVM)
+        private void UpdateFromEditVm(StudentEditViewModel studentEvm)
         {
-            var studentToUpdate = studentRepo.FindById(studentEVM.Id);
-            studentToUpdate.ClasssId = studentEVM.ClassId;
-            studentToUpdate.FirstName = studentEVM.FirstName;
-            studentToUpdate.Pesel = studentEVM.Login;
-            studentToUpdate.SecondName = studentEVM.SecondName;
-            studentToUpdate.Surname = studentEVM.Surname;
+            var studentToUpdate = studentRepo.FindById(studentEvm.Id);
+            studentToUpdate.ClasssId = studentEvm.ClassId;
+            studentToUpdate.FirstName = studentEvm.FirstName;
+            studentToUpdate.Pesel = studentEvm.Login;
+            studentToUpdate.SecondName = studentEvm.SecondName;
+            studentToUpdate.Surname = studentEvm.Surname;
             studentRepo.Save();
         }
 

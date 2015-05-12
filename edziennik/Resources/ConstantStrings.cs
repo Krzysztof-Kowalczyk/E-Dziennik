@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
-using System.Web.SessionState;
 using Repositories.Repositories;
 
 namespace edziennik.Resources
@@ -32,7 +31,6 @@ namespace edziennik.Resources
 
         public static SelectList getStudentSubjectsSL(int classId, string teacherId)
         {
-            //var subjects = new SelectList(subjectRepo.FindByClassId(classId), "Id", "Name");
             var subjects = new SelectList(subjectRepo.FindByClassId
                                                            (classId).Where(a=>a.TeacherId==teacherId), "Id", "Name");
 
@@ -55,7 +53,6 @@ namespace edziennik.Resources
             }).ToList();
 
             return teachers;
-
         }
 
         public static SelectList getClassesSL()
@@ -91,7 +88,6 @@ namespace edziennik.Resources
             };
 
             return hours;
-
         }
 
         public static List<SelectListItem> getSchoolDays()

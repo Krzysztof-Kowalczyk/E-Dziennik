@@ -1,4 +1,4 @@
-﻿@model Models.Models.Subject
+﻿@model edziennik.Models.SubjectCreateViewModel
 
 @{
     ViewBag.Title = "Edit";
@@ -27,7 +27,7 @@
         <div class="form-group">
             <label class="control-label col-md-2">Nauczyciel</label>
             <div class="col-md-10">
-                @Html.DropDownList("TeacherId")
+                @Html.DropDownListFor(m => m.TeacherId, Model.Teachers)
                 @Html.ValidationMessageFor(model => model.TeacherId, "", new { @class = "text-danger" })
             </div>
         </div>
@@ -35,7 +35,7 @@
         <div class="form-group">
             <label class="control-label col-md-2">Klasa</label>
             <div class="col-md-10">
-                @Html.DropDownList("ClasssId")
+                @Html.DropDownListFor(m => m.ClasssId, Model.Classes)
                 @Html.ValidationMessageFor(model => model.ClasssId, "", new { @class = "text-danger" })
             </div>
         </div>
@@ -43,24 +43,25 @@
         <div class="form-group">
             <label class="control-label col-md-2">Sala</label>
             <div class="col-md-10">
-                @Html.DropDownList("ClassroomId")
-                @Html.ValidationMessageFor(model => model.ClasssId, "", new { @class = "text-danger" })
+                @Html.DropDownListFor(m => m.ClassroomId, Model.Classrooms)
+                @Html.ValidationMessageFor(model => model.ClassroomId, "", new { @class = "text-danger" })
             </div>
         </div>
+
 
         <div class="form-group">
             @Html.LabelFor(model => model.Day, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.DropDownList("Day")
-                @Html.ValidationMessageFor(model => model.ClasssId, "", new { @class = "text-danger" })
+                @Html.DropDownListFor(m => m.Day, Model.Days)
+                @Html.ValidationMessageFor(model => model.Day, "", new { @class = "text-danger" })
             </div>
         </div>
 
         <div class="form-group">
             @Html.LabelFor(model => model.Hour, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.DropDownList("Hour")
-                @Html.ValidationMessageFor(model => model.ClasssId, "", new { @class = "text-danger" })
+                @Html.DropDownListFor(m => m.Hour, Model.Hours)
+                @Html.ValidationMessageFor(model => model.Hour, "", new { @class = "text-danger" })
             </div>
         </div>
 
