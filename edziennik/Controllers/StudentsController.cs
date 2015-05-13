@@ -79,7 +79,10 @@ namespace edziennik.Controllers
         [Authorize(Roles = "Admins")]
         public ActionResult Create()
         {
-            var student = new StudentRegisterViewModel {Classes = ConstantStrings.getClassesSL()};
+            var student = new StudentRegisterViewModel
+            {
+                Classes = ConstantStrings.getClassesSL()
+            };
 
             return View(student);
         }
@@ -94,12 +97,13 @@ namespace edziennik.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (ConstantStrings.getClassStudentCount(studentVm.ClassId) != 30)
+                if (classRepo.FindById(studentVm.ClassId).
+                                       Students.Count != ConstantStrings.MaxClassStudentCount)
                 {
                     var userid = CreateUser(studentVm, "Students");
                     if (userid == "Error") return View(studentVm);
                     
-                    var student = new Student()
+                    var student = new Student
                     {
                         Id = userid,
                         ClasssId = studentVm.ClassId,
@@ -144,7 +148,7 @@ namespace edziennik.Controllers
                 Surname = student.Surname,
                 Classes = ConstantStrings.getClassesSL()
             };
-
+            
             return View(studentEditVm);
         }
 
@@ -158,12 +162,22 @@ namespace edziennik.Controllers
         {
             if (ModelState.IsValid)
             {
-                UpdateFromEditVm(studentEvm);
+                var student = new Student
+                {
+                    ClasssId = studentEvm.ClassId,
+                    FirstName = studentEvm.FirstName,
+                    Id = studentEvm.Id,
+                    Pesel = studentEvm.Login,
+                    SecondName = studentEvm.SecondName,
+                    Surname = studentEvm.Surname
+                };
+
+                studentRepo.Update(student);
+                studentRepo.Save();
+
                 var user = UserManager.FindById(studentEvm.Id);
                 user.Email = studentEvm.Email;
-                user.UserName = studentEvm.Login;
-                var student = studentRepo.FindById(studentEvm.Id);
-                UpdateUser(user,student);
+                UpdateUser(user, student);
                
                 return RedirectToAction("Index");
             }
@@ -200,24 +214,5 @@ namespace edziennik.Controllers
             return RedirectToAction("Index");
         }
 
-        private void UpdateFromEditVm(StudentEditViewModel studentEvm)
-        {
-            var studentToUpdate = studentRepo.FindById(studentEvm.Id);
-            studentToUpdate.ClasssId = studentEvm.ClassId;
-            studentToUpdate.FirstName = studentEvm.FirstName;
-            studentToUpdate.Pesel = studentEvm.Login;
-            studentToUpdate.SecondName = studentEvm.SecondName;
-            studentToUpdate.Surname = studentEvm.Surname;
-            studentRepo.Save();
-        }
-
-        /* protected override void Dispose(bool disposing)
-         {
-             if (disposing)
-             {
-                 db.Dispose();
-             }
-             base.Dispose(disposing);
-         }*/
     }
 }

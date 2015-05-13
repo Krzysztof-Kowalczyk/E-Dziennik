@@ -29,18 +29,18 @@ namespace edziennik.Resources
             return students;
         }
 
-        public static SelectList getStudentSubjectsSL(int classId, string teacherId)
+        public static List<SelectListItem> getStudentSubjectsSL(int classId, string teacherId)
         {
-            var subjects = new SelectList(subjectRepo.FindByClassId
-                                                           (classId).Where(a=>a.TeacherId==teacherId), "Id", "Name");
+            var subjects =
+                subjectRepo.FindByClassId(classId).Where(a => a.TeacherId == teacherId).Select(c => new SelectListItem
+                {
+                    Value = c.Id.ToString(),
+                    Text = c.Name
+                }).ToList();
+                                                
 
             return subjects;
             
-        }
-
-        public static int getClassStudentCount(int classId)
-        {
-            return classRepo.FindById(classId).Students.Count;
         }
 
         public static List<SelectListItem> getTeachersSL()
@@ -55,21 +55,30 @@ namespace edziennik.Resources
             return teachers;
         }
 
-        public static SelectList getClassesSL()
+        public static List<SelectListItem> getClassesSL()
         {
-            var classes = new SelectList(classRepo.GetAll(), "Id", "Name"); 
+            var classes = classRepo.GetAll().Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text=c.Name
+            }).ToList();
 
             return classes;
         }
 
-        public static SelectList getClassroomsSL()
+        public static List<SelectListItem> getClassroomsSL()
         {
-            var classrooms = new SelectList(classroomRepo.GetAll(), "Id", "Name"); ;
+            //var classrooms = new SelectList(classroomRepo.GetAll(), "Id", "Name"); ;
+            var classrooms = classroomRepo.GetAll().Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = c.Name
+            }).ToList();
 
             return classrooms;
         }
 
-        public static List<SelectListItem> getSchoolHours()
+        public static List<SelectListItem> getSchoolHoursSL()
         {
             var hours = new List<SelectListItem>()
             {
@@ -90,7 +99,7 @@ namespace edziennik.Resources
             return hours;
         }
 
-        public static List<SelectListItem> getSchoolDays()
+        public static List<SelectListItem> getSchoolDaysSL()
         {
             var days = new List<SelectListItem>()
             {

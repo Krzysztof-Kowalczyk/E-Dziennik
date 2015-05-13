@@ -70,6 +70,7 @@ namespace edziennik.Controllers
 
             UserManager.RemovePassword(person.Id);
             UserManager.AddPassword(person.Id, password);
+            user.UserName = person.Pesel;
             UserManager.Update(user);
             ApplicationDbContext.Create().SaveChanges();
         }

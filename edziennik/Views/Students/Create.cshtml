@@ -9,11 +9,18 @@
 @using (Html.BeginForm()) 
 {
     @Html.AntiForgeryToken()
-    
+
     <div class="form-horizontal">
         <h4>StudentRegisterViewModel</h4>
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        @for (var i = 0; i < Model.Classes.Count; i++)
+        {
+            @Html.HiddenFor(m => m.Classes[i].Text)
+            @Html.HiddenFor(m => m.Classes[i].Value)
+        }
+
         <div class="form-group">
             @Html.LabelFor(model => model.Login, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
@@ -58,7 +65,6 @@
             @Html.LabelFor(model => model.ClassId, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @Html.DropDownListFor(m => m.ClassId, Model.Classes)
-             @*@Html.DropDownList("ClassId")*@
             </div>
         </div>
 

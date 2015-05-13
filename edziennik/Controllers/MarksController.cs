@@ -187,6 +187,7 @@ namespace edziennik.Controllers
                 markRepo.Save();
                 return RedirectToAction("Index");
             }
+
             return View(markVm);
         }
 
@@ -228,14 +229,5 @@ namespace edziennik.Controllers
             
             return RedirectToAction("Index");
         }
-
-        //protected override void Dispose(bool disposing)
-        //{
-        //    if (disposing)
-        //    {
-        //        markRepo.Dispose();
-        //    }
-        //    base.Dispose(disposing);
-        //}
     }
 }

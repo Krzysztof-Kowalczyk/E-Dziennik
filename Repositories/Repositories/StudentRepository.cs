@@ -51,11 +51,6 @@ namespace Repositories.Repositories
             db.SaveChanges();
         }
 
-        public List<Mark> GetMarks(string studentId)
-        {
-            return db.Marks.Where(a => a.StudentId == studentId).ToList();
-        }
-
         public Student FindByMarkId(int markId)
         {
             var mark = db.Marks.Single(a => a.Id == markId);

@@ -150,6 +150,7 @@
     <Compile Include="Resources\ConstantStrings.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Validators\OnlyMarkTeacherOrAdmin.cs" />
+    <Compile Include="Validators\UniquePesel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-theme.css" />
@@ -238,7 +239,6 @@
     <Content Include="Views\Manage\ChangeAvatar.cshtml" />
     <Content Include="Views\Teachers\Delete.cshtml" />
     <Content Include="Views\Teachers\Details.cshtml" />
-    <Content Include="Views\Teachers\Edit.cshtml" />
     <Content Include="Views\Teachers\Index.cshtml" />
     <Content Include="Views\Classses\Create.cshtml" />
     <Content Include="Views\Classses\Delete.cshtml" />
@@ -268,6 +268,7 @@
     <Content Include="Views\Marks\Index.cshtml" />
     <Content Include="Views\Marks\Details.cshtml" />
     <Content Include="Views\Marks\Delete.cshtml" />
+    <Content Include="Views\Teachers\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

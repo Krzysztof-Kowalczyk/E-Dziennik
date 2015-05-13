@@ -620,6 +620,14 @@ namespace edziennik.Controllers
             return View();
         }
 
+        [AllowAnonymous]
+        public bool IsUniquePesel(string pesel)
+        {
+            var user = UserManager.FindByName(pesel);
+
+            return user == null;
+        }
+
         #region Helpers
         // Used for XSRF protection when adding external logins
         private const string XsrfKey = "XsrfId";

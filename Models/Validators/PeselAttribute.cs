@@ -7,19 +7,19 @@ namespace Models.Validators
 {
     public class PeselAttribute : ValidationAttribute, IClientValidatable
     {
-        public IEnumerable<ModelClientValidationRule> GetClientValidationRules(System.Web.Mvc.ModelMetadata metadata, ControllerContext context)
+        public IEnumerable<ModelClientValidationRule> GetClientValidationRules(ModelMetadata metadata, ControllerContext context)
         {
-            return new[] { new ModelClientValidationRule()
+            return new[] { new ModelClientValidationRule
             {
                 ValidationType = "pesel",
-                ErrorMessage = this.ErrorMessage
+                ErrorMessage = ErrorMessage
             }
             };
         }
 
         public override bool IsValid(object value)
         {
-            if (value == null) return true;
+            if (value == null || value is bool==false) return true;
             var weights = new[] { 1, 3, 7, 9, 1, 3, 7, 9, 1, 3 };
             var str = value as string;
             int ctr = (10 - str.Take(10).Select((ch, i) => int.Parse(ch.ToString()) * weights[i]).Sum() % 10) % 10;

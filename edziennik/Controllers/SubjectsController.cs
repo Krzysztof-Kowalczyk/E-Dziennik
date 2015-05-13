@@ -76,8 +76,8 @@ namespace edziennik.Controllers
             {
                 Classes = ConstantStrings.getClassesSL(),
                 Classrooms = ConstantStrings.getClassroomsSL(),
-                Days = ConstantStrings.getSchoolDays(),
-                Hours = ConstantStrings.getSchoolHours(),
+                Days = ConstantStrings.getSchoolDaysSL(),
+                Hours = ConstantStrings.getSchoolHoursSL(),
                 Teachers = ConstantStrings.getTeachersSL()
             };
 
@@ -91,7 +91,7 @@ namespace edziennik.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(SubjectCreateViewModel subjectVm)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 var subject = new Subject
                 {
@@ -129,8 +129,8 @@ namespace edziennik.Controllers
             {
                 Classes = ConstantStrings.getClassesSL(),
                 Classrooms = ConstantStrings.getClassroomsSL(),
-                Days = ConstantStrings.getSchoolDays(),
-                Hours = ConstantStrings.getSchoolHours(),
+                Days = ConstantStrings.getSchoolDaysSL(),
+                Hours = ConstantStrings.getSchoolHoursSL(),
                 Teachers = ConstantStrings.getTeachersSL(),
                 ClassroomId = subject.ClassroomId,
                 ClasssId = subject.ClasssId,
@@ -197,14 +197,5 @@ namespace edziennik.Controllers
             subjectRepo.Save();
             return RedirectToAction("Index");
         }
-
-      /*  protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
-        }*/
     }
 }

@@ -85,7 +85,18 @@ namespace edziennik.Controllers
             {
                 return HttpNotFound();
             }
-            return View(teacher);
+
+            var teacherEditVm = new TeacherEditViewModel
+            {
+                FirstName = teacher.FirstName,
+                Email = UserManager.FindById(teacher.Id).Email,
+                Id = teacher.Id,
+                Login = teacher.Pesel,
+                SecondName = teacher.SecondName,
+                Surname = teacher.Surname,
+            };
+
+            return View(teacherEditVm);
         }
 
         // POST: Teachers/Edit/5
@@ -93,19 +104,29 @@ namespace edziennik.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(Teacher teacher)
+        public ActionResult Edit(TeacherEditViewModel teacherVm)
         {
             if (ModelState.IsValid)
             {
+                var teacher = new Teacher
+                {
+                    Id = teacherVm.Id,
+                    FirstName = teacherVm.FirstName,
+                    Pesel = teacherVm.Login,
+                    SecondName = teacherVm.SecondName,
+                    Surname = teacherVm.Surname
+                };
+
                 teacherRepo.Update(teacher);
                 teacherRepo.Save();
-                var user = UserManager.FindById(teacher.Id);
-                user.UserName = teacher.Pesel;
+                
+                var user = UserManager.FindById(teacherVm.Id);
+                user.Email = teacherVm.Email;
                 UpdateUser(user,teacher);
                 
                 return RedirectToAction("Index");
             }
-            return View(teacher);
+            return View(teacherVm);
         }
 
         // GET: Teachers/Delete/5
@@ -134,13 +155,5 @@ namespace edziennik.Controllers
             return RedirectToAction("Index");
         }
 
-       /* protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                repo.Dispose();
-            }
-            base.Dispose(disposing);
-        }*/
     }
 }

@@ -48,20 +48,5 @@ namespace Repositories.Repositories
         {
             db.SaveChanges();
         }
-
-        public List<Classs> GetClasses(string teacherId)
-        {
-            var classes = from classs in db.Classes
-                join subject in db.Subjects
-                    on classs.Id equals subject.ClasssId
-                select classs;
-
-            return classes.ToList();
-        }
-
-        public List<Subject> GetSubjects(string teacherId)
-        {
-            return db.Subjects.Where(a => a.TeacherId == teacherId).ToList();
-        }
     }
 }

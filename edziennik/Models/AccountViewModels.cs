@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
+using edziennik.Validators;
 using Models.Models;
 using Models.Validators;
 
@@ -91,9 +92,9 @@ namespace edziennik.Models
 
         public List<SelectListItem> Teachers { get; set; }
 
-        public SelectList Classrooms { get; set; }
+        public List<SelectListItem> Classrooms { get; set; }
 
-        public SelectList Classes { get; set; }
+        public List<SelectListItem> Classes { get; set; }
 
         public List<SelectListItem> Days { get; set; }
 
@@ -120,7 +121,7 @@ namespace edziennik.Models
         [Display(Name = "Opis")]
         public string Description { get; set; }
 
-        public SelectList Subjects {get; set;}
+        public List<SelectListItem> Subjects { get; set; }
 
         public List<SelectListItem> Values { get; set; }
     }
@@ -194,6 +195,7 @@ namespace edziennik.Models
     {
         public int Id { get; set; }
 
+        [Display(Name = "Nauczyciel")]
         public string TeacherId { get; set; }
 
         [Display(Name = "Klasa")]
@@ -307,8 +309,9 @@ namespace edziennik.Models
     public class RegisterViewModel
     {
         [Required(ErrorMessage = "Pole Pesel jest wymagane.")]
-        [Display(Name = "Pesel")]
-        [Pesel (ErrorMessage = "Wprowadzono nie prawidłowy numer pesel")]
+        [Display(Name = "Pesel")]       
+        [Pesel (ErrorMessage = "Wprowadzono nieprawidłowy numer pesel")]
+        [UniquePesel(ErrorMessage = "Podany numer pesel już istnieje ")]
         public string Login { get; set; }
 
         [Required(ErrorMessage = "Pole Imię jest wymagane.")]
@@ -333,13 +336,19 @@ namespace edziennik.Models
 
     public class StudentRegisterViewModel : RegisterViewModel
     {
+      [Display(Name = "Klasa")]
       public int ClassId { get; set; }
-      public SelectList Classes { get; set; }
+      public List<SelectListItem> Classes { get; set; }
     }
 
     public class StudentEditViewModel : StudentRegisterViewModel
     {
         public string Id { get; set;}
+    }
+
+    public class TeacherEditViewModel : RegisterViewModel
+    {
+        public string Id { get; set; }
     }
 
 
