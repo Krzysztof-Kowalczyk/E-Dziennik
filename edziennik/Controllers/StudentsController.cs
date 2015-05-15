@@ -199,7 +199,17 @@ namespace edziennik.Controllers
                 return HttpNotFound();
             }
 
-            return View(student);
+            var studentVm = new StudentListItemViewModel
+            {
+                ClassName = classRepo.FindById(student.ClasssId).Name,
+                FirstName = student.FirstName,
+                Id = student.Id,
+                Pesel = student.Pesel,
+                SecondName = student.SecondName,
+                Surname = student.Surname
+            };
+
+            return View(studentVm);
         }
 
         // POST: Students/Delete/5

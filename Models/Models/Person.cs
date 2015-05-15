@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Models.Validators;
 
 namespace Models.Models
 {
@@ -12,10 +11,8 @@ namespace Models.Models
         [Display(Name = "Drugie imię")]
         public string SecondName { get; set; }
         [Display(Name = "Nazwisko")]
-        public string Surname { get; set; }
-       
+        public string Surname { get; set; }      
         [Display(Name = "Pesel")]
-        [Pesel]
         public string Pesel {get; set;}
 
         [NotMapped]

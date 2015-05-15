@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
 using edziennik.Validators;
 using Models.Models;
-using Models.Validators;
 
 namespace edziennik.Models
 {

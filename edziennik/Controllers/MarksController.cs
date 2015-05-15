@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
+using edziennik.Models;
 using edziennik.Resources;
+using edziennik.Validators;
 using Microsoft.AspNet.Identity;
 using Models.Models;
-using Repositories;
 using Repositories.Repositories;
-using edziennik.Models;
-using edziennik.Validators;
 
 namespace edziennik.Controllers
 {
@@ -124,8 +118,12 @@ namespace edziennik.Controllers
                     Value = markVm.Value
                 };
 
+
                 markRepo.Insert(mark);
-                markRepo.Save();
+                markRepo.Save();                
+                SmsSender.SendSms(mark.StudentId,mark.TeacherId,
+                                                 mark.SubjectId,mark.Value,mark.Description);
+                
                 return RedirectToAction("Index");
             }
            

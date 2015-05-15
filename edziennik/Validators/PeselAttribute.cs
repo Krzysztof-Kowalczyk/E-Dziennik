@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web.Mvc;
 
-namespace Models.Validators
+namespace edziennik.Validators
 {
     public class PeselAttribute : ValidationAttribute, IClientValidatable
     {
@@ -19,7 +19,7 @@ namespace Models.Validators
 
         public override bool IsValid(object value)
         {
-            if (value == null || value is bool==false) return true;
+            if (value == null) return true;
             var weights = new[] { 1, 3, 7, 9, 1, 3, 7, 9, 1, 3 };
             var str = value as string;
             int ctr = (10 - str.Take(10).Select((ch, i) => int.Parse(ch.ToString()) * weights[i]).Sum() % 10) % 10;

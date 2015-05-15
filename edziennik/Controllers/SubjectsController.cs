@@ -91,7 +91,7 @@ namespace edziennik.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(SubjectCreateViewModel subjectVm)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 var subject = new Subject
                 {

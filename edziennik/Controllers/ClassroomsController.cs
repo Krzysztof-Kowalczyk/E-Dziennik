@@ -1,5 +1,4 @@
-﻿
-using System.Net;
+﻿using System.Net;
 using System.Web.Mvc;
 using Models.Models;
 using Repositories.Repositories;
