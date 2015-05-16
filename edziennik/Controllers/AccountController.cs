@@ -624,7 +624,7 @@ namespace edziennik.Controllers
         public bool IsUniquePesel(string pesel)
         {
             var user = UserManager.FindByName(pesel);
-
+            
             return user == null;
         }
 

@@ -6,22 +6,29 @@ $.validator.addMethod("pesel", function (pesel, field, params) {
         ctr += weights[i] * pesel[i];
     ctr = (10 - ctr % 10) % 10;
 
-    return ctr == pesel[10];
+    return ctr == pesel[10];;
 }
 );
 
 $.validator.unobtrusive.adapters.addBool("uniquepesel");
 $.validator.addMethod("uniquepesel", function (pesel, field, params) {
-
+    var isUnique;
     $.ajax({
-        type: 'GET',
-        url: '/Account/IsUniquePesel/',
+        type: "GET",
+        url: "/Account/IsUniquePesel/",
+        async: false,
         data: {
             pesel: pesel
         },
         success: function (result) {
-            return result;
+            if (result == "True")
+                isUnique = true;
+            else
+                isUnique = false;
         }
     });
+
+    return isUnique;
 }
 );
+

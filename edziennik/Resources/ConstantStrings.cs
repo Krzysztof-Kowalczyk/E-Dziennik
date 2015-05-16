@@ -11,15 +11,35 @@ namespace edziennik.Resources
         public const string UserAvatarsPath = "~/Resources/Images/Users/";
         public const string LogsPath = "~/Resources/Logs/";
         public const int MaxClassStudentCount = 30;
-        public static SubjectRepository subjectRepo = new SubjectRepository();
-        public static StudentRepository studentRepo = new StudentRepository();
-        public static TeacherRepository teacherRepo = new TeacherRepository();
-        public static ClassroomRepository classroomRepo = new ClassroomRepository();
-        public static ClasssRepository classRepo = new ClasssRepository();
+
+        public static SubjectRepository SubjectRepo
+        {
+            get { return new SubjectRepository(); }
+        }
+
+        public static StudentRepository StudentRepo 
+        {
+            get { return new StudentRepository(); }
+        }
+
+        public static TeacherRepository TeacherRepo 
+        {
+            get { return new TeacherRepository(); }
+        }
+
+        public static ClassroomRepository ClassroomRepo 
+        {
+            get { return new ClassroomRepository(); }
+        }
+
+        public static ClasssRepository ClassRepo 
+        {
+            get { return new ClasssRepository(); }
+        }
 
         public static List<SelectListItem> getStudentsSL()
         {
-            var students = studentRepo.GetAll().Select(c => new SelectListItem
+            var students = StudentRepo.GetAll().Select(c => new SelectListItem
             {
                 Value = c.Id,
                 Text = c.FirstName + " " + c.Surname
@@ -32,7 +52,7 @@ namespace edziennik.Resources
         public static List<SelectListItem> getStudentSubjectsSL(int classId, string teacherId)
         {
             var subjects =
-                subjectRepo.FindByClassId(classId).Where(a => a.TeacherId == teacherId).Select(c => new SelectListItem
+                SubjectRepo.FindByClassId(classId).Where(a => a.TeacherId == teacherId).Select(c => new SelectListItem
                 {
                     Value = c.Id.ToString(),
                     Text = c.Name
@@ -45,7 +65,7 @@ namespace edziennik.Resources
 
         public static List<SelectListItem> getTeachersSL()
         {
-            var teachers = teacherRepo.GetAll().Select(c => new SelectListItem
+            var teachers = TeacherRepo.GetAll().Select(c => new SelectListItem
             {
                 Value = c.Id,
                 Text = c.FirstName + " " + c.Surname
@@ -57,7 +77,7 @@ namespace edziennik.Resources
 
         public static List<SelectListItem> getClassesSL()
         {
-            var classes = classRepo.GetAll().Select(c => new SelectListItem
+            var classes = ClassRepo.GetAll().Select(c => new SelectListItem
             {
                 Value = c.Id.ToString(),
                 Text=c.Name
@@ -69,7 +89,7 @@ namespace edziennik.Resources
         public static List<SelectListItem> getClassroomsSL()
         {
             //var classrooms = new SelectList(classroomRepo.GetAll(), "Id", "Name"); ;
-            var classrooms = classroomRepo.GetAll().Select(c => new SelectListItem
+            var classrooms = ClassroomRepo.GetAll().Select(c => new SelectListItem
             {
                 Value = c.Id.ToString(),
                 Text = c.Name

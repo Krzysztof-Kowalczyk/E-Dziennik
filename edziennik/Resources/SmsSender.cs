@@ -11,9 +11,9 @@ namespace edziennik.Resources
             {
                 const string accountSid = "AC16b640bc801752db415264631985ba2c";
                 const string authToken = "d1c5e1859d1ce8c840a771552807c1fb";
-                string teacher = ConstantStrings.teacherRepo.FindById(teacherId).FullName;
-                string student = ConstantStrings.studentRepo.FindById(studentId).FullName;
-                string subject = ConstantStrings.subjectRepo.FindById(subjectId).Name;
+                string teacher = ConstantStrings.TeacherRepo.FindById(teacherId).FullName;
+                string student = ConstantStrings.StudentRepo.FindById(studentId).FullName;
+                string subject = ConstantStrings.SubjectRepo.FindById(subjectId).Name;
                 string body = String.Format("Witaj ! Uczeń {0} otrzymał właśnie od nauczyciela {1}  z przedmiotu {2} ocenę {3} za {4}",
                                                                                        student, teacher, subject, value, description);
                 var twilio = new TwilioRestClient(accountSid, authToken);
