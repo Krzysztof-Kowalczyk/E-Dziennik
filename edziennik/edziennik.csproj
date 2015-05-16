@@ -150,6 +150,7 @@
     <Compile Include="Controllers\ClassroomsController.cs" />
     <Compile Include="Controllers\ClasssesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\LogsController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\MarksController.cs" />
     <Compile Include="Controllers\PersonController.cs" />
@@ -164,6 +165,7 @@
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\ConstantStrings.cs" />
+    <Compile Include="Resources\Logs.cs" />
     <Compile Include="Resources\SmsSender.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Validators\OnlyMarkTeacherOrAdmin.cs" />
@@ -287,6 +289,11 @@
     <Content Include="Views\Marks\Details.cshtml" />
     <Content Include="Views\Marks\Delete.cshtml" />
     <Content Include="Views\Teachers\Edit.cshtml" />
+    <Content Include="Views\Logs\Create.cshtml" />
+    <Content Include="Views\Logs\Delete.cshtml" />
+    <Content Include="Views\Logs\Details.cshtml" />
+    <Content Include="Views\Logs\Edit.cshtml" />
+    <Content Include="Views\Logs\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

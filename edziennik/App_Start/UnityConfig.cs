@@ -43,6 +43,7 @@ namespace edziennik.App_Start
 
             // TODO: Register your types here
             // container.RegisterType<IProductRepository, ProductRepository>();
+            container.RegisterType<ILogRepository, LogRepository>(new PerRequestLifetimeManager());
             container.RegisterType<IStudentRepository, StudentRepository>(new PerRequestLifetimeManager());
             container.RegisterType<ITeacherRepository, TeacherRepository>(new PerRequestLifetimeManager());
             container.RegisterType<IClasssRepository, ClasssRepository>(new PerRequestLifetimeManager());

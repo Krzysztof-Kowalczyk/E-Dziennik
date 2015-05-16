@@ -72,6 +72,7 @@
   <ItemGroup>
     <Compile Include="Interfaces\IClassroomRepository.cs" />
     <Compile Include="Interfaces\IClasssRepository.cs" />
+    <Compile Include="Interfaces\ILogRepository.cs" />
     <Compile Include="Interfaces\IMarkRepository.cs" />
     <Compile Include="Interfaces\IPersonRepository.cs" />
     <Compile Include="Interfaces\IRepository.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="Models\Classroom.cs" />
     <Compile Include="Models\Classs.cs" />
     <Compile Include="Models\LessonHour.cs" />
+    <Compile Include="Models\Log.cs" />
     <Compile Include="Models\Mark.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Models\Student.cs" />
