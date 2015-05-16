@@ -120,10 +120,13 @@ namespace edziennik.Controllers
 
 
                 markRepo.Insert(mark);
-                markRepo.Save();                
-                SmsSender.SendSms(mark.StudentId,mark.TeacherId,
-                                                 mark.SubjectId,mark.Value,mark.Description);
-                
+                markRepo.Save();
+                if (studentRepo.FindById(markVm.StudentId).CellPhoneNumber != null)
+                {
+                    var number = studentRepo.FindById(markVm.StudentId).CellPhoneNumber;
+                    SmsSender.SendSms(markVm,number);
+                }
+
                 return RedirectToAction("Index");
             }
            

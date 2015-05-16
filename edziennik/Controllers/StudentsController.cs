@@ -70,7 +70,8 @@ namespace edziennik.Controllers
                 Surname = student.Surname,
                 Pesel = student.Pesel,
                 Marks = markVm,
-                Id = student.Id
+                Id = student.Id,
+                CellPhoneNumber = student.CellPhoneNumber
             };
             return View(studentVm);
         }
@@ -110,7 +111,8 @@ namespace edziennik.Controllers
                         FirstName = studentVm.FirstName,
                         SecondName = studentVm.SecondName,
                         Surname = studentVm.Surname,
-                        Pesel = studentVm.Login
+                        Pesel = studentVm.Login,
+                        CellPhoneNumber = studentVm.CellPhoneNumber
                     };
                         
                     studentRepo.Insert(student);
@@ -146,7 +148,8 @@ namespace edziennik.Controllers
                 Login = student.Pesel,
                 SecondName = student.SecondName,
                 Surname = student.Surname,
-                Classes = ConstantStrings.getClassesSL()
+                Classes = ConstantStrings.getClassesSL(),
+                CellPhoneNumber = student.CellPhoneNumber
             };
             
             return View(studentEditVm);
@@ -169,7 +172,8 @@ namespace edziennik.Controllers
                     Id = studentEvm.Id,
                     Pesel = studentEvm.Login,
                     SecondName = studentEvm.SecondName,
-                    Surname = studentEvm.Surname
+                    Surname = studentEvm.Surname,
+                    CellPhoneNumber = studentEvm.CellPhoneNumber
                 };
 
                 studentRepo.Update(student);

@@ -133,7 +133,7 @@ namespace edziennik.Models
         public string Name { get; set; }
 
         [Display(Name = "Id wychowawcy")]
-        public int TeacherId { get; set; }
+        public string TeacherId { get; set; }
 
         public List<SelectListItem> Teachers { get; set; }
 
@@ -157,13 +157,15 @@ namespace edziennik.Models
         public string Surname { get; set; }
         [Display(Name = "Pesel")]
         public string Pesel { get; set; }
-
     }
 
     public class StudentViewModel : PersonViewModel
     {
         [Display(Name = "Klasa")]
         public string ClassName { get; set; }
+
+        [Display(Name = "Numer telefonu komórkowego rodzica")]
+        public string CellPhoneNumber { get; set; }
 
         public List<MarkViewModel> Marks { get; set; }
     }
@@ -202,7 +204,6 @@ namespace edziennik.Models
 
         [Display(Name = "Uczeń")]
         public string  Student { get; set; }
-
 
     }
 
@@ -262,7 +263,6 @@ namespace edziennik.Models
         [Display(Name = "Nazwisko")]
         public string Surname { get; set; }
         public List<Mark> Marks { get; set; }
-
     }
 
     public class StudentAddMark
@@ -279,7 +279,6 @@ namespace edziennik.Models
         public int SubjectId { get; set; }
         [Display(Name = "Ocena")]
         public double Mark { get; set; }
-
     }
 
 
@@ -309,8 +308,8 @@ namespace edziennik.Models
     {
         [Required(ErrorMessage = "Pole Pesel jest wymagane.")]
         [Display(Name = "Pesel")]       
-        [Pesel (ErrorMessage = "Wprowadzono nieprawidłowy numer pesel")]
-        [UniquePesel(ErrorMessage = "Podany numer pesel już istnieje ")]
+        //[Pesel (ErrorMessage = "Wprowadzono nieprawidłowy numer pesel")]
+        //[UniquePesel(ErrorMessage = "Podany numer pesel już istnieje ")]
         public string Login { get; set; }
 
         [Required(ErrorMessage = "Pole Imię jest wymagane.")]
@@ -337,6 +336,11 @@ namespace edziennik.Models
     {
       [Display(Name = "Klasa")]
       public int ClassId { get; set; }
+
+      [Display(Name = "Numer telefonu komórkowego rodzica")]
+      [RegularExpression(@"\d{9}", ErrorMessage = "Niepoprawny numer !")]
+      public string CellPhoneNumber { get; set; }
+      
       public List<SelectListItem> Classes { get; set; }
     }
 
@@ -360,8 +364,6 @@ namespace edziennik.Models
     {
 
     }
-
-
 
     public class ResetPasswordViewModel
     {

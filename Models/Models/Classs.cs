@@ -11,7 +11,7 @@ namespace Models.Models
         public string Name { get; set;}
 
         [Display(Name = "Id wychowawcy")]
-        public int TeacherId { get; set; }
+        public string TeacherId { get; set; }
 
         [Display(Name = "Lista uczniów")]
         public virtual List<Student> Students { get; set; }
