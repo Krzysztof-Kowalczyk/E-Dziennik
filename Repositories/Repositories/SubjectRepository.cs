@@ -15,7 +15,7 @@ namespace Repositories.Repositories
 
         public Subject FindById(int id)
         {
-            return db.Subjects.Single(a => a.Id == id);
+            return db.Subjects.SingleOrDefault(a => a.Id == id);
         }
 
         public void Insert(Subject item)

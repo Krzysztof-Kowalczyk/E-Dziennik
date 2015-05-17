@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
@@ -18,6 +19,10 @@ namespace edziennik.Models
         }
         [DisplayName("Avatar")]
         public string AvatarUrl { get; set; }
+
+        public DateTime LastPasswordChange { get; set; }
+
+        public DateTime CreateDate { get; set; }
     }
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>

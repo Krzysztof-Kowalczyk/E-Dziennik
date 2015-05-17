@@ -15,7 +15,7 @@ namespace Repositories.Repositories
 
         public Mark FindById(int id)
         {
-            return db.Marks.Single(a => a.Id == id);
+            return db.Marks.SingleOrDefault(a => a.Id == id);
         }
 
         public void Insert(Mark item)

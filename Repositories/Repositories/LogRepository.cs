@@ -15,7 +15,7 @@ namespace Repositories.Repositories
 
         public Log FindById(int id)
         {
-            return db.Logs.Single(a => a.Id == id);
+            return db.Logs.SingleOrDefault(a => a.Id == id);
         }
 
         public void Insert(Log item)

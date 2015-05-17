@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Web.Mvc;
@@ -48,21 +49,22 @@ namespace edziennik.Controllers
                 UserName = ruser.Login,
                 PasswordHash = hasher.HashPassword(password),
                 Email = ruser.Email,
-                EmailConfirmed = false,
-                AvatarUrl = ConstantStrings.DefaultUserAvatar
+                EmailConfirmed = true,
+                AvatarUrl = ConstantStrings.DefaultUserAvatar,
+                CreateDate = DateTime.Now
             };
+            user.LastPasswordChange = user.CreateDate;
 
             var result = UserManager.Create(user, password);
             if (result.Succeeded)
             {
                 UserManager.AddToRole(user.Id, role);
-                ApplicationDbContext.Create().SaveChanges();
-
                 var code = UserManager.GenerateEmailConfirmationToken(user.Id);
+                ApplicationDbContext.Create().SaveChanges();
 
                 var callbackUrl = Url.Action(
 
-                    "ConfirmEmail",
+                    "ConfirmEmails",
 
                     "Account",
 
@@ -70,7 +72,7 @@ namespace edziennik.Controllers
 
                     protocol: Request.Url.Scheme);
 
-                SendEmail(
+                 SendEmail(
 
                  user.Email,
 
@@ -94,37 +96,36 @@ namespace edziennik.Controllers
         }
 
         [NonAction]
-        protected void UpdateUser(ApplicationUser user, Person person)
+        protected async Task UpdateUser(ApplicationUser user, Person person)
         {
             var password = person.Surname.Substring(0, 3) +
                                         person.Pesel.Substring(7, 4);
 
-            UserManager.RemovePassword(person.Id);
-            UserManager.AddPassword(person.Id, password);
+            await UserManager.RemovePasswordAsync(person.Id);
+            await UserManager.AddPasswordAsync(person.Id, password);
             user.UserName = person.Pesel;
-            UserManager.Update(user);
+            user.LastPasswordChange = DateTime.Now;
+            await UserManager.UpdateAsync(user);
             ApplicationDbContext.Create().SaveChanges();
         }
 
         [NonAction]
-        private void SendEmail(string destination, string subject, string body)
+        private  void SendEmail(string destination, string subject, string body)
         {
             const string credentialUserName = "jedznaplus@gmail.com";
             const string sentFrom = "jedznaplus@gmail.com";
             const string pwd = "jedznaplus123";
+            var credentials = new NetworkCredential(credentialUserName, pwd);
 
             // Configure the client:
             var client = new SmtpClient("smtp.gmail.com")
             {
                 Port = 587,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
-                UseDefaultCredentials = false
+                UseDefaultCredentials = false,
+                EnableSsl = true,
+                Credentials = credentials
             };
-
-            // Creatte the credentials:
-            var credentials = new NetworkCredential(credentialUserName, pwd);
-            client.EnableSsl = true;
-            client.Credentials = credentials;
 
             // Create the message:
             var mail = new MailMessage(sentFrom, destination)
@@ -134,7 +135,7 @@ namespace edziennik.Controllers
                 IsBodyHtml = true
             };
 
-            client.Send(mail);
+           client.Send(mail);
         }
 
 

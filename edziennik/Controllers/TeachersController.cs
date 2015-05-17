@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using edziennik.Models;
 using edziennik.Resources;
@@ -106,7 +107,7 @@ namespace edziennik.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(TeacherEditViewModel teacherVm)
+        public async Task<ActionResult> Edit(TeacherEditViewModel teacherVm)
         {
             if (ModelState.IsValid)
             {
@@ -122,9 +123,9 @@ namespace edziennik.Controllers
                 teacherRepo.Update(teacher);
                 teacherRepo.Save();
                 
-                var user = UserManager.FindById(teacherVm.Id);
+                var user = await UserManager.FindByIdAsync(teacherVm.Id);
                 user.Email = teacherVm.Email;
-                UpdateUser(user,teacher);
+                await UpdateUser(user,teacher);
                 Logs.SaveLog("Edit", User.Identity.GetUserId(), "Teacher", teacher.Id);
 
                 return RedirectToAction("Index");

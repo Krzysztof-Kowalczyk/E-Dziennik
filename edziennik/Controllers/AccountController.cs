@@ -10,24 +10,28 @@ using edziennik.Resources;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
+using Microsoft.Owin.Security.DataProtection;
 
 namespace edziennik.Controllers
 {
     [Authorize]
     public class AccountController : Controller
     {
-        private ApplicationUserManager _userManager;       
+        private ApplicationUserManager _userManager;
 
         public AccountController()
         {
 
         }
 
-        public AccountController(ApplicationUserManager userManager, 
+        public AccountController(ApplicationUserManager userManager,
                                  ApplicationSignInManager signInManager)
         {
+            var provider = new DpapiDataProtectionProvider("Sample");
             UserManager = userManager;
             SignInManager = signInManager;
+            UserManager.UserTokenProvider = new DataProtectorTokenProvider<ApplicationUser>(
+                provider.Create("EmailConfirmation"));
         }
 
         public ApplicationUserManager UserManager
@@ -42,7 +46,7 @@ namespace edziennik.Controllers
             }
         }
         ////////////////////
-        
+
         public ActionResult DisplayPhoto()
         {
             ViewBag.FilePath = ConstantStrings.DefaultUserAvatar;
@@ -77,7 +81,7 @@ namespace edziennik.Controllers
             };
 
             UserManager.Create(user, password);
-            UserManager.AddToRole(user.Id,role);
+            UserManager.AddToRole(user.Id, role);
             ApplicationDbContext.Create().SaveChanges();
         }
 
@@ -259,8 +263,17 @@ namespace edziennik.Controllers
             }
 
             // This doesn't count login failures towards account lockout
-            // To enable password failures to trigger account lockout, change to shouldLockout: true
+            // To enable password failures to trigger account lockout, change to shouldLockout: true          
+            var user = await UserManager.FindByNameAsync(model.Login);
+            var check = await UserManager.CheckPasswordAsync(user, model.Password);
+
+
+            if (check && user.UserName != "Admin" && user.LastPasswordChange == user.CreateDate)
+            {
+                return RedirectToAction("ChangePassword");
+            }
             var result = await SignInManager.PasswordSignInAsync(model.Login, model.Password, model.RememberMe, shouldLockout: true);
+
             switch (result)
             {
                 case SignInStatus.Success:
@@ -274,6 +287,36 @@ namespace edziennik.Controllers
                     ModelState.AddModelError("", "Wprowadzono błędną Nazwę użytkownika lub hasło");
                     return View(model);
             }
+        }
+
+        [AllowAnonymous]
+        public ActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<ActionResult> ChangePassword(FirstChangePasswordViewModel vm)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await UserManager.FindByNameAsync(vm.Login);
+                var check = await UserManager.CheckPasswordAsync(user, vm.OldPassword);
+                if (check)
+                {
+                    await UserManager.RemovePasswordAsync(user.Id);
+                    await UserManager.AddPasswordAsync(user.Id, vm.NewPassword);
+                    user.LastPasswordChange = DateTime.Now;
+                    UserManager.Update(user);
+                    ApplicationDbContext.Create().SaveChanges();
+
+                    return RedirectToAction("Login");
+                }
+                ModelState.AddModelError(String.Empty, "Podano złe dane");
+            }
+
+            return View(vm);
         }
 
         //
@@ -390,6 +433,17 @@ namespace edziennik.Controllers
                 return View("Error");
             }
             var result = await UserManager.ConfirmEmailAsync(userId, code);
+            return View(result.Succeeded ? "ConfirmEmail" : "Error");
+        }
+
+        [AllowAnonymous]
+        public ActionResult ConfirmEmails(string userId, string code)
+        {
+            if (userId == null || code == null)
+            {
+                return View("Error");
+            }
+            var result = UserManager.ConfirmEmail(userId, code);
             return View(result.Succeeded ? "ConfirmEmail" : "Error");
         }
 
@@ -624,7 +678,7 @@ namespace edziennik.Controllers
         public bool IsUniquePesel(string pesel)
         {
             var user = UserManager.FindByName(pesel);
-            
+
             return user == null;
         }
 

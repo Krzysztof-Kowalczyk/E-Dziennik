@@ -15,7 +15,7 @@ namespace Repositories.Repositories
 
         public Classs FindById(int id)
         {
-            return db.Classes.Single(a => a.Id == id);
+            return db.Classes.SingleOrDefault(a => a.Id == id);
         }
 
         public void Insert(Classs item)

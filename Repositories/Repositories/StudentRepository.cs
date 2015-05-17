@@ -15,7 +15,7 @@ namespace Repositories.Repositories
 
         public Student FindById(string id)
         {
-            return db.Students.Single(a => a.Id == id);           
+            return db.Students.SingleOrDefault(a => a.Id == id);           
         }
 
         public List<Student> FindBySurname(string surname)

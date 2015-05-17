@@ -15,7 +15,7 @@ namespace Repositories.Repositories
 
         public Teacher FindById(string id)
         {
-            return db.Teachers.Single(a => a.Id == id);
+            return db.Teachers.SingleOrDefault(a => a.Id == id);
         }
 
         public List<Teacher> FindBySurname(string surname)

@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Data.Entity;
 using edziennik.Models;
 using edziennik.Resources;
 using Microsoft.AspNet.Identity;
@@ -21,7 +22,12 @@ namespace edziennik.App_Start
             var us = new UserStore<ApplicationUser>(context);
             var um = new UserManager<ApplicationUser>(us);
 
-            var user = new ApplicationUser { UserName = "Admin", Email = "admin@myapp.pl", EmailConfirmed = true, AvatarUrl = ConstantStrings.DefaultUserAvatar };
+            var user = new ApplicationUser
+            {
+                UserName = "Admin", Email = "admin@myapp.pl", EmailConfirmed = true, AvatarUrl = ConstantStrings.DefaultUserAvatar,
+                CreateDate = DateTime.Now
+            };
+            user.LastPasswordChange = user.CreateDate;
             um.Create(user, "Admin123#");
             um.AddToRole(user.Id, "Admins");
         }

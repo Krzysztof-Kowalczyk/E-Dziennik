@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using edziennik.Models;
 using edziennik.Resources;
@@ -162,7 +163,7 @@ namespace edziennik.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admins")]
-        public ActionResult Edit(StudentEditViewModel studentEvm)
+        public async Task<ActionResult> Edit(StudentEditViewModel studentEvm)
         {
             if (ModelState.IsValid)
             {
@@ -180,9 +181,9 @@ namespace edziennik.Controllers
                 studentRepo.Update(student);
                 studentRepo.Save();               
 
-                var user = UserManager.FindById(studentEvm.Id);
+                var user = await UserManager.FindByIdAsync(studentEvm.Id);
                 user.Email = studentEvm.Email;
-                UpdateUser(user, student);
+                await UpdateUser(user, student);
                 Logs.SaveLog("Edit", User.Identity.GetUserId(), "Student", student.Id);
                
                 return RedirectToAction("Index");
