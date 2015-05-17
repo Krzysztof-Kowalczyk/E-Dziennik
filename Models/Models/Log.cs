@@ -19,5 +19,8 @@ namespace Models.Models
         [Display(Name = "Co")]
         public string What { get; set; }
 
+        [Display(Name = "Komu")]
+        public string WhatId { get; set; }
+
     }
 }

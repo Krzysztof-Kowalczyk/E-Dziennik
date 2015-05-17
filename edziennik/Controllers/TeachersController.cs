@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Web.Mvc;
 using edziennik.Models;
+using edziennik.Resources;
 using Microsoft.AspNet.Identity;
 using Models.Models;
 using Repositories.Repositories;
@@ -67,6 +68,7 @@ namespace edziennik.Controllers
                 };
                 teacherRepo.Insert(teacher);
                 teacherRepo.Save();
+                Logs.SaveLog("Create", User.Identity.GetUserId(), "Teacher", teacher.Id);
                 return RedirectToAction("Index");
             }
 
@@ -123,7 +125,8 @@ namespace edziennik.Controllers
                 var user = UserManager.FindById(teacherVm.Id);
                 user.Email = teacherVm.Email;
                 UpdateUser(user,teacher);
-                
+                Logs.SaveLog("Edit", User.Identity.GetUserId(), "Teacher", teacher.Id);
+
                 return RedirectToAction("Index");
             }
             return View(teacherVm);
@@ -152,6 +155,7 @@ namespace edziennik.Controllers
             teacherRepo.Delete(id);
             teacherRepo.Save();
             DeleteUser(id);
+            Logs.SaveLog("Delete", User.Identity.GetUserId(), "Teacher", id);
             return RedirectToAction("Index");
         }
 

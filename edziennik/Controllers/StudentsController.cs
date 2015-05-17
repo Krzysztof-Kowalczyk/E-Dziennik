@@ -117,6 +117,7 @@ namespace edziennik.Controllers
                         
                     studentRepo.Insert(student);
                     studentRepo.Save();
+                    Logs.SaveLog("Create", User.Identity.GetUserId(), "Student", student.Id);
                     return RedirectToAction("Index");
                 }
 
@@ -177,11 +178,12 @@ namespace edziennik.Controllers
                 };
 
                 studentRepo.Update(student);
-                studentRepo.Save();
+                studentRepo.Save();               
 
                 var user = UserManager.FindById(studentEvm.Id);
                 user.Email = studentEvm.Email;
                 UpdateUser(user, student);
+                Logs.SaveLog("Edit", User.Identity.GetUserId(), "Student", student.Id);
                
                 return RedirectToAction("Index");
             }
@@ -225,6 +227,7 @@ namespace edziennik.Controllers
             studentRepo.Delete(id);
             studentRepo.Save();
             DeleteUser(id);
+            Logs.SaveLog("Delete", User.Identity.GetUserId(), "Student", id);
             return RedirectToAction("Index");
         }
 

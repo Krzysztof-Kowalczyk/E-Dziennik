@@ -118,7 +118,6 @@ namespace edziennik.Controllers
                     Value = markVm.Value
                 };
 
-
                 markRepo.Insert(mark);
                 markRepo.Save();
                 if (studentRepo.FindById(markVm.StudentId).CellPhoneNumber != null)
@@ -126,6 +125,7 @@ namespace edziennik.Controllers
                     var number = studentRepo.FindById(markVm.StudentId).CellPhoneNumber;
                     SmsSender.SendSms(markVm,number);
                 }
+                Logs.SaveLog("Create", User.Identity.GetUserId(), "Mark", mark.Id.ToString());
 
                 return RedirectToAction("Index");
             }
@@ -186,6 +186,7 @@ namespace edziennik.Controllers
 
                 markRepo.Update(mark);
                 markRepo.Save();
+                Logs.SaveLog("Edit", User.Identity.GetUserId(), "Mark", mark.Id.ToString());
                 return RedirectToAction("Index");
             }
 
@@ -227,6 +228,7 @@ namespace edziennik.Controllers
         {
             markRepo.Delete(id);
             markRepo.Save();
+            Logs.SaveLog("Delete", User.Identity.GetUserId(), "Mark", id.ToString());
             
             return RedirectToAction("Index");
         }

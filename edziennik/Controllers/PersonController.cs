@@ -9,24 +9,15 @@ namespace edziennik.Controllers
 {
     public abstract class PersonController : Controller
     {
-       // protected ApplicationDbContext ApplicationDbContext { get; set; }
-       // protected UserManager<ApplicationUser> UserManager { get; set; }
+        protected ApplicationDbContext ApplicationDbContext { get; set; }
+        protected UserManager<ApplicationUser> UserManager { get; set; }
 
-        protected UserManager<ApplicationUser> UserManager
-        {
-            get
-            {
-                return new UserManager<ApplicationUser>
-                    (new UserStore<ApplicationUser>(new ApplicationDbContext()));
-            }
-        }
-
-       /* protected PersonController()
+        protected PersonController()
         {
             ApplicationDbContext = new ApplicationDbContext();
             UserManager = new UserManager<ApplicationUser>
-                (new UserStore<ApplicationUser>(ApplicationDbContext));
-        }*/
+            (new UserStore<ApplicationUser>(ApplicationDbContext));
+        }
        
        [NonAction]
        protected void AddErrors(IdentityResult result)

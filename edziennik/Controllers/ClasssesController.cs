@@ -2,6 +2,7 @@
 using System.Web.Mvc;
 using edziennik.Models;
 using edziennik.Resources;
+using Microsoft.AspNet.Identity;
 using Models.Models;
 using Repositories.Repositories;
 
@@ -68,6 +69,7 @@ namespace edziennik.Controllers
 
                 classRepo.Insert(classs);
                 classRepo.Save();
+                Logs.SaveLog("Create", User.Identity.GetUserId(), "Class", classs.Id.ToString());
                 return RedirectToAction("Index");
             }
 
@@ -115,6 +117,7 @@ namespace edziennik.Controllers
 
                 classRepo.Update(classs);
                 classRepo.Save();
+                Logs.SaveLog("Edit", User.Identity.GetUserId(), "Class", classs.Id.ToString());
                 return RedirectToAction("Index");
             }
             return View(classVm);
@@ -142,6 +145,7 @@ namespace edziennik.Controllers
         {
             classRepo.Delete(id);
             classRepo.Save();
+            Logs.SaveLog("Delete", User.Identity.GetUserId(), "Class", id.ToString());
             return RedirectToAction("Index");
         }
 

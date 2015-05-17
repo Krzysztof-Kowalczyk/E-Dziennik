@@ -3,6 +3,7 @@ using System.Net;
 using System.Web.Mvc;
 using edziennik.Models;
 using edziennik.Resources;
+using Microsoft.AspNet.Identity;
 using Models.Models;
 using Repositories.Repositories;
 
@@ -106,6 +107,7 @@ namespace edziennik.Controllers
 
                 subjectRepo.Insert(subject);
                 subjectRepo.Save();
+                Logs.SaveLog("Create", User.Identity.GetUserId(), "Subject", subject.Id.ToString());
                 return RedirectToAction("Index");
             }
 
@@ -166,7 +168,7 @@ namespace edziennik.Controllers
 
                 subjectRepo.Update(subject);
                 subjectRepo.Save();
-                
+                Logs.SaveLog("Edit", User.Identity.GetUserId(), "Subject", subject.Id.ToString());
                 return RedirectToAction("Index");
             }
 
@@ -195,6 +197,7 @@ namespace edziennik.Controllers
         {
             subjectRepo.Delete(id);
             subjectRepo.Save();
+            Logs.SaveLog("Delete", User.Identity.GetUserId(), "Subject", id.ToString());
             return RedirectToAction("Index");
         }
     }
