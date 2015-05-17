@@ -12,6 +12,9 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.DataProtection;
 
+//fixy
+
+
 namespace edziennik.Controllers
 {
     [Authorize]
