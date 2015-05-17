@@ -50,10 +50,15 @@ namespace edziennik.App_Start
             container.RegisterType<IClassroomRepository, ClassroomRepository>(new PerRequestLifetimeManager());
             container.RegisterType<ISubjectRepository, SubjectRepository>(new PerRequestLifetimeManager());
             container.RegisterType<IMarkRepository, MarkRepository>(new PerRequestLifetimeManager());
-            container.RegisterType<IUserStore<ApplicationUser>, UserStore<ApplicationUser>>();
-            container.RegisterType<UserManager<ApplicationUser>>();
-            container.RegisterType<DbContext, ApplicationDbContext>();
-            container.RegisterType<ApplicationUserManager>();
+            //container.RegisterType<IUserStore<ApplicationUser>, UserStore<ApplicationUser>>();
+           // container.RegisterType<UserManager<ApplicationUser>>();
+            //container.RegisterType<DbContext, ApplicationDbContext>();
+            //container.RegisterType<ApplicationUserManager>();
+            //container.RegisterType<AccountController>(new InjectionConstructor());
+
+            container.RegisterType<DbContext, ApplicationDbContext>(new HierarchicalLifetimeManager());
+            container.RegisterType<UserManager<ApplicationUser>>(new HierarchicalLifetimeManager());
+            container.RegisterType<IUserStore<ApplicationUser>, UserStore<ApplicationUser>>(new HierarchicalLifetimeManager());
             container.RegisterType<AccountController>(new InjectionConstructor());
         }
     }
