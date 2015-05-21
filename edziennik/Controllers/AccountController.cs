@@ -11,6 +11,8 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.DataProtection;
+using System.Security.Cryptography.X509Certificates;
+using System.Net.Security;
 
 namespace edziennik.Controllers
 {
@@ -237,6 +239,7 @@ namespace edziennik.Controllers
             var check = await userManager.CheckPasswordAsync(user, model.Password);
             if (!user.EmailConfirmed)
             {
+                ViewBag.UserId = user.Id;
                 return View("EmailNotConfirmed");
             }
 
@@ -285,8 +288,8 @@ namespace edziennik.Controllers
                         user.LastPasswordChange = DateTime.Now;
                         userManager.Update(user);
                         await signInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
-                        
-                        return RedirectToAction("Index","Home");
+
+                        return RedirectToAction("Index", "Home");
                     }
 
                     AddErrors(result);
@@ -346,6 +349,45 @@ namespace edziennik.Controllers
             }
         }
 
+        [NonAction]
+        private async Task SendEmailToken(string userId)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            var code = await userManager.GenerateEmailConfirmationTokenAsync(user.Id);
+
+            var callbackUrl = Url.Action(
+
+                "ConfirmEmail",
+
+                "Account",
+
+                new { userId = user.Id, code = code },
+
+                protocol: Request.Url.Scheme);
+
+            ServicePointManager.ServerCertificateValidationCallback =
+                    delegate(object s, X509Certificate certificate,
+                    X509Chain chain, SslPolicyErrors sslPolicyErrors)
+                    { return true; };
+
+            await userManager.SendEmailAsync(
+
+                user.Id,
+
+                "Rejestracja konta",
+
+                "Potwierdź swoją rejestracje klikając na podany link: " +
+                "<a href=\"" + callbackUrl + "\">Potwierdź</a>");
+        }
+
+        [AllowAnonymous]
+        public async Task<ActionResult> SendEmailConfirmationToken(string userId)
+        {
+            await SendEmailToken(userId);
+
+            return View();
+        }
+
         //
         // GET: /Account/Register
         [AllowAnonymous]
@@ -368,29 +410,9 @@ namespace edziennik.Controllers
                 var result = await userManager.CreateAsync(user, password);
                 if (result.Succeeded)
                 {
-                    var code = await userManager.GenerateEmailConfirmationTokenAsync(user.Id);
                     await userManager.AddToRoleAsync(user.Id, "Users");
 
-                    var callbackUrl = Url.Action(
-
-                        "ConfirmEmail",
-
-                        "Account",
-
-                        new { userId = user.Id, code = code },
-
-                        protocol: Request.Url.Scheme);
-
-
-                    await userManager.SendEmailAsync(
-
-                        user.Id,
-
-                        "Rejestracja konta",
-
-                        "Potwierdź swoją rejestracje klikając na podany link: " +
-                        "<a href=\"" + callbackUrl + "\">Potwierdź</a>");
-
+                    await SendEmailToken(user.Id);
                 }
                 AddErrors(result);
             }
@@ -409,17 +431,6 @@ namespace edziennik.Controllers
                 return View("Error");
             }
             var result = await userManager.ConfirmEmailAsync(userId, code);
-            return View(result.Succeeded ? "ConfirmEmail" : "Error");
-        }
-
-        [AllowAnonymous]
-        public ActionResult ConfirmEmails(string userId, string code)
-        {
-            if (userId == null || code == null)
-            {
-                return View("Error");
-            }
-            var result = userManager.ConfirmEmail(userId, code);
             return View(result.Succeeded ? "ConfirmEmail" : "Error");
         }
 
