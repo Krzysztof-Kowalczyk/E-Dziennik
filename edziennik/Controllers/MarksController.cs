@@ -46,8 +46,24 @@ namespace edziennik.Controllers
            
             return View(marks);
         }
+       
+        [Authorize(Roles = "Students, Teachers, Admins")]
+        public ActionResult StudentSubjectMarks(string studentId, int subjectId)
+        {
+            var marks = markRepo.FindByStudentIdAndSubjectId(studentId,subjectId).Select(a => new MarkListItemViewModel
+            {
+                Student = studentRepo.FindById(a.StudentId).FullName,
+                Teacher = teacherRepo.FindById(a.TeacherId).FullName,
+                Subject = subjectRepo.FindById(a.SubjectId).Name,
+                Value = a.Value,
+                Classs = classRepo.FindByMarkId(a.Id).Name,
+                Id = a.Id,
+                TeacherId = a.TeacherId
+            });
 
-        // GET: Marks/Details/5
+            return View(marks);
+        }
+
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -99,9 +115,6 @@ namespace edziennik.Controllers
             return View(markVm);
         }
 
-        // POST: Marks/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(MarkCreateViewModel markVm)
@@ -133,7 +146,7 @@ namespace edziennik.Controllers
             return View(markVm);
         }
 
-        // GET: Marks/Edit/5
+
         [OnlyMarkTeacherOrAdmin]
         public ActionResult Edit(int? id)
         {
@@ -165,9 +178,7 @@ namespace edziennik.Controllers
             return View(markVm);
         }
 
-        // POST: Marks/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(MarkCreateViewModel markVm)
@@ -193,7 +204,7 @@ namespace edziennik.Controllers
             return View(markVm);
         }
 
-        // GET: Marks/Delete/5
+
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -221,7 +232,7 @@ namespace edziennik.Controllers
             return View(markVm);
         }
 
-        // POST: Marks/Delete/5
+
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)

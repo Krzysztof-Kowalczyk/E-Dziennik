@@ -12,42 +12,23 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.DataProtection;
 
-//fixy
-
-
 namespace edziennik.Controllers
 {
     [Authorize]
     public class AccountController : Controller
     {
-        private ApplicationUserManager _userManager;
-
-        public AccountController()
-        {
-
-        }
+        private readonly ApplicationUserManager userManager;
+        private readonly ApplicationSignInManager signInManager;
+        private readonly IAuthenticationManager authenticationManager;
 
         public AccountController(ApplicationUserManager userManager,
-                                 ApplicationSignInManager signInManager)
+                                 ApplicationSignInManager signInManager, IAuthenticationManager authenticationManager)
         {
-            var provider = new DpapiDataProtectionProvider("Sample");
-            UserManager = userManager;
-            SignInManager = signInManager;
-            UserManager.UserTokenProvider = new DataProtectorTokenProvider<ApplicationUser>(
-                provider.Create("EmailConfirmation"));
+            this.userManager = userManager;
+            this.signInManager = signInManager;
+            this.authenticationManager = authenticationManager;
         }
 
-        public ApplicationUserManager UserManager
-        {
-            get
-            {
-                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            }
-            private set
-            {
-                _userManager = value;
-            }
-        }
         ////////////////////
 
         public ActionResult DisplayPhoto()
@@ -59,7 +40,7 @@ namespace edziennik.Controllers
         [Authorize(Roles = "Admins")]
         public ActionResult ShowUsers()
         {
-            var users = UserManager.Users.Select(u => new UserListItemViewModel
+            var users = userManager.Users.Select(u => new UserListItemViewModel
             {
                 Id = u.Id,
                 Email = u.Email,
@@ -83,22 +64,21 @@ namespace edziennik.Controllers
                 AvatarUrl = ConstantStrings.DefaultUserAvatar
             };
 
-            UserManager.Create(user, password);
-            UserManager.AddToRole(user.Id, role);
-            ApplicationDbContext.Create().SaveChanges();
+            userManager.Create(user, password);
+            userManager.AddToRole(user.Id, role);
         }
 
         [Authorize(Roles = "Admins")]
         public ActionResult Details(string id)
         {
-            var user = UserManager.FindById(id);
+            var user = userManager.FindById(id);
             var vm = new UserDetailsViewModel
             {
                 Id = user.Id,
                 Email = user.Email,
                 EmailConfirmed = user.EmailConfirmed,
                 UserName = user.UserName,
-                UserRoles = UserManager.GetRoles(user.Id).ToArray(),
+                UserRoles = userManager.GetRoles(user.Id).ToArray(),
                 AvatarUrl = user.AvatarUrl,
                 Roles = ApplicationDbContext.Create().Roles.Select(r => new SelectListItem
                 {
@@ -113,7 +93,7 @@ namespace edziennik.Controllers
         [Authorize(Roles = "Admins")]
         public ActionResult Edit(string id)
         {
-            var user = UserManager.FindById(id);
+            var user = userManager.FindById(id);
 
             var vm = new UserEditViewModel
             {
@@ -121,7 +101,7 @@ namespace edziennik.Controllers
                 Email = user.Email,
                 EmailConfirmed = user.EmailConfirmed,
                 UserName = user.UserName,
-                UserRoles = UserManager.GetRoles(user.Id).ToArray(),
+                UserRoles = userManager.GetRoles(user.Id).ToArray(),
                 AvatarUrl = user.AvatarUrl,
                 Roles = ApplicationDbContext.Create().Roles.Select(r => new SelectListItem
                 {
@@ -150,14 +130,13 @@ namespace edziennik.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
-            var toDelete = UserManager.FindById(id);
+            var toDelete = userManager.FindById(id);
 
             if (toDelete != null)
             {
                 DeleteAvatar(toDelete.AvatarUrl);
                 toDelete.AvatarUrl = ConstantStrings.DefaultUserAvatar;
-                UserManager.Update(toDelete);
-                ApplicationDbContext.Create().SaveChanges();
+                userManager.Update(toDelete);
             }
 
             return RedirectToAction("Edit", toDelete);
@@ -170,7 +149,7 @@ namespace edziennik.Controllers
         {
             if (ModelState.IsValid)
             {
-                var dbPost = UserManager.FindById(user.Id);
+                var dbPost = userManager.FindById(user.Id);
                 if (dbPost == null)
                 {
                     return HttpNotFound();
@@ -179,8 +158,8 @@ namespace edziennik.Controllers
                 dbPost.UserName = user.UserName;
                 dbPost.Email = user.Email;
                 dbPost.EmailConfirmed = user.EmailConfirmed;
-                UserManager.RemoveFromRoles(user.Id, UserManager.GetRoles(user.Id).ToArray());
-                UserManager.AddToRoles(user.Id, user.UserRoles);
+                userManager.RemoveFromRoles(user.Id, userManager.GetRoles(user.Id).ToArray());
+                userManager.AddToRoles(user.Id, user.UserRoles);
 
                 if (file != null && file.ContentLength > 0 && file.ContentLength < 3000000)
                 {
@@ -191,8 +170,7 @@ namespace edziennik.Controllers
                     file.SaveAs(absolutePath);
                     dbPost.AvatarUrl = relativePath;
                 }
-                UserManager.Update(dbPost);
-                ApplicationDbContext.Create().SaveChanges();
+                userManager.Update(dbPost);
 
                 return RedirectToAction("Details", dbPost);
             }
@@ -203,14 +181,14 @@ namespace edziennik.Controllers
         [Authorize(Roles = "Admins")]
         public ActionResult Delete(string id)
         {
-            var user = UserManager.FindById(id);
+            var user = userManager.FindById(id);
             var vm = new UserDetailsViewModel
             {
                 Id = user.Id,
                 Email = user.Email,
                 EmailConfirmed = user.EmailConfirmed,
                 UserName = user.UserName,
-                UserRoles = UserManager.GetRoles(user.Id).ToArray(),
+                UserRoles = userManager.GetRoles(user.Id).ToArray(),
                 Roles = ApplicationDbContext.Create().Roles.Select(r => new SelectListItem
                 {
                     Value = r.Name,
@@ -226,9 +204,8 @@ namespace edziennik.Controllers
         [ActionName("Delete")]
         public ActionResult DeletePost(string id)
         {
-            var user = UserManager.FindById(id);
-            UserManager.Delete(user);
-            ApplicationDbContext.Create().SaveChanges();
+            var user = userManager.FindById(id);
+            userManager.Delete(user);
 
             return RedirectToAction("ShowUsers");
         }
@@ -240,17 +217,6 @@ namespace edziennik.Controllers
         {
             ViewBag.ReturnUrl = returnUrl;
             return View();
-        }
-
-        private ApplicationSignInManager _signInManager;
-
-        public ApplicationSignInManager SignInManager
-        {
-            get
-            {
-                return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
-            }
-            private set { _signInManager = value; }
         }
 
         //
@@ -267,15 +233,19 @@ namespace edziennik.Controllers
 
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, change to shouldLockout: true          
-            var user = await UserManager.FindByNameAsync(model.Login);
-            var check = await UserManager.CheckPasswordAsync(user, model.Password);
-
+            var user = await userManager.FindByNameAsync(model.Login);
+            var check = await userManager.CheckPasswordAsync(user, model.Password);
+            if (!user.EmailConfirmed)
+            {
+                return View("EmailNotConfirmed");
+            }
 
             if (check && user.UserName != "Admin" && user.LastPasswordChange == user.CreateDate)
             {
                 return RedirectToAction("ChangePassword");
             }
-            var result = await SignInManager.PasswordSignInAsync(model.Login, model.Password, model.RememberMe, shouldLockout: true);
+
+            var result = await signInManager.PasswordSignInAsync(model.Login, model.Password, model.RememberMe, shouldLockout: true);
 
             switch (result)
             {
@@ -300,23 +270,29 @@ namespace edziennik.Controllers
 
         [HttpPost]
         [AllowAnonymous]
+        [ValidateAntiForgeryToken]
         public async Task<ActionResult> ChangePassword(FirstChangePasswordViewModel vm)
         {
             if (ModelState.IsValid)
             {
-                var user = await UserManager.FindByNameAsync(vm.Login);
-                var check = await UserManager.CheckPasswordAsync(user, vm.OldPassword);
+                var user = await userManager.FindByNameAsync(vm.Login);
+                var check = await userManager.CheckPasswordAsync(user, vm.OldPassword);
                 if (check)
                 {
-                    await UserManager.RemovePasswordAsync(user.Id);
-                    await UserManager.AddPasswordAsync(user.Id, vm.NewPassword);
-                    user.LastPasswordChange = DateTime.Now;
-                    UserManager.Update(user);
-                    ApplicationDbContext.Create().SaveChanges();
+                    var result = await userManager.ChangePasswordAsync(user.Id, vm.OldPassword, vm.NewPassword);
+                    if (result.Succeeded)
+                    {
+                        user.LastPasswordChange = DateTime.Now;
+                        userManager.Update(user);
+                        await signInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+                        
+                        return RedirectToAction("Index","Home");
+                    }
 
-                    return RedirectToAction("Login");
+                    AddErrors(result);
                 }
-                ModelState.AddModelError(String.Empty, "Podano złe dane");
+                else
+                    ModelState.AddModelError(String.Empty, "Podano złe dane");
             }
 
             return View(vm);
@@ -328,14 +304,14 @@ namespace edziennik.Controllers
         public async Task<ActionResult> VerifyCode(string provider, string returnUrl, bool rememberMe)
         {
             // Require that the user has already logged in via username/password or external login
-            if (!await SignInManager.HasBeenVerifiedAsync())
+            if (!await signInManager.HasBeenVerifiedAsync())
             {
                 return View("Error");
             }
-            var user = await UserManager.FindByIdAsync(await SignInManager.GetVerifiedUserIdAsync());
+            var user = await userManager.FindByIdAsync(await signInManager.GetVerifiedUserIdAsync());
             if (user != null)
             {
-                var code = await UserManager.GenerateTwoFactorTokenAsync(user.Id, provider);
+                var code = await userManager.GenerateTwoFactorTokenAsync(user.Id, provider);
             }
             return View(new VerifyCodeViewModel { Provider = provider, ReturnUrl = returnUrl, RememberMe = rememberMe });
         }
@@ -356,7 +332,7 @@ namespace edziennik.Controllers
             // If a user enters incorrect codes for a specified amount of time then the user account 
             // will be locked out for a specified amount of time. 
             // You can configure the account lockout settings in IdentityConfig
-            var result = await SignInManager.TwoFactorSignInAsync(model.Provider, model.Code, isPersistent: model.RememberMe, rememberBrowser: model.RememberBrowser);
+            var result = await signInManager.TwoFactorSignInAsync(model.Provider, model.Code, isPersistent: model.RememberMe, rememberBrowser: model.RememberBrowser);
             switch (result)
             {
                 case SignInStatus.Success:
@@ -389,11 +365,11 @@ namespace edziennik.Controllers
             {
                 var password = model.Surname.Substring(0, 3) + model.Login.Substring(6, 4);
                 var user = new ApplicationUser { UserName = model.Login, Email = model.Email, AvatarUrl = ConstantStrings.DefaultUserAvatar };
-                var result = await UserManager.CreateAsync(user, password);
+                var result = await userManager.CreateAsync(user, password);
                 if (result.Succeeded)
                 {
-                    var code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
-                    await UserManager.AddToRoleAsync(user.Id, "Users");
+                    var code = await userManager.GenerateEmailConfirmationTokenAsync(user.Id);
+                    await userManager.AddToRoleAsync(user.Id, "Users");
 
                     var callbackUrl = Url.Action(
 
@@ -406,8 +382,7 @@ namespace edziennik.Controllers
                         protocol: Request.Url.Scheme);
 
 
-
-                    await UserManager.SendEmailAsync(
+                    await userManager.SendEmailAsync(
 
                         user.Id,
 
@@ -415,8 +390,6 @@ namespace edziennik.Controllers
 
                         "Potwierdź swoją rejestracje klikając na podany link: " +
                         "<a href=\"" + callbackUrl + "\">Potwierdź</a>");
-
-                    return View("DisplayEmail");
 
                 }
                 AddErrors(result);
@@ -435,7 +408,7 @@ namespace edziennik.Controllers
             {
                 return View("Error");
             }
-            var result = await UserManager.ConfirmEmailAsync(userId, code);
+            var result = await userManager.ConfirmEmailAsync(userId, code);
             return View(result.Succeeded ? "ConfirmEmail" : "Error");
         }
 
@@ -446,7 +419,7 @@ namespace edziennik.Controllers
             {
                 return View("Error");
             }
-            var result = UserManager.ConfirmEmail(userId, code);
+            var result = userManager.ConfirmEmail(userId, code);
             return View(result.Succeeded ? "ConfirmEmail" : "Error");
         }
 
@@ -467,9 +440,9 @@ namespace edziennik.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await UserManager.FindByEmailAsync(model.Email);
-                // var user = await UserManager.FindByNameAsync(model.);
-                if (user == null || !(await UserManager.IsEmailConfirmedAsync(user.Id)))
+                var user = await userManager.FindByEmailAsync(model.Email);
+                // var user = await userManager.FindByNameAsync(model.);
+                if (user == null || !(await userManager.IsEmailConfirmedAsync(user.Id)))
                 {
                     // Don't reveal that the user does not exist or is not confirmed
                     //return View("ForgotPasswordConfirmation");
@@ -478,9 +451,9 @@ namespace edziennik.Controllers
 
                 // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
                 // Send an email with this link
-                string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
+                string code = await userManager.GeneratePasswordResetTokenAsync(user.Id);
                 var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
-                await UserManager.SendEmailAsync(user.Id, "Resetowanie hasła", "Aby zresetować hasło kliknij na podany link:  <a href=\"" + callbackUrl + "\">Reset</a>");
+                await userManager.SendEmailAsync(user.Id, "Resetowanie hasła", "Aby zresetować hasło kliknij na podany link:  <a href=\"" + callbackUrl + "\">Reset</a>");
                 return RedirectToAction("ForgotPasswordConfirmation", "Account");
             }
 
@@ -515,14 +488,14 @@ namespace edziennik.Controllers
             {
                 return View(model);
             }
-            var user = await UserManager.FindByEmailAsync(model.Email);
+            var user = await userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
                 // Don't reveal that the user does not exist
                 return RedirectToAction("ResetPasswordConfirmation", "Account");
             }
 
-            var result = await UserManager.ResetPasswordAsync(user.Id, model.Code, model.Password);
+            var result = await userManager.ResetPasswordAsync(user.Id, model.Code, model.Password);
             if (result.Succeeded)
             {
                 return RedirectToAction("ResetPasswordConfirmation", "Account");
@@ -541,7 +514,7 @@ namespace edziennik.Controllers
 
         public string AvatarUrl(string id)
         {
-            var user = UserManager.FindById(id);
+            var user = userManager.FindById(id);
             return user != null ? user.AvatarUrl : ConstantStrings.DefaultUserAvatar;
         }
 
@@ -561,12 +534,12 @@ namespace edziennik.Controllers
         [AllowAnonymous]
         public async Task<ActionResult> SendCode(string returnUrl, bool rememberMe)
         {
-            var userId = await SignInManager.GetVerifiedUserIdAsync();
+            var userId = await signInManager.GetVerifiedUserIdAsync();
             if (userId == null)
             {
                 return View("Error");
             }
-            var userFactors = await UserManager.GetValidTwoFactorProvidersAsync(userId);
+            var userFactors = await userManager.GetValidTwoFactorProvidersAsync(userId);
             var factorOptions = userFactors.Select(purpose => new SelectListItem { Text = purpose, Value = purpose }).ToList();
             return View(new SendCodeViewModel { Providers = factorOptions, ReturnUrl = returnUrl, RememberMe = rememberMe });
         }
@@ -584,7 +557,7 @@ namespace edziennik.Controllers
             }
 
             // Generate the token and send it
-            if (!await SignInManager.SendTwoFactorCodeAsync(model.SelectedProvider))
+            if (!await signInManager.SendTwoFactorCodeAsync(model.SelectedProvider))
             {
                 return View("Error");
             }
@@ -596,14 +569,14 @@ namespace edziennik.Controllers
         [AllowAnonymous]
         public async Task<ActionResult> ExternalLoginCallback(string returnUrl)
         {
-            var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync();
+            var loginInfo = await authenticationManager.GetExternalLoginInfoAsync();
             if (loginInfo == null)
             {
                 return RedirectToAction("Login");
             }
 
             // Sign in the user with this external login provider if the user already has a login
-            var result = await SignInManager.ExternalSignInAsync(loginInfo, isPersistent: false);
+            var result = await signInManager.ExternalSignInAsync(loginInfo, isPersistent: false);
             switch (result)
             {
                 case SignInStatus.Success:
@@ -636,19 +609,19 @@ namespace edziennik.Controllers
             if (ModelState.IsValid)
             {
                 // Get the information about the user from the external login provider
-                var info = await AuthenticationManager.GetExternalLoginInfoAsync();
+                var info = await authenticationManager.GetExternalLoginInfoAsync();
                 if (info == null)
                 {
                     return View("ExternalLoginFailure");
                 }
                 var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
-                var result = await UserManager.CreateAsync(user);
+                var result = await userManager.CreateAsync(user);
                 if (result.Succeeded)
                 {
-                    result = await UserManager.AddLoginAsync(user.Id, info.Login);
+                    result = await userManager.AddLoginAsync(user.Id, info.Login);
                     if (result.Succeeded)
                     {
-                        await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+                        await signInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
                         return RedirectToLocal(returnUrl);
                     }
                 }
@@ -665,7 +638,7 @@ namespace edziennik.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult LogOff()
         {
-            AuthenticationManager.SignOut();
+            authenticationManager.SignOut();
             return RedirectToAction("Index", "Home");
         }
 
@@ -680,7 +653,7 @@ namespace edziennik.Controllers
         [AllowAnonymous]
         public bool IsUniquePesel(string pesel)
         {
-            var user = UserManager.FindByName(pesel);
+            var user = userManager.FindByName(pesel);
 
             return user == null;
         }
@@ -689,13 +662,13 @@ namespace edziennik.Controllers
         // Used for XSRF protection when adding external logins
         private const string XsrfKey = "XsrfId";
 
-        private IAuthenticationManager AuthenticationManager
-        {
-            get
-            {
-                return HttpContext.GetOwinContext().Authentication;
-            }
-        }
+        /*  private IAuthenticationManager AuthenticationManager
+          {
+              get
+              {
+                  return HttpContext.GetOwinContext().Authentication;
+              }
+          }*/
 
         private void AddErrors(IdentityResult result)
         {

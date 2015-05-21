@@ -9,7 +9,7 @@ using Repositories.Repositories;
 
 namespace edziennik.Controllers
 {
-    [Authorize(Roles = "Admins")]
+    
     public class SubjectsController : Controller
     {
         private readonly SubjectRepository subjectRepo;
@@ -27,6 +27,7 @@ namespace edziennik.Controllers
         }
 
         // GET: Subjects
+        [Authorize(Roles = "Admins")]
         public ActionResult Index()
         {
             var subjects = subjectRepo.GetAll().Select(a => new SubjectViewModel
@@ -43,7 +44,41 @@ namespace edziennik.Controllers
             return View(subjects);
         }
 
-        // GET: Subjects/Details/5
+        [Authorize(Roles = "Admins,Teachers")]
+        public ActionResult TeacherSubjects(string teacherId)
+        {
+            var subjects = subjectRepo.FindByTeacherId(teacherId).Select(a => new SubjectViewModel
+            {
+                Id = a.Id,
+                Classroom = classroomRepo.FindById(a.ClassroomId).Name,
+                Classs = classRepo.FindById(a.ClasssId).Name,
+                Day = a.Day,
+                Hour = a.Hour,
+                Name = a.Name,
+                Teacher = teacherRepo.FindById(a.TeacherId).FullName
+            });
+
+            return View("Index", subjects);
+        }
+
+        [Authorize(Roles = "Students,Admins,Teachers")]
+        public ActionResult StudentSubjects(string studentId)
+        {
+            var subjects = subjectRepo.FindByStudentId(studentId).Select(a => new SubjectViewModel
+            {
+                Id = a.Id,
+                Classroom = classroomRepo.FindById(a.ClassroomId).Name,
+                Classs = classRepo.FindById(a.ClasssId).Name,
+                Day = a.Day,
+                Hour = a.Hour,
+                Name = a.Name,
+                Teacher = teacherRepo.FindById(a.TeacherId).FullName
+            });
+
+            return View("Index", subjects);
+        }
+
+        [Authorize]
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -69,8 +104,8 @@ namespace edziennik.Controllers
 
             return View(subjectVm);
         }
-
-        // GET: Subjects/Create
+        
+        [Authorize(Roles = "Admins")]
         public ActionResult Create()
         {
             var subjectVm = new SubjectCreateViewModel
@@ -90,6 +125,7 @@ namespace edziennik.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admins")]
         public ActionResult Create(SubjectCreateViewModel subjectVm)
         {
             if (ModelState.IsValid)
@@ -114,7 +150,7 @@ namespace edziennik.Controllers
             return View(subjectVm);
         }
 
-        // GET: Subjects/Edit/5
+        [Authorize(Roles = "Admins")]
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -146,9 +182,7 @@ namespace edziennik.Controllers
             return View(subjectVm);
         }
 
-        // POST: Subjects/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "Admins")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(SubjectCreateViewModel subjectVm)
@@ -175,7 +209,7 @@ namespace edziennik.Controllers
             return View(subjectVm);
         }
 
-        // GET: Subjects/Delete/5
+        [Authorize(Roles = "Admins")]
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -190,7 +224,7 @@ namespace edziennik.Controllers
             return View(subject);
         }
 
-        // POST: Subjects/Delete/5
+        [Authorize(Roles = "Admins")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)

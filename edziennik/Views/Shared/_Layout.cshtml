@@ -9,6 +9,7 @@
 
 </head>
 <body>
+    @using Microsoft.AspNet.Identity;
     <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
@@ -32,6 +33,14 @@
                     @if (User.IsInRole("Admins"))
                     {
                         <li>@Html.ActionLink("Lista użytkowników", "ShowUsers", "Account")</li>
+                    }
+                    @if (User.IsInRole("Students"))
+                    {
+                        <li>@Html.ActionLink("Moje przedmioty", "StudentSubjects", "Subjects", new {studentId = User.Identity.GetUserId()} , null)</li>
+                    }
+                    @if (User.IsInRole("Teachers"))
+                    {
+                        <li>@Html.ActionLink("Moje przedmioty", "TeacherSubjects", "Subjects", new { teacherId = User.Identity.GetUserId() }, null)</li>
                     }
                 </ul>
                 @Html.Partial("_LoginPartial")

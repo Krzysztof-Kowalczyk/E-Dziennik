@@ -42,5 +42,12 @@ namespace Repositories.Repositories
         {
             db.SaveChanges();
         }
+
+       public List<Mark> FindByStudentIdAndSubjectId(string studentId, int subjectId)
+        {
+            var marks = db.Marks.Where(a => a.StudentId == studentId && a.SubjectId == subjectId).ToList();
+
+            return marks;
+        }
     }
 }

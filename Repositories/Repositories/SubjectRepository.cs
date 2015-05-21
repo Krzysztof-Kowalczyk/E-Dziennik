@@ -50,5 +50,20 @@ namespace Repositories.Repositories
             
             return subjects;
         }
+
+        public List<Subject> FindByTeacherId(string teacherId)
+        {
+            var subjects = db.Subjects.Where(a => a.TeacherId == teacherId).ToList();
+
+            return subjects;
+        }
+
+        public List<Subject> FindByStudentId(string studentId)
+        {
+            var classId = db.Students.Single(a => a.Id == studentId).ClasssId;
+            var subjects = db.Subjects.Where(a => a.ClasssId == classId).ToList();
+
+            return subjects;
+        }
     }
 }
