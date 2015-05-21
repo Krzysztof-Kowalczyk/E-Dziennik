@@ -81,8 +81,10 @@ namespace edziennik.Controllers
 
        "Rejestracja konta",
 
-       "Potwierdź swoją rejestracje klikając na podany link: " +
-       "<a href=\"" + callbackUrl + "\">Potwierdź</a>");
+               "Twoje hasło to trzy pierwsze litery nazwiska(pierwsza litera duża) + 4 ostatnie cyfry numer pesel + #." +
+                "Przykładowo hasło dla uzytkownika Jan Kowlaski numer pesel:12345678910, byłoby nastepujące: Kow8910# ." +
+                "Potwierdź swoją rejestracje klikając na podany link: " +
+                "<a href=\"" + callbackUrl + "\">Potwierdź</a>");
 
                 return user.Id;
             }
