@@ -48,12 +48,12 @@
             <td>
                 @if (User.IsInRole("Admins") || User.Identity.GetUserId() == item.TeacherId)
                 {
-                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) 
+                    @Html.ActionLink("Edycja", "Edit", new { id = item.Id }) 
                 }
-               | @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+               | @Html.ActionLink("Szczegóły", "Details", new { id = item.Id }) |
                 @if (User.IsInRole("Admins") ||  User.Identity.GetUserId() == item.TeacherId)
                 {
-                    @Html.ActionLink("Delete", "Delete", new { id = item.Id })
+                    @Html.ActionLink("Usuń", "Delete", new { id = item.Id })
                 }
             </td>
         </tr>

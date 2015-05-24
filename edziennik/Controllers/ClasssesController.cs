@@ -3,6 +3,7 @@ using edziennik.Resources;
 using Microsoft.AspNet.Identity;
 using Models.Models;
 using Repositories.Repositories;
+using System;
 using System.Net;
 using System.Web.Mvc;
 
@@ -21,8 +22,13 @@ namespace edziennik.Controllers
         }
 
         // GET: Classses
-        public ActionResult Index()
+        public ActionResult Index(string error)
         {
+            if (String.IsNullOrEmpty(error))
+                ViewBag.Error = "";
+            else
+                ViewBag.Error = error;
+
             return View(classRepo.GetAll());
         }
 
@@ -47,7 +53,8 @@ namespace edziennik.Controllers
         {
             if (teacherRepo.GetAll().Count == 0 )
             {
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", 
+                      new {error ="Nie można stworzyć klasy, gdyż nie istnieje żaden nauczyciel"});
             }
             var classVm = new ClassCreateViewModel
             {

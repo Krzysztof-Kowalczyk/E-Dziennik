@@ -1,17 +1,17 @@
 ﻿@model edziennik.Models.TeacherRegisterViewModel
 
 @{
-    ViewBag.Title = "Create";
+    ViewBag.Title = "Stwórz";
 }
 
-<h2>Create</h2>
+<h2>Stwórz</h2>
 
 @using (Html.BeginForm()) 
 {
     @Html.AntiForgeryToken()
     
     <div class="form-horizontal">
-        <h4>TeacherRegisterViewModel</h4>
+        <h4>Nauczyciel</h4>
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         <div class="form-group">

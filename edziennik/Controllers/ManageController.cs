@@ -77,7 +77,7 @@ namespace edziennik.Controllers
                 file.SaveAs(absolutePath);
 
                 cUser.AvatarUrl = relativePath;
-               await userManager.UpdateAsync(cUser);
+                await userManager.UpdateAsync(cUser);
             }
 
             return View();

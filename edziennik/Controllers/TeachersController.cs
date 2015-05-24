@@ -22,7 +22,7 @@ namespace edziennik.Controllers
 
         // GET: Teachers
         public ActionResult Index()
-        {
+        {              
             return View(teacherRepo.GetAll());
         }
 
