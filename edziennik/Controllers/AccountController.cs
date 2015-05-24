@@ -1,18 +1,17 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using System.Web;
-using System.Web.Mvc;
-using edziennik.Models;
+﻿using edziennik.Models;
 using edziennik.Resources;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
-using Microsoft.Owin.Security.DataProtection;
-using System.Security.Cryptography.X509Certificates;
+using System;
+using System.IO;
+using System.Linq;
+using System.Net;
 using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
+using System.Web;
+using System.Web.Mvc;
 
 namespace edziennik.Controllers
 {
@@ -674,14 +673,6 @@ namespace edziennik.Controllers
         #region Helpers
         // Used for XSRF protection when adding external logins
         private const string XsrfKey = "XsrfId";
-
-        /*  private IAuthenticationManager AuthenticationManager
-          {
-              get
-              {
-                  return HttpContext.GetOwinContext().Authentication;
-              }
-          }*/
 
         private void AddErrors(IdentityResult result)
         {

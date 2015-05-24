@@ -1,12 +1,12 @@
-﻿using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using System.Web.Mvc;
-using edziennik.Models;
+﻿using edziennik.Models;
 using edziennik.Resources;
 using Microsoft.AspNet.Identity;
 using Models.Models;
 using Repositories.Repositories;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace edziennik.Controllers
 {
@@ -119,7 +119,8 @@ namespace edziennik.Controllers
                         
                     studentRepo.Insert(student);
                     studentRepo.Save();
-                    Logs.SaveLog("Create", User.Identity.GetUserId(), "Student", student.Id);
+                    Logs.SaveLog("Create", User.Identity.GetUserId(), 
+                                 "Student", student.Id, Request.UserHostAddress);
                     return RedirectToAction("Index");
                 }
 
@@ -182,10 +183,10 @@ namespace edziennik.Controllers
                 studentRepo.Update(student);
                 studentRepo.Save();               
 
-                var user = await userManager.FindByIdAsync(studentEvm.Id);
-                user.Email = studentEvm.Email;
-                await UpdateUser(user, student);
-                Logs.SaveLog("Edit", User.Identity.GetUserId(), "Student", student.Id);
+                var user = await userManager.FindByIdAsync(studentEvm.Id);                
+                await UpdateUser(user, student, studentEvm.Email);
+                Logs.SaveLog("Edit", User.Identity.GetUserId(), 
+                             "Student", student.Id, Request.UserHostAddress);
                
                 return RedirectToAction("Index");
             }
@@ -229,7 +230,8 @@ namespace edziennik.Controllers
             studentRepo.Delete(id);
             studentRepo.Save();
             DeleteUser(id);
-            Logs.SaveLog("Delete", User.Identity.GetUserId(), "Student", id);
+            Logs.SaveLog("Delete", User.Identity.GetUserId(),
+                         "Student", id, Request.UserHostAddress);
             return RedirectToAction("Index");
         }
 

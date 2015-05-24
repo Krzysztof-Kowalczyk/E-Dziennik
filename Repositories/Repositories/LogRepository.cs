@@ -30,6 +30,7 @@ namespace Repositories.Repositories
             log.Date = item.Date;
             log.What = item.What;
             log.Who = item.Who;
+            log.Ip = item.Ip;
         }
 
         public void Delete(int id)

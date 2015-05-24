@@ -1,11 +1,11 @@
-﻿using System.Net;
-using System.Threading.Tasks;
-using System.Web.Mvc;
-using edziennik.Models;
+﻿using edziennik.Models;
 using edziennik.Resources;
 using Microsoft.AspNet.Identity;
 using Models.Models;
 using Repositories.Repositories;
+using System.Net;
+using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace edziennik.Controllers
 {
@@ -70,7 +70,8 @@ namespace edziennik.Controllers
                 };
                 teacherRepo.Insert(teacher);
                 teacherRepo.Save();
-                Logs.SaveLog("Create", User.Identity.GetUserId(), "Teacher", teacher.Id);
+                Logs.SaveLog("Create", User.Identity.GetUserId(), 
+                             "Teacher", teacher.Id, Request.UserHostAddress);
                 return RedirectToAction("Index");
             }
 
@@ -125,9 +126,9 @@ namespace edziennik.Controllers
                 teacherRepo.Save();
                 
                 var user = await userManager.FindByIdAsync(teacherVm.Id);
-                user.Email = teacherVm.Email;
-                await UpdateUser(user,teacher);
-                Logs.SaveLog("Edit", User.Identity.GetUserId(), "Teacher", teacher.Id);
+                await UpdateUser(user, teacher, teacherVm.Email);
+                Logs.SaveLog("Edit", User.Identity.GetUserId(), 
+                             "Teacher", teacher.Id, Request.UserHostAddress);
 
                 return RedirectToAction("Index");
             }
@@ -157,7 +158,8 @@ namespace edziennik.Controllers
             teacherRepo.Delete(id);
             teacherRepo.Save();
             DeleteUser(id);
-            Logs.SaveLog("Delete", User.Identity.GetUserId(), "Teacher", id);
+            Logs.SaveLog("Delete", User.Identity.GetUserId(), 
+                         "Teacher", id, Request.UserHostAddress);
             return RedirectToAction("Index");
         }
 

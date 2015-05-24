@@ -1,24 +1,37 @@
-﻿using System.Net;
-using System.Web.Mvc;
+﻿using edziennik.Models;
+using Microsoft.AspNet.Identity;
 using Models.Models;
 using Repositories.Repositories;
+using System.Linq;
+using System.Net;
+using System.Web.Mvc;
 
 namespace edziennik.Controllers
 {
     [Authorize(Roles = "Admins")]
     public class LogsController : Controller
     {
-        private LogRepository LogRepository { get; set; }
+        private readonly LogRepository LogRepository;
+        private readonly ApplicationUserManager userManager;
 
-        public LogsController(LogRepository logRepository)
+        public LogsController(LogRepository logRepository, ApplicationUserManager _userManager)
         {
             LogRepository = logRepository;
+            this.userManager = _userManager;
         }
 
         // GET: Logs
         public ActionResult Index()
         {
-            return View(LogRepository.GetAll());
+            var logs = LogRepository.GetAll().Select(a=>new LogListItemViewModel
+                {
+                    Id = a.Id,
+                    Action = a.Action,
+                    What = a.What,
+                    Who = userManager.FindById(a.Who).UserName,
+                    Date = a.Date
+                });
+            return View(logs);
         }
 
         // GET: Logs/Details/5
@@ -29,42 +42,22 @@ namespace edziennik.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             Log log = LogRepository.FindById((int)id);
+
             if (log == null)
             {
                 return HttpNotFound();
             }
-            return View(log);
-        }
-
-        // GET: Logs/Edit/5
-        public ActionResult Edit(int? id)
-        {
-            if (id == null)
+            var logVm = new LogDetailsViewModel
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Log log = LogRepository.FindById((int) id);
-            if (log == null)
-            {
-                return HttpNotFound();
-            }
-            return View(log);
-        }
-
-        // POST: Logs/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,Date,Action,Who,What")] Log log)
-        {
-            if (ModelState.IsValid)
-            {
-                LogRepository.Update(log);
-                LogRepository.Save();
-                return RedirectToAction("Index");
-            }
-            return View(log);
+                Action = log.Action,
+                Date = log.Date,
+                What = log.What,
+                WhatId = log.WhatId,
+                Who = userManager.FindById(log.Who).UserName,
+                Id = log.Id,
+                Ip = log.Ip
+            };
+            return View(logVm);
         }
 
         // GET: Logs/Delete/5

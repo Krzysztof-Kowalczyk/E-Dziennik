@@ -22,5 +22,8 @@ namespace Models.Models
         [Display(Name = "Komu")]
         public string WhatId { get; set; }
 
+        [Display(Name = "Adres Ip")]
+        public string Ip { get; set; }
+
     }
 }

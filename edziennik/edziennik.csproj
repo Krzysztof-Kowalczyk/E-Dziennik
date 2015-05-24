@@ -289,10 +289,8 @@
     <Content Include="Views\Marks\Details.cshtml" />
     <Content Include="Views\Marks\Delete.cshtml" />
     <Content Include="Views\Teachers\Edit.cshtml" />
-    <Content Include="Views\Logs\Create.cshtml" />
     <Content Include="Views\Logs\Delete.cshtml" />
     <Content Include="Views\Logs\Details.cshtml" />
-    <Content Include="Views\Logs\Edit.cshtml" />
     <Content Include="Views\Logs\Index.cshtml" />
     <Content Include="Views\Account\ChangePassword.cshtml" />
     <Content Include="Views\Account\EmailNotConfirmed.cshtml" />

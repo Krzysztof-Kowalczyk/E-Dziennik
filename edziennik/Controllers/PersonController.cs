@@ -1,32 +1,23 @@
-﻿using System;
-using System.Net;
-using System.Net.Mail;
-using System.Threading.Tasks;
-using System.Web.Mvc;
-using edziennik.Models;
+﻿using edziennik.Models;
 using edziennik.Resources;
 using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.AspNet.Identity.Owin;
-using Microsoft.Owin.Security.DataProtection;
 using Models.Models;
-using System.Security.Cryptography.X509Certificates;
+using System;
+using System.Net;
 using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace edziennik.Controllers
 {
     public abstract class PersonController : Controller
     {
-        //protected ApplicationDbContext ApplicationDbContext { get; set; }
-        // protected UserManager<ApplicationUser> UserManager { get; set; }
         protected readonly ApplicationUserManager userManager;
 
         protected PersonController(ApplicationUserManager userManager)
         {
-            //var provider = new DpapiDataProtectionProvider("Sample");
-            //ApplicationDbContext = new ApplicationDbContext();
             this.userManager = userManager;
-
         }
 
         [NonAction]
@@ -100,47 +91,12 @@ namespace edziennik.Controllers
         }
 
         [NonAction]
-        protected async Task UpdateUser(ApplicationUser user, Person person)
+        protected async Task UpdateUser(ApplicationUser user, Person person, string email)
         {
-            var password = person.Surname.Substring(0, 3) +
-                                        person.Pesel.Substring(7, 4);
-
-            await userManager.RemovePasswordAsync(person.Id);
-            await userManager.AddPasswordAsync(person.Id, password);
             user.UserName = person.Pesel;
-            user.LastPasswordChange = DateTime.Now;
+            user.Email = email;
             await userManager.UpdateAsync(user);
         }
-
-        [NonAction]
-        private void SendEmail(string destination, string subject, string body)
-        {
-            const string credentialUserName = "jedznaplus@gmail.com";
-            const string sentFrom = "jedznaplus@gmail.com";
-            const string pwd = "jedznaplus123";
-            var credentials = new NetworkCredential(credentialUserName, pwd);
-
-            // Configure the client:
-            var client = new SmtpClient("smtp.gmail.com")
-            {
-                Port = 587,
-                DeliveryMethod = SmtpDeliveryMethod.Network,
-                UseDefaultCredentials = false,
-                EnableSsl = true,
-                Credentials = credentials
-            };
-
-            // Create the message:
-            var mail = new MailMessage(sentFrom, destination)
-            {
-                Subject = subject,
-                Body = body,
-                IsBodyHtml = true
-            };
-
-            client.Send(mail);
-        }
-
 
     }
 }

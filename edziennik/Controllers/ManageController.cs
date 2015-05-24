@@ -1,14 +1,13 @@
-﻿using System;
+﻿using edziennik.Models;
+using edziennik.Resources;
+using Microsoft.AspNet.Identity;
+using Microsoft.Owin.Security;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using edziennik.Models;
-using edziennik.Resources;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
-using Microsoft.Owin.Security;
 
 namespace edziennik.Controllers
 {
@@ -43,7 +42,7 @@ namespace edziennik.Controllers
                 PhoneNumber = await userManager.GetPhoneNumberAsync(User.Identity.GetUserId()),
                 TwoFactor = await userManager.GetTwoFactorEnabledAsync(User.Identity.GetUserId()),
                 Logins = await userManager.GetLoginsAsync(User.Identity.GetUserId()),
-                BrowserRemembered = await AuthenticationManager.TwoFactorBrowserRememberedAsync(User.Identity.GetUserId())
+                BrowserRemembered = await authenticationManager.TwoFactorBrowserRememberedAsync(User.Identity.GetUserId())
             };
             return View(model);
         }
@@ -60,16 +59,16 @@ namespace edziennik.Controllers
         [HttpGet]
         public ActionResult ChangeAvatar()
         {
-            ViewBag.AvatarURL = userManager.FindByName(User.Identity.Name).AvatarUrl;
+            ViewBag.AvatarURL = userManager.FindById(User.Identity.GetUserId()).AvatarUrl;
             return View();
         }
 
         [HttpPost]
-        public ActionResult ChangeAvatar(HttpPostedFileBase file)
+        public async Task<ActionResult> ChangeAvatar(HttpPostedFileBase file)
         {
             if (file != null && file.ContentLength > 0 && file.ContentLength < 3000000)
             {
-                var cUser = userManager.FindByName(User.Identity.Name);
+                var cUser = userManager.FindById(User.Identity.GetUserId());
 
                 var fileName = Path.GetFileName(file.FileName);
                 var uniqueFileName = Guid.NewGuid() + fileName;
@@ -78,8 +77,7 @@ namespace edziennik.Controllers
                 file.SaveAs(absolutePath);
 
                 cUser.AvatarUrl = relativePath;
-                userManager.Update(cUser);
-                ApplicationDbContext.Create().SaveChanges();
+               await userManager.UpdateAsync(cUser);
             }
 
             return View();
@@ -95,13 +93,13 @@ namespace edziennik.Controllers
             }
         }
 
-        public ActionResult DeleteAvatar()
+        public async Task<ActionResult> DeleteAvatar()
         {
-            var cUser = userManager.FindByName(User.Identity.Name);
+            var cUser = userManager.FindById(User.Identity.GetUserId());
             DeleteImg(cUser.AvatarUrl);
             cUser.AvatarUrl = ConstantStrings.DefaultUserAvatar;
-            userManager.Update(cUser);
-            ApplicationDbContext.Create().SaveChanges();
+            await userManager.UpdateAsync(cUser);
+
             return RedirectToAction("ChangeAvatar");
         }
 
@@ -263,6 +261,8 @@ namespace edziennik.Controllers
                 if (user != null)
                 {
                     await SignInAsync(user, isPersistent: false);
+                    user.LastPasswordChange = DateTime.Now;
+                    await userManager.UpdateAsync(user);
                 }
                 return RedirectToAction("Index", new { Message = ManageMessageId.ChangePasswordSuccess });
             }
@@ -316,7 +316,7 @@ namespace edziennik.Controllers
                 return View("Error");
             }
             var userLogins = await userManager.GetLoginsAsync(User.Identity.GetUserId());
-            var otherLogins = AuthenticationManager.GetExternalAuthenticationTypes().Where(auth => userLogins.All(ul => auth.AuthenticationType != ul.LoginProvider)).ToList();
+            var otherLogins = authenticationManager.GetExternalAuthenticationTypes().Where(auth => userLogins.All(ul => auth.AuthenticationType != ul.LoginProvider)).ToList();
             ViewBag.ShowRemoveButton = user.PasswordHash != null || userLogins.Count > 1;
             return View(new ManageLoginsViewModel
             {
@@ -339,7 +339,7 @@ namespace edziennik.Controllers
         // GET: /Manage/LinkLoginCallback
         public async Task<ActionResult> LinkLoginCallback()
         {
-            var loginInfo = await AuthenticationManager.GetExternalLoginInfoAsync(XsrfKey, User.Identity.GetUserId());
+            var loginInfo = await authenticationManager.GetExternalLoginInfoAsync(XsrfKey, User.Identity.GetUserId());
             if (loginInfo == null)
             {
                 return RedirectToAction("ManageLogins", new { Message = ManageMessageId.Error });
@@ -352,18 +352,18 @@ namespace edziennik.Controllers
         // Used for XSRF protection when adding external logins
         private const string XsrfKey = "XsrfId";
 
-        private IAuthenticationManager AuthenticationManager
-        {
-            get
-            {
-                return HttpContext.GetOwinContext().Authentication;
-            }
-        }
+        //private IAuthenticationManager AuthenticationManager
+        //{
+        //    get
+        //    {
+        //        return HttpContext.GetOwinContext().Authentication;
+        //    }
+        //}
 
         private async Task SignInAsync(ApplicationUser user, bool isPersistent)
         {
-            AuthenticationManager.SignOut(DefaultAuthenticationTypes.ExternalCookie, DefaultAuthenticationTypes.TwoFactorCookie);
-            AuthenticationManager.SignIn(new AuthenticationProperties { IsPersistent = isPersistent }, await user.GenerateUserIdentityAsync(userManager));
+            authenticationManager.SignOut(DefaultAuthenticationTypes.ExternalCookie, DefaultAuthenticationTypes.TwoFactorCookie);
+            authenticationManager.SignIn(new AuthenticationProperties { IsPersistent = isPersistent }, await user.GenerateUserIdentityAsync(userManager));
         }
 
         private void AddErrors(IdentityResult result)

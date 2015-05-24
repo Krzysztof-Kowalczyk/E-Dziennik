@@ -1,12 +1,12 @@
-﻿using System.Linq;
-using System.Net;
-using System.Web.Mvc;
-using edziennik.Models;
+﻿using edziennik.Models;
 using edziennik.Resources;
 using edziennik.Validators;
 using Microsoft.AspNet.Identity;
 using Models.Models;
 using Repositories.Repositories;
+using System.Linq;
+using System.Net;
+using System.Web.Mvc;
 
 namespace edziennik.Controllers
 {
@@ -50,7 +50,8 @@ namespace edziennik.Controllers
         [Authorize(Roles = "Students, Teachers, Admins")]
         public ActionResult StudentSubjectMarks(string studentId, int subjectId)
         {
-            var marks = markRepo.FindByStudentIdAndSubjectId(studentId,subjectId).Select(a => new MarkListItemViewModel
+            var marks = markRepo.FindByStudentIdAndSubjectId
+                                (studentId,subjectId).Select(a => new MarkListItemViewModel
             {
                 Student = studentRepo.FindById(a.StudentId).FullName,
                 Teacher = teacherRepo.FindById(a.TeacherId).FullName,
@@ -138,7 +139,8 @@ namespace edziennik.Controllers
                     var number = studentRepo.FindById(markVm.StudentId).CellPhoneNumber;
                     SmsSender.SendSms(markVm,number);
                 }
-                Logs.SaveLog("Create", User.Identity.GetUserId(), "Mark", mark.Id.ToString());
+                Logs.SaveLog("Create", User.Identity.GetUserId(), 
+                             "Mark", mark.Id.ToString(), Request.UserHostAddress);
 
                 return RedirectToAction("Index");
             }
@@ -197,7 +199,8 @@ namespace edziennik.Controllers
 
                 markRepo.Update(mark);
                 markRepo.Save();
-                Logs.SaveLog("Edit", User.Identity.GetUserId(), "Mark", mark.Id.ToString());
+                Logs.SaveLog("Edit", User.Identity.GetUserId(),
+                             "Mark", mark.Id.ToString(), Request.UserHostAddress);
                 return RedirectToAction("Index");
             }
 
@@ -239,7 +242,8 @@ namespace edziennik.Controllers
         {
             markRepo.Delete(id);
             markRepo.Save();
-            Logs.SaveLog("Delete", User.Identity.GetUserId(), "Mark", id.ToString());
+            Logs.SaveLog("Delete", User.Identity.GetUserId(),
+                         "Mark", id.ToString(), Request.UserHostAddress);
             
             return RedirectToAction("Index");
         }
