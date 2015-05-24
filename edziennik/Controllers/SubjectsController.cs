@@ -9,6 +9,12 @@ using System.Web.Mvc;
 
 namespace edziennik.Controllers
 {
+    public enum SubjectCreateError
+    {
+        NoClasses = 1,
+        NoClassrooms = 2,
+        NoTeachers = 3
+    }
     
     public class SubjectsController : Controller
     {
@@ -28,8 +34,15 @@ namespace edziennik.Controllers
 
         // GET: Subjects
         [Authorize(Roles = "Admins")]
-        public ActionResult Index()
+        public ActionResult Index(SubjectCreateError? error)
         {
+            if (error == SubjectCreateError.NoTeachers)
+                ViewBag.Error = ConstantStrings.SubjectCreateNoTeachersError;
+            else if (error == SubjectCreateError.NoClasses)
+                ViewBag.Error = ConstantStrings.SubjectCreateNoClassesError;
+            else if (error == SubjectCreateError.NoClassrooms)
+                ViewBag.Error = ConstantStrings.SubjectCreateNoClassroomsError;
+
             var subjects = subjectRepo.GetAll().Select(a => new SubjectViewModel
             {
                 Id = a.Id,
@@ -108,9 +121,17 @@ namespace edziennik.Controllers
         [Authorize(Roles = "Admins")]
         public ActionResult Create()
         {
-            if(teacherRepo.GetAll().Count == 0 || subjectRepo.GetAll().Count == 0)
+            if(teacherRepo.GetAll().Count == 0)
             {
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new{ error= SubjectCreateError.NoTeachers});
+            }
+            else if (classRepo.GetAll().Count == 0)
+            {
+                return RedirectToAction("Index", new { error = SubjectCreateError.NoClasses });
+            }
+            else if (classroomRepo.GetAll().Count == 0)
+            {
+                return RedirectToAction("Index", new { error = SubjectCreateError.NoClassrooms });
             }
 
             var subjectVm = new SubjectCreateViewModel

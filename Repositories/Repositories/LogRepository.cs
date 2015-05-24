@@ -2,10 +2,11 @@
 using System.Linq;
 using Models.Interfaces;
 using Models.Models;
+using System;
 
 namespace Repositories.Repositories
 {
-    public class LogRepository : ILogRepository
+    public class LogRepository : ILogRepository, IDisposable 
     {
         EDziennikContext db = new EDziennikContext();
         public List<Log> GetAll()
@@ -42,6 +43,25 @@ namespace Repositories.Repositories
         public void Save()
         {
             db.SaveChanges();
+        }
+
+         private bool disposed = false;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed)
+            {
+                if (disposing)
+                {
+                    db.Dispose();
+                }
+            }
+            this.disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

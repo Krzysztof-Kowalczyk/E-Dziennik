@@ -6,7 +6,10 @@
 
 <h1 class="title">@ViewBag.Title</h1>
 
-<p class="text-success">@ViewBag.StatusMessage</p>
+@if (ViewBag.StatusMessage != "")
+{
+    <div class="alert alert-info" role="alert">@ViewBag.StatusMessage</div>
+}
 <div>
     <h4>Zmiana ustawień konta</h4>
     <hr />

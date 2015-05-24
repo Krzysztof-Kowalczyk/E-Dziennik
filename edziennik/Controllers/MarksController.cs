@@ -10,7 +10,7 @@ using System.Web.Mvc;
 
 namespace edziennik.Controllers
 {
-    [Authorize(Roles = "Teachers, Admins")]
+    [Authorize(Roles = "Teachers")]
     public class MarksController : Controller
     {
         private readonly MarkRepository markRepo;
@@ -31,6 +31,7 @@ namespace edziennik.Controllers
         }
 
         // GET: Marks
+        [Authorize(Roles = "Teachers,Admins")]
         public ActionResult Index()
         {
             var marks = markRepo.GetAll().Select(a=> new MarkListItemViewModel
@@ -65,6 +66,7 @@ namespace edziennik.Controllers
             return View(marks);
         }
 
+        [Authorize(Roles = "Teachers,Admins")]
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -104,12 +106,16 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-
+            var subjects = ConstantStrings.getStudentSubjectsSL(student.ClasssId, User.Identity.GetUserId());
+            if(!subjects.Any())
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
             var markVm = new MarkCreateViewModel
             {
                 StudentId = studentId,
                 TeacherId = User.Identity.GetUserId(),
-                Subjects = ConstantStrings.getStudentSubjectsSL(student.ClasssId,User.Identity.GetUserId()),
+                Subjects = subjects,
                 Values = ConstantStrings.getMarksSL()
             };
 

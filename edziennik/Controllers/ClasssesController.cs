@@ -22,12 +22,10 @@ namespace edziennik.Controllers
         }
 
         // GET: Classses
-        public ActionResult Index(string error)
+        public ActionResult Index(int? error)
         {
-            if (String.IsNullOrEmpty(error))
-                ViewBag.Error = "";
-            else
-                ViewBag.Error = error;
+            if (error.HasValue)
+                ViewBag.Error = ConstantStrings.ClassCreateError;
 
             return View(classRepo.GetAll());
         }
@@ -54,7 +52,7 @@ namespace edziennik.Controllers
             if (teacherRepo.GetAll().Count == 0 )
             {
                 return RedirectToAction("Index", 
-                      new {error ="Nie można stworzyć klasy, gdyż nie istnieje żaden nauczyciel"});
+                      new {error = 1});
             }
             var classVm = new ClassCreateViewModel
             {

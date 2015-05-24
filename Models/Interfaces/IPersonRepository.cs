@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Models.Interfaces
 {
-    public interface IPersonRepository<T>
+    public interface IPersonRepository<T> : IDisposable
     {
         List<T> GetAll();
         T FindById(string id);
@@ -11,5 +12,6 @@ namespace Models.Interfaces
         void Update(T item);
         void Delete(string id);
         void Save();
+
     }
 }

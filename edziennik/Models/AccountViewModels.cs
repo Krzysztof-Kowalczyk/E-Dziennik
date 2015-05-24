@@ -73,21 +73,27 @@ namespace edziennik.Models
         public int Id { get; set; }
 
         [Display(Name = "Nazwa")]
+        [Required]
         public string Name { get; set; }
 
         [Display(Name = "Id nauczyciela")]
+        [Required]
         public string TeacherId { get; set; }
 
         [Display(Name = "Id klasy")]
+        [Required]
         public int ClasssId { get; set; }
 
         [Display(Name = "Id sali")]
+        [Required]
         public int ClassroomId { get; set; }
 
         [Display(Name = "Dzień zajęć")]
+        [Required]
         public SchoolDay Day { get; set; }
 
         [Display(Name = "Godzina zajęć")]
+        [Required]
         public int Hour { get; set; }
 
         public List<SelectListItem> Teachers { get; set; }
@@ -133,7 +139,7 @@ namespace edziennik.Models
         [Display(Name = "Nazwa")]
         public string Name { get; set; }
 
-        [Display(Name = "Id wychowawcy")]
+        [Display(Name = "Wychowawca")]
         public string TeacherId { get; set; }
 
         public List<SelectListItem> Teachers { get; set; }

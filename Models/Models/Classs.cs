@@ -8,6 +8,7 @@ namespace Models.Models
         public int Id { get; set; }
 
         [Display(Name = "Nazwa")]
+        [Required]
         public string Name { get; set;}
 
         [Display(Name = "Id wychowawcy")]
