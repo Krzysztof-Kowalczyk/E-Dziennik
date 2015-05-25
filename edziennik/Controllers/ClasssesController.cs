@@ -163,5 +163,11 @@ namespace edziennik.Controllers
             return RedirectToAction("Index");
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            classRepo.Dispose();
+            base.Dispose(disposing);
+        }
+
     }
 }

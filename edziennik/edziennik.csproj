@@ -182,6 +182,7 @@
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="Icon.png" />
+    <Content Include="Resources\Images\notebook.jpg" />
     <Content Include="Resources\Images\Users\defaultavatar.png" />
     <Content Include="Resources\Images\whitestar.gif" />
     <Content Include="Resources\Images\yellowstar.gif" />

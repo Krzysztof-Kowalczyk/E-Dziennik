@@ -162,6 +162,11 @@ namespace edziennik.Controllers
                          "Teacher", id, Request.UserHostAddress);
             return RedirectToAction("Index");
         }
+        protected override void Dispose(bool disposing)
+        {
+            teacherRepo.Dispose();
+            base.Dispose(disposing);
+        }
 
     }
 }

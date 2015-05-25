@@ -84,5 +84,11 @@ namespace edziennik.Controllers
             LogRepository.Save();
             return RedirectToAction("Index");
         }
+
+        protected override void Dispose(bool disposing)
+        {
+            LogRepository.Dispose();
+            base.Dispose(disposing);
+        }
     }
 }

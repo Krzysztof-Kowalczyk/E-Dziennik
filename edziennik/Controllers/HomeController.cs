@@ -9,6 +9,7 @@ namespace edziennik.Controllers
             return View();
         }
 
+        [OutputCache(Duration = 30)]
         public ActionResult About()
         {
             ViewBag.Message = "Opis aplikacji";
@@ -16,6 +17,7 @@ namespace edziennik.Controllers
             return View();
         }
 
+        [OutputCache(Duration = 30)]
         public ActionResult Contact()
         {
             ViewBag.Message = "Dane kontaktowe";

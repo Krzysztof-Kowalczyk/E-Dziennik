@@ -123,6 +123,9 @@ namespace edziennik.Controllers
         {
             if(teacherRepo.GetAll().Count == 0)
             {
+                if(Request.IsAjaxRequest())
+                {
+                }
                 return RedirectToAction("Index", new{ error= SubjectCreateError.NoTeachers});
             }
             else if (classRepo.GetAll().Count == 0)
@@ -262,6 +265,12 @@ namespace edziennik.Controllers
             Logs.SaveLog("Delete", User.Identity.GetUserId(),
                          "Subject", id.ToString(), Request.UserHostAddress);
             return RedirectToAction("Index");
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            subjectRepo.Dispose();
+            base.Dispose(disposing);
         }
     }
 }
