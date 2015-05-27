@@ -25,7 +25,7 @@ namespace edziennik.Controllers
             return View(teacherRepo.GetAll());
         }
 
-        // GET: Teachers/Details/5
+        // GET: Teachers/Details/5ff
         public ActionResult Details(string id)
         {
             if (id == null)
