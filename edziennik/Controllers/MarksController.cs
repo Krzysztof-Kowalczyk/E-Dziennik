@@ -1,16 +1,16 @@
-﻿using System.Linq;
-using System.Net;
-using System.Web.Mvc;
-using edziennik.Models;
+﻿using edziennik.Models;
 using edziennik.Resources;
 using edziennik.Validators;
 using Microsoft.AspNet.Identity;
 using Models.Models;
 using Repositories.Repositories;
+using System.Linq;
+using System.Net;
+using System.Web.Mvc;
 
 namespace edziennik.Controllers
 {
-    [Authorize(Roles = "Teachers, Admins")]
+    [Authorize(Roles = "Teachers")]
     public class MarksController : Controller
     {
         private readonly MarkRepository markRepo;
@@ -31,6 +31,7 @@ namespace edziennik.Controllers
         }
 
         // GET: Marks
+        [Authorize(Roles = "Teachers,Admins")]
         public ActionResult Index()
         {
             var marks = markRepo.GetAll().Select(a=> new MarkListItemViewModel
@@ -46,8 +47,26 @@ namespace edziennik.Controllers
            
             return View(marks);
         }
+       
+        [Authorize(Roles = "Students, Teachers, Admins")]
+        public ActionResult StudentSubjectMarks(string studentId, int subjectId)
+        {
+            var marks = markRepo.FindByStudentIdAndSubjectId
+                                (studentId,subjectId).Select(a => new MarkListItemViewModel
+            {
+                Student = studentRepo.FindById(a.StudentId).FullName,
+                Teacher = teacherRepo.FindById(a.TeacherId).FullName,
+                Subject = subjectRepo.FindById(a.SubjectId).Name,
+                Value = a.Value,
+                Classs = classRepo.FindByMarkId(a.Id).Name,
+                Id = a.Id,
+                TeacherId = a.TeacherId
+            });
 
-        // GET: Marks/Details/5
+            return View(marks);
+        }
+
+        [Authorize(Roles = "Teachers,Admins")]
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -87,21 +106,22 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-
+            var subjects = ConstantStrings.getStudentSubjectsSL(student.ClasssId, User.Identity.GetUserId());
+            if(!subjects.Any())
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
             var markVm = new MarkCreateViewModel
             {
                 StudentId = studentId,
                 TeacherId = User.Identity.GetUserId(),
-                Subjects = ConstantStrings.getStudentSubjectsSL(student.ClasssId,User.Identity.GetUserId()),
+                Subjects = subjects,
                 Values = ConstantStrings.getMarksSL()
             };
 
             return View(markVm);
         }
 
-        // POST: Marks/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(MarkCreateViewModel markVm)
@@ -125,7 +145,8 @@ namespace edziennik.Controllers
                     var number = studentRepo.FindById(markVm.StudentId).CellPhoneNumber;
                     SmsSender.SendSms(markVm,number);
                 }
-                Logs.SaveLog("Create", User.Identity.GetUserId(), "Mark", mark.Id.ToString());
+                Logs.SaveLog("Create", User.Identity.GetUserId(), 
+                             "Mark", mark.Id.ToString(), Request.UserHostAddress);
 
                 return RedirectToAction("Index");
             }
@@ -133,7 +154,7 @@ namespace edziennik.Controllers
             return View(markVm);
         }
 
-        // GET: Marks/Edit/5
+
         [OnlyMarkTeacherOrAdmin]
         public ActionResult Edit(int? id)
         {
@@ -165,9 +186,7 @@ namespace edziennik.Controllers
             return View(markVm);
         }
 
-        // POST: Marks/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(MarkCreateViewModel markVm)
@@ -186,14 +205,15 @@ namespace edziennik.Controllers
 
                 markRepo.Update(mark);
                 markRepo.Save();
-                Logs.SaveLog("Edit", User.Identity.GetUserId(), "Mark", mark.Id.ToString());
+                Logs.SaveLog("Edit", User.Identity.GetUserId(),
+                             "Mark", mark.Id.ToString(), Request.UserHostAddress);
                 return RedirectToAction("Index");
             }
 
             return View(markVm);
         }
 
-        // GET: Marks/Delete/5
+
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -221,16 +241,23 @@ namespace edziennik.Controllers
             return View(markVm);
         }
 
-        // POST: Marks/Delete/5
+
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
             markRepo.Delete(id);
             markRepo.Save();
-            Logs.SaveLog("Delete", User.Identity.GetUserId(), "Mark", id.ToString());
+            Logs.SaveLog("Delete", User.Identity.GetUserId(),
+                         "Mark", id.ToString(), Request.UserHostAddress);
             
             return RedirectToAction("Index");
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            markRepo.Dispose();
+            base.Dispose(disposing);
         }
     }
 }

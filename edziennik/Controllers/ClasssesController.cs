@@ -1,10 +1,11 @@
-﻿using System.Net;
-using System.Web.Mvc;
-using edziennik.Models;
+﻿using edziennik.Models;
 using edziennik.Resources;
 using Microsoft.AspNet.Identity;
 using Models.Models;
 using Repositories.Repositories;
+using System;
+using System.Net;
+using System.Web.Mvc;
 
 namespace edziennik.Controllers
 {
@@ -12,15 +13,20 @@ namespace edziennik.Controllers
     public class ClasssesController : Controller
     {
         private readonly ClasssRepository classRepo;
+        private readonly TeacherRepository teacherRepo;
 
-        public ClasssesController(ClasssRepository _repo)
+        public ClasssesController(ClasssRepository _repo, TeacherRepository _teacherRepo)
         {
             classRepo = _repo;
+            teacherRepo = _teacherRepo;
         }
 
         // GET: Classses
-        public ActionResult Index()
+        public ActionResult Index(int? error)
         {
+            if (error.HasValue)
+                ViewBag.Error = ConstantStrings.ClassCreateError;
+
             return View(classRepo.GetAll());
         }
 
@@ -43,6 +49,11 @@ namespace edziennik.Controllers
         // GET: Classses/Create
         public ActionResult Create()
         {
+            if (teacherRepo.GetAll().Count == 0 )
+            {
+                return RedirectToAction("Index", 
+                      new {error = 1});
+            }
             var classVm = new ClassCreateViewModel
             {
                 Teachers = ConstantStrings.getTeachersSL()
@@ -69,7 +80,8 @@ namespace edziennik.Controllers
 
                 classRepo.Insert(classs);
                 classRepo.Save();
-                Logs.SaveLog("Create", User.Identity.GetUserId(), "Class", classs.Id.ToString());
+                Logs.SaveLog("Create", User.Identity.GetUserId(), 
+                            "Class", classs.Id.ToString(), Request.UserHostAddress);
                 return RedirectToAction("Index");
             }
 
@@ -117,7 +129,8 @@ namespace edziennik.Controllers
 
                 classRepo.Update(classs);
                 classRepo.Save();
-                Logs.SaveLog("Edit", User.Identity.GetUserId(), "Class", classs.Id.ToString());
+                Logs.SaveLog("Edit", User.Identity.GetUserId(), 
+                             "Class", classs.Id.ToString(), Request.UserHostAddress);
                 return RedirectToAction("Index");
             }
             return View(classVm);
@@ -145,8 +158,15 @@ namespace edziennik.Controllers
         {
             classRepo.Delete(id);
             classRepo.Save();
-            Logs.SaveLog("Delete", User.Identity.GetUserId(), "Class", id.ToString());
+            Logs.SaveLog("Delete", User.Identity.GetUserId(),
+                         "Class", id.ToString(), Request.UserHostAddress);
             return RedirectToAction("Index");
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            classRepo.Dispose();
+            base.Dispose(disposing);
         }
 
     }

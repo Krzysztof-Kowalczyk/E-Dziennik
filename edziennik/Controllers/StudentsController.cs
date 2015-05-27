@@ -1,12 +1,12 @@
-﻿using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using System.Web.Mvc;
-using edziennik.Models;
+﻿using edziennik.Models;
 using edziennik.Resources;
 using Microsoft.AspNet.Identity;
 using Models.Models;
 using Repositories.Repositories;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace edziennik.Controllers
 {
@@ -18,8 +18,9 @@ namespace edziennik.Controllers
         private readonly SubjectRepository subjectRepo;
         private readonly TeacherRepository teacherRepo;
 
-        public StudentsController(StudentRepository _repo, ClasssRepository _classsRepo,
+        public StudentsController(ApplicationUserManager userManager,StudentRepository _repo, ClasssRepository _classsRepo,
                                   SubjectRepository _subjectRepo, TeacherRepository _teacherRepo)
+            :base(userManager)
         {
             studentRepo = _repo;
             classRepo = _classsRepo;
@@ -95,14 +96,14 @@ namespace edziennik.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admins")]
-        public ActionResult Create(StudentRegisterViewModel studentVm)
+        public async Task<ActionResult> Create(StudentRegisterViewModel studentVm)
         {
             if (ModelState.IsValid)
             {
                 if (classRepo.FindById(studentVm.ClassId).
                                        Students.Count != ConstantStrings.MaxClassStudentCount)
                 {
-                    var userid = CreateUser(studentVm, "Students");
+                    var userid = await CreateUser(studentVm, "Students");
                     if (userid == "Error") return View(studentVm);
                     
                     var student = new Student
@@ -118,7 +119,8 @@ namespace edziennik.Controllers
                         
                     studentRepo.Insert(student);
                     studentRepo.Save();
-                    Logs.SaveLog("Create", User.Identity.GetUserId(), "Student", student.Id);
+                    Logs.SaveLog("Create", User.Identity.GetUserId(), 
+                                 "Student", student.Id, Request.UserHostAddress);
                     return RedirectToAction("Index");
                 }
 
@@ -145,7 +147,7 @@ namespace edziennik.Controllers
             {
                 FirstName = student.FirstName,
                 ClassId = student.ClasssId,
-                Email = UserManager.FindById(student.Id).Email,
+                Email = userManager.FindById(student.Id).Email,
                 Id = student.Id,
                 Login = student.Pesel,
                 SecondName = student.SecondName,
@@ -181,10 +183,10 @@ namespace edziennik.Controllers
                 studentRepo.Update(student);
                 studentRepo.Save();               
 
-                var user = await UserManager.FindByIdAsync(studentEvm.Id);
-                user.Email = studentEvm.Email;
-                await UpdateUser(user, student);
-                Logs.SaveLog("Edit", User.Identity.GetUserId(), "Student", student.Id);
+                var user = await userManager.FindByIdAsync(studentEvm.Id);                
+                await UpdateUser(user, student, studentEvm.Email);
+                Logs.SaveLog("Edit", User.Identity.GetUserId(), 
+                             "Student", student.Id, Request.UserHostAddress);
                
                 return RedirectToAction("Index");
             }
@@ -228,8 +230,15 @@ namespace edziennik.Controllers
             studentRepo.Delete(id);
             studentRepo.Save();
             DeleteUser(id);
-            Logs.SaveLog("Delete", User.Identity.GetUserId(), "Student", id);
+            Logs.SaveLog("Delete", User.Identity.GetUserId(),
+                         "Student", id, Request.UserHostAddress);
             return RedirectToAction("Index");
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            studentRepo.Dispose();
+            base.Dispose(disposing);
         }
 
     }

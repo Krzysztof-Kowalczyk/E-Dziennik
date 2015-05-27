@@ -9,6 +9,7 @@
 
 </head>
 <body>
+    @using Microsoft.AspNet.Identity;
     <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
@@ -21,19 +22,50 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
-                    <li>@Html.ActionLink("About", "About", "Home")</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
-                    <li>@Html.ActionLink("Klasy", "Index", "Classses")</li>
-                    <li>@Html.ActionLink("KlasyPom", "Index", "Classrooms")</li>
-                    <li>@Html.ActionLink("Przedmioty", "Index", "Subjects")</li>
-                    <li>@Html.ActionLink("Nauczyciele", "Index", "Teachers")</li>
-                    <li>@Html.ActionLink("Uczniowie", "Index", "Students")</li>
+                    <li>@Html.ActionLink("Strona domowa", "Index", "Home")</li>
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <li class="dropdown">
+                            <a data-toggle="dropdown" class="dropdown-toggle" href="#"><span class="glyphicon glyphicon-book"></span> Zasoby <b class="caret"></b></a>
+                            <ul role="menu" class="dropdown-menu">
+                                <li>@Html.ActionLink("Klasy", "Index", "Classses")</li>
+                                <li>@Html.ActionLink("Sale", "Index", "Classrooms")</li>
+                                <li>@Html.ActionLink("Przedmioty", "Index", "Subjects")</li>
+                                <li role="presentation" class="divider"></li>
+                                <li>@Html.ActionLink("Nauczyciele", "Index", "Teachers")</li>
+                                <li>@Html.ActionLink("Uczniowie", "Index", "Students")</li>
+                            </ul>
+                        </li>
+                    }
+
                     @if (User.IsInRole("Admins"))
                     {
-                        <li>@Html.ActionLink("Lista użytkowników", "ShowUsers", "Account")</li>
+                        <li class="dropdown">
+                            <a data-toggle="dropdown" class="dropdown-toggle" href="#"><span class="glyphicon glyphicon-eye-open"></span> Panel administracyjny <b class="caret"></b></a>
+                            <ul role="menu" class="dropdown-menu">
+                                <li>@Html.ActionLink("Lista użytkowników", "ShowUsers", "Account")</li>
+                                <li>@Html.ActionLink("Logi", "Index", "Logs")</li>
+                            </ul>
+                        </li>
                     }
+                    @if (User.IsInRole("Students"))
+                    {
+                        <li>@Html.ActionLink("Moje przedmioty", "StudentSubjects", "Subjects", new { studentId = User.Identity.GetUserId() }, null)</li>
+                    }
+                    @if (User.IsInRole("Teachers"))
+                    {
+                        <li>@Html.ActionLink("Moje przedmioty", "TeacherSubjects", "Subjects", new { teacherId = User.Identity.GetUserId() }, null)</li>
+                    }
+                    <li class="dropdown">
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#"><span class="glyphicon glyphicon-question-sign"></span> Pomoc <b class="caret"></b></a>
+                        <ul role="menu" class="dropdown-menu">
+                            <li>@Html.ActionLink("O stronie", "About", "Home")</li>
+                            <li>@Html.ActionLink("Kontakt", "Contact", "Home")</li>
+                        </ul>
+                    </li>
                 </ul>
+
                 @Html.Partial("_LoginPartial")
             </div>
         </div>
@@ -42,7 +74,7 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
+            <p>&copy; @DateTime.Now.Year - Krzysztof Kowalczyk</p>
         </footer>
     </div>
 

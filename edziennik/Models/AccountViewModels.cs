@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
 using edziennik.Validators;
 using Models.Models;
+using System;
 
 namespace edziennik.Models
 {
@@ -72,21 +73,27 @@ namespace edziennik.Models
         public int Id { get; set; }
 
         [Display(Name = "Nazwa")]
+        [Required]
         public string Name { get; set; }
 
         [Display(Name = "Id nauczyciela")]
+        [Required]
         public string TeacherId { get; set; }
 
         [Display(Name = "Id klasy")]
+        [Required]
         public int ClasssId { get; set; }
 
         [Display(Name = "Id sali")]
+        [Required]
         public int ClassroomId { get; set; }
 
         [Display(Name = "Dzień zajęć")]
+        [Required]
         public SchoolDay Day { get; set; }
 
         [Display(Name = "Godzina zajęć")]
+        [Required]
         public int Hour { get; set; }
 
         public List<SelectListItem> Teachers { get; set; }
@@ -132,7 +139,7 @@ namespace edziennik.Models
         [Display(Name = "Nazwa")]
         public string Name { get; set; }
 
-        [Display(Name = "Id wychowawcy")]
+        [Display(Name = "Wychowawca")]
         public string TeacherId { get; set; }
 
         public List<SelectListItem> Teachers { get; set; }
@@ -392,5 +399,32 @@ namespace edziennik.Models
         [EmailAddress]
         [Display(Name = "Email")]
         public string Email { get; set; }
+    }
+
+    public class LogListItemViewModel
+    {
+        public int Id { get; set; }
+
+        [Display(Name = "Data")]
+        public DateTime Date { get; set; }
+
+        [Display(Name = "Akcja")]
+        public string Action { get; set; }
+
+        [Display(Name = "Kto")]
+        public string Who { get; set; }
+
+        [Display(Name = "Co")]
+        public string What { get; set; }
+
+    }
+
+    public class LogDetailsViewModel : LogListItemViewModel
+    {
+        [Display(Name = "Adres Ip")]
+        public string Ip { get; set; }
+        
+        [Display(Name = "Komu")]
+        public string WhatId { get; set; }
     }
 }

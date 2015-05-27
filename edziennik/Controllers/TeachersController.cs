@@ -1,11 +1,11 @@
-﻿using System.Net;
-using System.Threading.Tasks;
-using System.Web.Mvc;
-using edziennik.Models;
+﻿using edziennik.Models;
 using edziennik.Resources;
 using Microsoft.AspNet.Identity;
 using Models.Models;
 using Repositories.Repositories;
+using System.Net;
+using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace edziennik.Controllers
 {
@@ -14,14 +14,15 @@ namespace edziennik.Controllers
     {
         private readonly TeacherRepository teacherRepo;
 
-        public TeachersController(TeacherRepository _repo)
+        public TeachersController(ApplicationUserManager userManager,TeacherRepository _repo)
+            :base(userManager)
         {
             teacherRepo = _repo;
         }
 
         // GET: Teachers
         public ActionResult Index()
-        {
+        {              
             return View(teacherRepo.GetAll());
         }
 
@@ -51,11 +52,11 @@ namespace edziennik.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(TeacherRegisterViewModel teacherVm)
+        public async Task<ActionResult> Create(TeacherRegisterViewModel teacherVm)
         {
             if (ModelState.IsValid)
             {
-                var userid = CreateUser(teacherVm, "Teachers");
+                var userid = await CreateUser(teacherVm, "Teachers");
                 
                 if (userid == "Error") return View(teacherVm);
                 
@@ -69,7 +70,8 @@ namespace edziennik.Controllers
                 };
                 teacherRepo.Insert(teacher);
                 teacherRepo.Save();
-                Logs.SaveLog("Create", User.Identity.GetUserId(), "Teacher", teacher.Id);
+                Logs.SaveLog("Create", User.Identity.GetUserId(), 
+                             "Teacher", teacher.Id, Request.UserHostAddress);
                 return RedirectToAction("Index");
             }
 
@@ -92,7 +94,7 @@ namespace edziennik.Controllers
             var teacherEditVm = new TeacherEditViewModel
             {
                 FirstName = teacher.FirstName,
-                Email = UserManager.FindById(teacher.Id).Email,
+                Email = userManager.FindById(teacher.Id).Email,
                 Id = teacher.Id,
                 Login = teacher.Pesel,
                 SecondName = teacher.SecondName,
@@ -123,10 +125,10 @@ namespace edziennik.Controllers
                 teacherRepo.Update(teacher);
                 teacherRepo.Save();
                 
-                var user = await UserManager.FindByIdAsync(teacherVm.Id);
-                user.Email = teacherVm.Email;
-                await UpdateUser(user,teacher);
-                Logs.SaveLog("Edit", User.Identity.GetUserId(), "Teacher", teacher.Id);
+                var user = await userManager.FindByIdAsync(teacherVm.Id);
+                await UpdateUser(user, teacher, teacherVm.Email);
+                Logs.SaveLog("Edit", User.Identity.GetUserId(), 
+                             "Teacher", teacher.Id, Request.UserHostAddress);
 
                 return RedirectToAction("Index");
             }
@@ -156,8 +158,14 @@ namespace edziennik.Controllers
             teacherRepo.Delete(id);
             teacherRepo.Save();
             DeleteUser(id);
-            Logs.SaveLog("Delete", User.Identity.GetUserId(), "Teacher", id);
+            Logs.SaveLog("Delete", User.Identity.GetUserId(), 
+                         "Teacher", id, Request.UserHostAddress);
             return RedirectToAction("Index");
+        }
+        protected override void Dispose(bool disposing)
+        {
+            teacherRepo.Dispose();
+            base.Dispose(disposing);
         }
 
     }

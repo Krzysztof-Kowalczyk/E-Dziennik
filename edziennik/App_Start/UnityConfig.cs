@@ -7,6 +7,8 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Practices.Unity;
 using Models.Interfaces;
 using Repositories.Repositories;
+using Microsoft.Owin.Security;
+using System.Web;
 
 namespace edziennik.App_Start
 {
@@ -56,10 +58,19 @@ namespace edziennik.App_Start
             //container.RegisterType<ApplicationUserManager>();
             //container.RegisterType<AccountController>(new InjectionConstructor());
 
-            container.RegisterType<DbContext, ApplicationDbContext>(new HierarchicalLifetimeManager());
+           /* container.RegisterType<DbContext, ApplicationDbContext>(new HierarchicalLifetimeManager());
             container.RegisterType<UserManager<ApplicationUser>>(new HierarchicalLifetimeManager());
             container.RegisterType<IUserStore<ApplicationUser>, UserStore<ApplicationUser>>(new HierarchicalLifetimeManager());
-            container.RegisterType<AccountController>(new InjectionConstructor());
+            container.RegisterType<AccountController>(new InjectionConstructor());*/
+
+
+            container.RegisterType<ApplicationDbContext>();
+            container.RegisterType<ApplicationSignInManager>();
+            container.RegisterType<ApplicationUserManager>();
+            container.RegisterType<IAuthenticationManager>(
+                     new InjectionFactory(c => HttpContext.Current.GetOwinContext().Authentication));
+            container.RegisterType<IUserStore<ApplicationUser>, UserStore<ApplicationUser>>(
+            new InjectionConstructor(typeof(ApplicationDbContext)));
         }
     }
 }

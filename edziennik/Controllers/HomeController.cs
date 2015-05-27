@@ -9,16 +9,18 @@ namespace edziennik.Controllers
             return View();
         }
 
+        [OutputCache(Duration = 30)]
         public ActionResult About()
         {
-            ViewBag.Message = "Your application description page.";
+            ViewBag.Message = "Opis aplikacji";
 
             return View();
         }
 
+        [OutputCache(Duration = 30)]
         public ActionResult Contact()
         {
-            ViewBag.Message = "Your contact page.";
+            ViewBag.Message = "Dane kontaktowe";
 
             return View();
         }

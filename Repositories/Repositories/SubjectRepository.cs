@@ -2,10 +2,11 @@
 using System.Linq;
 using Models.Interfaces;
 using Models.Models;
+using System;
 
 namespace Repositories.Repositories
 {
-    public class SubjectRepository : ISubjectRepository
+    public class SubjectRepository : ISubjectRepository, IDisposable
     {
         EDziennikContext db = new EDziennikContext();
         public List<Subject> GetAll()
@@ -49,6 +50,40 @@ namespace Repositories.Repositories
             var subjects = db.Subjects.Where(a => a.ClasssId == classId).ToList();
             
             return subjects;
+        }
+
+        public List<Subject> FindByTeacherId(string teacherId)
+        {
+            var subjects = db.Subjects.Where(a => a.TeacherId == teacherId).ToList();
+
+            return subjects;
+        }
+
+        public List<Subject> FindByStudentId(string studentId)
+        {
+            var classId = db.Students.Single(a => a.Id == studentId).ClasssId;
+            var subjects = db.Subjects.Where(a => a.ClasssId == classId).ToList();
+
+            return subjects;
+        }
+
+        private bool disposed = false;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed)
+            {
+                if (disposing)
+                {
+                    db.Dispose();
+                }
+            }
+            this.disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

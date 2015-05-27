@@ -1,10 +1,10 @@
-﻿@model Models.Models.Log
+﻿@model edziennik.Models.LogDetailsViewModel
 
 @{
-    ViewBag.Title = "Details";
+    ViewBag.Title = "Szczegóły";
 }
 
-<h2>Details</h2>
+<h2>Szczegóły</h2>
 
 <div>
     <h4>Log</h4>
@@ -42,9 +42,16 @@
             @Html.DisplayFor(model => model.What)
         </dd>
 
+        <dt>
+            @Html.DisplayNameFor(model => model.Ip)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Ip)
+        </dd>
+
     </dl>
 </div>
 <p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ActionLink("Powrót do listy", "Index", null, new { @class = "btn btn-primary" })
 </p>

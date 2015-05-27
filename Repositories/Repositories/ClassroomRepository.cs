@@ -2,10 +2,11 @@
 using System.Linq;
 using Models.Interfaces;
 using Models.Models;
+using System;
 
 namespace Repositories.Repositories
 {
-    public class ClassroomRepository : IClassroomRepository
+    public class ClassroomRepository : IClassroomRepository, IDisposable
     {
         EDziennikContext db = new EDziennikContext();
         public List<Classroom> GetAll()
@@ -45,6 +46,25 @@ namespace Repositories.Repositories
         public List<Subject> GetSubjects(int classroomId)
         {
             return db.Subjects.Where(a => a.ClassroomId == classroomId).ToList();
+        }
+
+        private bool disposed = false;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed)
+            {
+                if (disposing)
+                {
+                    db.Dispose();
+                }
+            }
+            this.disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

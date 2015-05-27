@@ -7,6 +7,7 @@ namespace Models.Models
         public int Id { get; set; }
 
         [Display(Name = "Nazwa")]
+        [Required]
         public string Name { get; set; }
 
         [Display(Name = "Id nauczyciela")]
@@ -19,9 +20,11 @@ namespace Models.Models
         public int ClassroomId { get; set; }
 
         [Display(Name = "Dzień zajęć")]
+        [Required]
         public SchoolDay Day { get; set; }
 
         [Display(Name = "Godzina zajęć")]
+        [Required]
         public int Hour { get; set; }
     }
 }

@@ -1,17 +1,17 @@
 ﻿@model edziennik.Models.ClassCreateViewModel
 
 @{
-    ViewBag.Title = "Create";
+    ViewBag.Title = "Stwórz";
 }
 
-<h2>Create</h2>
+<h2>Stwórz</h2>
 
 @using (Html.BeginForm()) 
 {
     @Html.AntiForgeryToken()
     
     <div class="form-horizontal">
-        <h4>Classs</h4>
+        <h4>Klasa</h4>
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         @for (var i = 0; i < Model.Teachers.Count; i++)
@@ -38,12 +38,12 @@
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Create" class="btn btn-default" />
+                <input type="submit" value="Stwórz" class="btn btn-default" />
             </div>
         </div>
     </div>
 }
 
 <div>
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ActionLink("Powrót do listy", "Index", null, new { @class = "btn btn-primary" })
 </div>

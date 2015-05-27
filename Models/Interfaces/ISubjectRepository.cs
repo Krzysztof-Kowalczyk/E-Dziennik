@@ -7,5 +7,7 @@ namespace Models.Interfaces
     public interface ISubjectRepository : IRepository<Subject>
     {
         List<Subject> FindByClassId(int classId);
+        List<Subject> FindByTeacherId(string teacherId);
+        List<Subject> FindByStudentId(string studentId);
     }
 }

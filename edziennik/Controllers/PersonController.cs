@@ -1,33 +1,23 @@
-﻿using System;
-using System.Net;
-using System.Net.Mail;
-using System.Threading.Tasks;
-using System.Web.Mvc;
-using edziennik.Models;
+﻿using edziennik.Models;
 using edziennik.Resources;
 using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.AspNet.Identity.Owin;
-using Microsoft.Owin.Security.DataProtection;
 using Models.Models;
+using System;
+using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace edziennik.Controllers
 {
     public abstract class PersonController : Controller
     {
-        protected ApplicationDbContext ApplicationDbContext { get; set; }
-        protected UserManager<ApplicationUser> UserManager { get; set; }
+        protected readonly ApplicationUserManager userManager;
 
-        protected PersonController()
+        protected PersonController(ApplicationUserManager userManager)
         {
-            var provider = new DpapiDataProtectionProvider("Sample");
-            ApplicationDbContext = new ApplicationDbContext();
-            UserManager = new UserManager<ApplicationUser>
-                (new UserStore<ApplicationUser>(ApplicationDbContext))
-            {
-                UserTokenProvider = new DataProtectorTokenProvider<ApplicationUser>(
-                    provider.Create("EmailConfirmation"))
-            };
+            this.userManager = userManager;
         }
 
         [NonAction]
@@ -40,27 +30,26 @@ namespace edziennik.Controllers
         }
 
         [NonAction]
-        protected string CreateUser(RegisterViewModel ruser, string role)
+        protected async Task<string> CreateUser(RegisterViewModel ruser, string role)
         {
             var hasher = new PasswordHasher();
-            var password = ruser.Surname.Substring(0, 3) + ruser.Login.Substring(7, 4);
+            var password = ruser.Surname.Substring(0, 3) + ruser.Login.Substring(7, 4) + "#";
             var user = new ApplicationUser
             {
                 UserName = ruser.Login,
                 PasswordHash = hasher.HashPassword(password),
                 Email = ruser.Email,
-                EmailConfirmed = true,
+                EmailConfirmed = false,
                 AvatarUrl = ConstantStrings.DefaultUserAvatar,
                 CreateDate = DateTime.Now
             };
             user.LastPasswordChange = user.CreateDate;
 
-            var result = UserManager.Create(user, password);
+            var result = userManager.Create(user, password);
             if (result.Succeeded)
             {
-                UserManager.AddToRole(user.Id, role);
-                var code = UserManager.GenerateEmailConfirmationToken(user.Id);
-                ApplicationDbContext.Create().SaveChanges();
+                userManager.AddToRole(user.Id, role);
+                var code = userManager.GenerateEmailConfirmationToken(user.Id);
 
                 var callbackUrl = Url.Action(
 
@@ -72,14 +61,21 @@ namespace edziennik.Controllers
 
                     protocol: Request.Url.Scheme);
 
-                 SendEmail(
+                ServicePointManager.ServerCertificateValidationCallback =
+    delegate(object s, X509Certificate certificate,
+             X509Chain chain, SslPolicyErrors sslPolicyErrors)
+    { return true; };
 
-                 user.Email,
+                await userManager.SendEmailAsync(
 
-                 "Rejestracja konta",
+       user.Id,
 
-                 "Potwierdź utworzenie konta klikając na podany link: " +
-                 "<a href=\"" + callbackUrl + "\">Potwierdź</a>");
+       "Rejestracja konta",
+
+               "Twoje hasło to trzy pierwsze litery nazwiska(pierwsza litera duża) + 4 ostatnie cyfry numer pesel + #." +
+                "Przykładowo hasło dla uzytkownika Jan Kowlaski numer pesel:12345678910, byłoby nastepujące: Kow8910# ." +
+                "Potwierdź swoją rejestracje klikając na podany link: " +
+                "<a href=\"" + callbackUrl + "\">Potwierdź</a>");
 
                 return user.Id;
             }
@@ -90,54 +86,17 @@ namespace edziennik.Controllers
         [NonAction]
         protected void DeleteUser(string id)
         {
-            var user = UserManager.FindById(id);
-            UserManager.Delete(user);
-            ApplicationDbContext.Create().SaveChanges();
+            var user = userManager.FindById(id);
+            userManager.Delete(user);
         }
 
         [NonAction]
-        protected async Task UpdateUser(ApplicationUser user, Person person)
+        protected async Task UpdateUser(ApplicationUser user, Person person, string email)
         {
-            var password = person.Surname.Substring(0, 3) +
-                                        person.Pesel.Substring(7, 4);
-
-            await UserManager.RemovePasswordAsync(person.Id);
-            await UserManager.AddPasswordAsync(person.Id, password);
             user.UserName = person.Pesel;
-            user.LastPasswordChange = DateTime.Now;
-            await UserManager.UpdateAsync(user);
-            ApplicationDbContext.Create().SaveChanges();
+            user.Email = email;
+            await userManager.UpdateAsync(user);
         }
-
-        [NonAction]
-        private  void SendEmail(string destination, string subject, string body)
-        {
-            const string credentialUserName = "jedznaplus@gmail.com";
-            const string sentFrom = "jedznaplus@gmail.com";
-            const string pwd = "jedznaplus123";
-            var credentials = new NetworkCredential(credentialUserName, pwd);
-
-            // Configure the client:
-            var client = new SmtpClient("smtp.gmail.com")
-            {
-                Port = 587,
-                DeliveryMethod = SmtpDeliveryMethod.Network,
-                UseDefaultCredentials = false,
-                EnableSsl = true,
-                Credentials = credentials
-            };
-
-            // Create the message:
-            var mail = new MailMessage(sentFrom, destination)
-            {
-                Subject = subject,
-                Body = body,
-                IsBodyHtml = true
-            };
-
-           client.Send(mail);
-        }
-
 
     }
 }

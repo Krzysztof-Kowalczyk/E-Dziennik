@@ -1,15 +1,21 @@
-﻿using System.Linq;
-using System.Net;
-using System.Web.Mvc;
-using edziennik.Models;
+﻿using edziennik.Models;
 using edziennik.Resources;
 using Microsoft.AspNet.Identity;
 using Models.Models;
 using Repositories.Repositories;
+using System.Linq;
+using System.Net;
+using System.Web.Mvc;
 
 namespace edziennik.Controllers
 {
-    [Authorize(Roles = "Admins")]
+    public enum SubjectCreateError
+    {
+        NoClasses = 1,
+        NoClassrooms = 2,
+        NoTeachers = 3
+    }
+    
     public class SubjectsController : Controller
     {
         private readonly SubjectRepository subjectRepo;
@@ -27,8 +33,16 @@ namespace edziennik.Controllers
         }
 
         // GET: Subjects
-        public ActionResult Index()
+        [Authorize(Roles = "Admins")]
+        public ActionResult Index(SubjectCreateError? error)
         {
+            if (error == SubjectCreateError.NoTeachers)
+                ViewBag.Error = ConstantStrings.SubjectCreateNoTeachersError;
+            else if (error == SubjectCreateError.NoClasses)
+                ViewBag.Error = ConstantStrings.SubjectCreateNoClassesError;
+            else if (error == SubjectCreateError.NoClassrooms)
+                ViewBag.Error = ConstantStrings.SubjectCreateNoClassroomsError;
+
             var subjects = subjectRepo.GetAll().Select(a => new SubjectViewModel
             {
                 Id = a.Id,
@@ -43,7 +57,41 @@ namespace edziennik.Controllers
             return View(subjects);
         }
 
-        // GET: Subjects/Details/5
+        [Authorize(Roles = "Admins,Teachers")]
+        public ActionResult TeacherSubjects(string teacherId)
+        {
+            var subjects = subjectRepo.FindByTeacherId(teacherId).Select(a => new SubjectViewModel
+            {
+                Id = a.Id,
+                Classroom = classroomRepo.FindById(a.ClassroomId).Name,
+                Classs = classRepo.FindById(a.ClasssId).Name,
+                Day = a.Day,
+                Hour = a.Hour,
+                Name = a.Name,
+                Teacher = teacherRepo.FindById(a.TeacherId).FullName
+            });
+
+            return View("Index", subjects);
+        }
+
+        [Authorize(Roles = "Students,Admins,Teachers")]
+        public ActionResult StudentSubjects(string studentId)
+        {
+            var subjects = subjectRepo.FindByStudentId(studentId).Select(a => new SubjectViewModel
+            {
+                Id = a.Id,
+                Classroom = classroomRepo.FindById(a.ClassroomId).Name,
+                Classs = classRepo.FindById(a.ClasssId).Name,
+                Day = a.Day,
+                Hour = a.Hour,
+                Name = a.Name,
+                Teacher = teacherRepo.FindById(a.TeacherId).FullName
+            });
+
+            return View("Index", subjects);
+        }
+
+        [Authorize]
         public ActionResult Details(int? id)
         {
             if (id == null)
@@ -69,10 +117,26 @@ namespace edziennik.Controllers
 
             return View(subjectVm);
         }
-
-        // GET: Subjects/Create
+        
+        [Authorize(Roles = "Admins")]
         public ActionResult Create()
         {
+            if(teacherRepo.GetAll().Count == 0)
+            {
+                if(Request.IsAjaxRequest())
+                {
+                }
+                return RedirectToAction("Index", new{ error= SubjectCreateError.NoTeachers});
+            }
+            else if (classRepo.GetAll().Count == 0)
+            {
+                return RedirectToAction("Index", new { error = SubjectCreateError.NoClasses });
+            }
+            else if (classroomRepo.GetAll().Count == 0)
+            {
+                return RedirectToAction("Index", new { error = SubjectCreateError.NoClassrooms });
+            }
+
             var subjectVm = new SubjectCreateViewModel
             {
                 Classes = ConstantStrings.getClassesSL(),
@@ -90,6 +154,7 @@ namespace edziennik.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admins")]
         public ActionResult Create(SubjectCreateViewModel subjectVm)
         {
             if (ModelState.IsValid)
@@ -107,14 +172,15 @@ namespace edziennik.Controllers
 
                 subjectRepo.Insert(subject);
                 subjectRepo.Save();
-                Logs.SaveLog("Create", User.Identity.GetUserId(), "Subject", subject.Id.ToString());
+                Logs.SaveLog("Create", User.Identity.GetUserId(), 
+                             "Subject", subject.Id.ToString(), Request.UserHostAddress);
                 return RedirectToAction("Index");
             }
 
             return View(subjectVm);
         }
 
-        // GET: Subjects/Edit/5
+        [Authorize(Roles = "Admins")]
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -146,9 +212,7 @@ namespace edziennik.Controllers
             return View(subjectVm);
         }
 
-        // POST: Subjects/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "Admins")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(SubjectCreateViewModel subjectVm)
@@ -168,14 +232,15 @@ namespace edziennik.Controllers
 
                 subjectRepo.Update(subject);
                 subjectRepo.Save();
-                Logs.SaveLog("Edit", User.Identity.GetUserId(), "Subject", subject.Id.ToString());
+                Logs.SaveLog("Edit", User.Identity.GetUserId(), 
+                             "Subject", subject.Id.ToString(), Request.UserHostAddress);
                 return RedirectToAction("Index");
             }
 
             return View(subjectVm);
         }
 
-        // GET: Subjects/Delete/5
+        [Authorize(Roles = "Admins")]
         public ActionResult Delete(int? id)
         {
             if (id == null)
@@ -190,15 +255,22 @@ namespace edziennik.Controllers
             return View(subject);
         }
 
-        // POST: Subjects/Delete/5
+        [Authorize(Roles = "Admins")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
             subjectRepo.Delete(id);
             subjectRepo.Save();
-            Logs.SaveLog("Delete", User.Identity.GetUserId(), "Subject", id.ToString());
+            Logs.SaveLog("Delete", User.Identity.GetUserId(),
+                         "Subject", id.ToString(), Request.UserHostAddress);
             return RedirectToAction("Index");
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            subjectRepo.Dispose();
+            base.Dispose(disposing);
         }
     }
 }

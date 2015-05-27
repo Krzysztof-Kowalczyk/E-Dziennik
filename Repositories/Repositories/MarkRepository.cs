@@ -2,10 +2,11 @@
 using System.Linq;
 using Models.Interfaces;
 using Models.Models;
+using System;
 
 namespace Repositories.Repositories
 {
-    public class MarkRepository : IMarkRepository
+    public class MarkRepository : IMarkRepository, IDisposable
     {
         EDziennikContext db = new EDziennikContext();
         public List<Mark> GetAll()
@@ -41,6 +42,32 @@ namespace Repositories.Repositories
         public void Save()
         {
             db.SaveChanges();
+        }
+
+       public List<Mark> FindByStudentIdAndSubjectId(string studentId, int subjectId)
+        {
+            var marks = db.Marks.Where(a => a.StudentId == studentId && a.SubjectId == subjectId).ToList();
+
+            return marks;
+        }
+
+                private bool disposed = false;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!this.disposed)
+            {
+                if (disposing)
+                {
+                    db.Dispose();
+                }
+            }
+            this.disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }
