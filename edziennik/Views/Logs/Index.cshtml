@@ -1,4 +1,8 @@
-﻿@model IEnumerable<edziennik.Models.ViewModels.LogListItemViewModel>
+﻿@using PagedList.Mvc
+@model PagedList.IPagedList<edziennik.Models.ViewModels.LogListItemViewModel>
+
+<link href="~/Content/PagedList.css" rel="stylesheet"
+      type="text/css" />
 
 @{
     ViewBag.Title = "Index";
@@ -9,16 +13,16 @@
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.Date)
+            @Html.DisplayNameFor(model => model[0].Date)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Action)
+            @Html.DisplayNameFor(model => model[0].Action)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Who)
+            @Html.DisplayNameFor(model => model[0].Who)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.What)
+            @Html.DisplayNameFor(model => model[0].What)
         </th>
         <th></th>
     </tr>
@@ -45,3 +49,5 @@
 }
 
 </table>
+
+@Html.PagedListPager(Model, page => Url.Action("Index", new { page, pageSize = Model.PageSize }))

@@ -14,6 +14,13 @@ namespace Repositories.Repositories
             return db.Students.ToList();
         }
 
+        public List<Student> GetPage(int? page = 1, int? pageSize = 10)
+        {
+            var items = db.Students.OrderByDescending(o => o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value).ToList();
+
+            return items;
+        } 
+
         public Student FindById(string id)
         {
             return db.Students.SingleOrDefault(a => a.Id == id);           

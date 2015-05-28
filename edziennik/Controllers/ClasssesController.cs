@@ -7,6 +7,7 @@ using System;
 using System.Net;
 using System.Web.Mvc;
 using edziennik.Models.ViewModels;
+using PagedList;
 
 namespace edziennik.Controllers
 {
@@ -23,12 +24,16 @@ namespace edziennik.Controllers
         }
 
         // GET: Classses
-        public ActionResult Index(int? error)
+        public ActionResult Index(int? page, int? error)
         {
             if (error.HasValue)
                 ViewBag.Error = ConstantStrings.ClassCreateError;
 
-            return View(classRepo.GetAll());
+            int currentPage = page ?? 1;
+            var items = classRepo.GetAll().ToPagedList(currentPage,10);
+
+            return View(items);
+
         }
 
         // GET: Classses/Details/5

@@ -51,38 +51,44 @@ namespace edziennik.Controllers
                 userManager.AddToRole(user.Id, role);
                 if (!user.EmailConfirmed)
                 {
-                    var code = userManager.GenerateEmailConfirmationToken(user.Id);
-
-                    var callbackUrl = Url.Action(
-
-                        "ConfirmEmails",
-
-                        "Account",
-
-                        new {userId = user.Id, code = code},
-
-                        protocol: Request.Url.Scheme);
-
-                    ServicePointManager.ServerCertificateValidationCallback =
-                        delegate(object s, X509Certificate certificate,
-                            X509Chain chain, SslPolicyErrors sslPolicyErrors)
-                        { return true; };
-
-                    await userManager.SendEmailAsync(
-
-                        user.Id,
-
-                        "Rejestracja konta",
-
-                        "Twoje hasło to trzy pierwsze litery nazwiska(pierwsza litera duża) + 4 ostatnie cyfry numer pesel + #." +
-                        "Przykładowo hasło dla uzytkownika Jan Kowlaski numer pesel:12345678910, byłoby nastepujące: Kow8910# ." +
-                        "Potwierdź swoją rejestracje klikając na podany link: " +
-                        "<a href=\"" + callbackUrl + "\">Potwierdź</a>");
+                    await SendEmailActivationToken(user);
                 }
                 return user.Id;             
             }
             AddErrors(result);
             return "Error";
+        }
+
+        [NonAction]
+        private async Task SendEmailActivationToken(ApplicationUser user)
+        {
+            var code = userManager.GenerateEmailConfirmationToken(user.Id);
+
+            var callbackUrl = Url.Action(
+
+                "ConfirmEmails",
+
+                "Account",
+
+                new { userId = user.Id, code = code },
+
+                protocol: Request.Url.Scheme);
+
+            ServicePointManager.ServerCertificateValidationCallback =
+                delegate(object s, X509Certificate certificate,
+                    X509Chain chain, SslPolicyErrors sslPolicyErrors)
+                { return true; };
+
+            await userManager.SendEmailAsync(
+
+                user.Id,
+
+                "Rejestracja konta",
+
+                "Twoje hasło to trzy pierwsze litery nazwiska(pierwsza litera duża) + 4 ostatnie cyfry numer pesel + #." +
+                "Przykładowo hasło dla uzytkownika Jan Kowlaski numer pesel:12345678910, byłoby nastepujące: Kow8910# ." +
+                "Potwierdź swoją rejestracje klikając na podany link: " +
+                "<a href=\"" + callbackUrl + "\">Potwierdź</a>");
         }
 
         [NonAction]

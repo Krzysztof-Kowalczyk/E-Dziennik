@@ -14,6 +14,13 @@ namespace Repositories.Repositories
             return db.Logs.ToList();
         }
 
+        public List<Log> GetPage(int? page = 1, int? pageSize = 10)
+        {
+            var items = db.Logs.OrderByDescending(o => o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value).ToList();
+
+            return items;
+        } 
+
         public Log FindById(int id)
         {
             return db.Logs.SingleOrDefault(a => a.Id == id);

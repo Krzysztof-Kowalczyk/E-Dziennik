@@ -13,6 +13,12 @@ namespace Repositories.Repositories
         {
             return db.Teachers.ToList();
         }
+        public List<Teacher> GetPage(int? page = 1, int? pageSize = 10)
+        {
+            var items = db.Teachers.OrderByDescending(o => o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value).ToList();
+
+            return items;
+        } 
 
         public Teacher FindById(string id)
         {

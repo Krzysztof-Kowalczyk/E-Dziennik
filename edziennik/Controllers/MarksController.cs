@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using edziennik.Models.ViewModels;
+using PagedList;
 
 namespace edziennik.Controllers
 {
@@ -32,9 +33,12 @@ namespace edziennik.Controllers
 
         // GET: Marks
         [Authorize(Roles = "Teachers,Admins")]
-        public ActionResult Index()
+        public ActionResult Index(int? page)
         {
-            var marks = markRepo.GetAll().Select(a=> new MarkListItemViewModel
+            int currentPage = page ?? 1;
+            var items = markRepo.GetAll();
+
+            var marks = items.Select(a=> new MarkListItemViewModel
                 {
                     Student = studentRepo.FindById(a.StudentId).FullName,
                     Teacher = teacherRepo.FindById(a.TeacherId).FullName,
@@ -42,8 +46,8 @@ namespace edziennik.Controllers
                     Value   = a.Value,
                     Classs  = classRepo.FindByMarkId(a.Id).Name,
                     Id = a.Id,
-                    TeacherId = a.TeacherId                   
-                });
+                    TeacherId = a.TeacherId
+                }).ToPagedList(currentPage, 10); 
            
             return View(marks);
         }

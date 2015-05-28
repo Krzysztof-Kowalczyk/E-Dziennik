@@ -14,6 +14,13 @@ namespace Repositories.Repositories
             return db.Subjects.ToList();
         }
 
+        public List<Subject> GetPage(int? page = 1, int? pageSize = 10)
+        {
+            var items = db.Subjects.OrderByDescending(o => o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value).ToList();
+
+            return items;
+        } 
+
         public Subject FindById(int id)
         {
             return db.Subjects.SingleOrDefault(a => a.Id == id);

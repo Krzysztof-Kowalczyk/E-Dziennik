@@ -6,6 +6,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using edziennik.Models.ViewModels;
+using PagedList;
 
 namespace edziennik.Controllers
 {
@@ -21,9 +22,13 @@ namespace edziennik.Controllers
         }
 
         // GET: Teachers
-        public ActionResult Index()
-        {              
-            return View(teacherRepo.GetAll());
+        public ActionResult Index(int? page)
+        {
+            int currentPage = page ?? 1;
+            var items = teacherRepo.GetAll().ToPagedList(currentPage, 10);
+
+            return View(items);
+         
         }
 
         // GET: Teachers/Details/5ff
@@ -101,16 +106,17 @@ namespace edziennik.Controllers
                 return HttpNotFound();
             }
 
+            var user = userManager.FindById(teacher.Id);
             var teacherEditVm = new TeacherEditViewModel
             {
                 FirstName = teacher.FirstName,
-                Email = userManager.FindById(teacher.Id).Email,
+                Email = user.Email,
                 Id = teacher.Id,
                 Login = teacher.Pesel,
                 SecondName = teacher.SecondName,
                 Surname = teacher.Surname,
-                EmailConfirmed = userManager.FindById(teacher.Id).EmailConfirmed,
-                AvatarUrl = userManager.FindById(teacher.Id).AvatarUrl
+                EmailConfirmed = user.EmailConfirmed,
+                AvatarUrl = user.AvatarUrl
             };
 
             return View(teacherEditVm);

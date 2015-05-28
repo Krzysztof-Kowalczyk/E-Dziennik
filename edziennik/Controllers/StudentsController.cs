@@ -8,6 +8,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using edziennik.Models.ViewModels;
+using PagedList;
 
 namespace edziennik.Controllers
 {
@@ -30,12 +31,15 @@ namespace edziennik.Controllers
         }
 
         // GET: Students
-        public ActionResult Index(int? error)
+        public ActionResult Index(int? page, int? error)
         {
             if (error.HasValue)
                 ViewBag.Error = ConstantStrings.StudentCreateNoClassesError;
 
-            var students = studentRepo.GetAll().Select(a => new StudentListItemViewModel
+            int currentPage = page ?? 1;
+            var items = studentRepo.GetAll();
+
+            var students = items.Select(a => new StudentListItemViewModel
             {
                 FirstName = a.FirstName,
                 SecondName = a.SecondName,
@@ -43,7 +47,7 @@ namespace edziennik.Controllers
                 ClassName = classRepo.FindById(a.ClasssId).Name,
                 Pesel = a.Pesel,
                 Id = a.Id
-            });
+            }).ToPagedList(currentPage, 10);
 
             return View(students);
         }
@@ -153,19 +157,20 @@ namespace edziennik.Controllers
                 return HttpNotFound();
             }
 
+            var user = userManager.FindById(student.Id);
             var studentEditVm = new StudentEditViewModel
             {
                 FirstName = student.FirstName,
                 ClassId = student.ClasssId,
-                Email = userManager.FindById(student.Id).Email,
+                Email = user.Email,
                 Id = student.Id,
                 Login = student.Pesel,
                 SecondName = student.SecondName,
                 Surname = student.Surname,
                 Classes = ConstantStrings.getClassesSL(),
                 CellPhoneNumber = student.CellPhoneNumber,
-                EmailConfirmed = userManager.FindById(student.Id).EmailConfirmed,
-                AvatarUrl = userManager.FindById(student.Id).AvatarUrl
+                EmailConfirmed = user.EmailConfirmed,
+                AvatarUrl = user.AvatarUrl
             };
             
             return View(studentEditVm);

@@ -14,6 +14,13 @@ namespace Repositories.Repositories
             return db.Marks.ToList();
         }
 
+        public List<Mark> GetPage(int? page = 1, int? pageSize = 10)
+        {
+            var items = db.Marks.OrderByDescending(o => o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value).ToList();
+
+            return items;
+        } 
+
         public Mark FindById(int id)
         {
             return db.Marks.SingleOrDefault(a => a.Id == id);

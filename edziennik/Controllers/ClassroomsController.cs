@@ -4,6 +4,7 @@ using Models.Models;
 using Repositories.Repositories;
 using System.Net;
 using System.Web.Mvc;
+using PagedList;
 
 namespace edziennik.Controllers
 {
@@ -18,9 +19,12 @@ namespace edziennik.Controllers
         }
 
         // GET: Classrooms
-        public ActionResult Index()
+        public ActionResult Index(int? page)
         {
-            return View(classroomRepo.GetAll());
+            int currentPage = page ?? 1;
+            var items = classroomRepo.GetAll().ToPagedList(currentPage,10);
+
+            return View(items);
         }
 
         // GET: Classrooms/Details/5

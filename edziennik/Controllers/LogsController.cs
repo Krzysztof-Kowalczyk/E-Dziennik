@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using edziennik.Models.ViewModels;
+using PagedList;
 
 namespace edziennik.Controllers
 {
@@ -21,16 +22,20 @@ namespace edziennik.Controllers
         }
 
         // GET: Logs
-        public ActionResult Index()
+        public ActionResult Index(int? page)
         {
-            var logs = LogRepository.GetAll().Select(a=>new LogListItemViewModel
+            int currentPage = page ?? 1;
+            var items = LogRepository.GetAll();
+
+            var logs = items.Select(a=>new LogListItemViewModel
                 {
                     Id = a.Id,
                     Action = a.Action,
                     What = a.What,
                     Who = userManager.FindById(a.Who).UserName,
                     Date = a.Date
-                });
+                }).ToPagedList(currentPage, 10); 
+
             return View(logs);
         }
 

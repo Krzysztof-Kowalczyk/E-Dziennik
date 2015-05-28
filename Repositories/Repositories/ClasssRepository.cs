@@ -14,6 +14,13 @@ namespace Repositories.Repositories
             return db.Classes.ToList();
         }
 
+        public List<Classs> GetPage(int? page = 1, int? pageSize = 10)
+        {
+            var items = db.Classes.OrderByDescending(o => o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value).ToList();
+
+            return items;
+        } 
+
         public Classs FindById(int id)
         {
             return db.Classes.SingleOrDefault(a => a.Id == id);

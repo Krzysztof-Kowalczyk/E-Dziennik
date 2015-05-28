@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using edziennik.Models.ViewModels;
+using PagedList;
 
 namespace edziennik.Controllers
 {
@@ -35,7 +36,7 @@ namespace edziennik.Controllers
 
         // GET: Subjects
         [Authorize(Roles = "Admins")]
-        public ActionResult Index(SubjectCreateError? error)
+        public ActionResult Index(int? page, SubjectCreateError? error)
         {
             if (error == SubjectCreateError.NoTeachers)
                 ViewBag.Error = ConstantStrings.SubjectCreateNoTeachersError;
@@ -44,7 +45,10 @@ namespace edziennik.Controllers
             else if (error == SubjectCreateError.NoClassrooms)
                 ViewBag.Error = ConstantStrings.SubjectCreateNoClassroomsError;
 
-            var subjects = subjectRepo.GetAll().Select(a => new SubjectViewModel
+            int currentPage = page ?? 1;
+            var items = subjectRepo.GetAll().ToPagedList(currentPage, 10);
+
+            var subjects = items.Select(a => new SubjectViewModel
             {
                 Id = a.Id,
                 Classroom = classroomRepo.FindById(a.ClassroomId).Name,
@@ -53,7 +57,7 @@ namespace edziennik.Controllers
                 Hour = a.Hour,
                 Name = a.Name,
                 Teacher = teacherRepo.FindById(a.TeacherId).FullName
-            });
+            }).ToPagedList(currentPage, 10);
             
             return View(subjects);
         }
