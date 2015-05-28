@@ -1,10 +1,11 @@
-﻿@model edziennik.Models.StudentEditViewModel
+﻿@using edziennik.Resources
+@model edziennik.Models.ViewModels.StudentEditViewModel
 
 @{
     ViewBag.Title = "Edycja";
 }
 
-<h2>Edit</h2>
+<h2>Edycja</h2>
 
 @using (Html.BeginForm())
 {
@@ -19,6 +20,18 @@
             @Html.HiddenFor(m => m.Classes[i].Text)
             @Html.HiddenFor(m => m.Classes[i].Value)
         }
+
+        <img src="@Url.Content(Model.AvatarUrl)" alt="image" width="100" height="100" />
+        @if (Model.AvatarUrl == ConstantStrings.DefaultUserAvatar)
+        {
+            <input type="file" name="file" accept="image/jpeg,image/png">
+        }
+        else
+        {
+            @Html.ActionLink("Usuń bieżące zdjęcie", "DeleteImage", new { id = Model.Id })
+            <br>
+        }
+        <br >
         <div class="form-group">
             @Html.LabelFor(model => model.Login, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
@@ -56,6 +69,14 @@
             <div class="col-md-10">
                 @Html.EditorFor(model => model.Email, new {htmlAttributes = new {@class = "form-control"}})
                 @Html.ValidationMessageFor(model => model.Email, "", new {@class = "text-danger"})
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.EmailConfirmed, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.EmailConfirmed, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.EmailConfirmed, "", new { @class = "text-danger" })
             </div>
         </div>
 

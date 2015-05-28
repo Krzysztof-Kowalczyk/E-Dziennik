@@ -1,20 +1,35 @@
-﻿@model edziennik.Models.TeacherEditViewModel
+﻿@using edziennik.Resources
+@model edziennik.Models.ViewModels.TeacherEditViewModel
 
 @{
     ViewBag.Title = "Edit";
 }
 
-<h2>Edit</h2>
+<h2>Edycja</h2>
 
 
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
-    
+
     <div class="form-horizontal">
         <h4>Nauczyciel</h4>
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+
+        <img src="@Url.Content(Model.AvatarUrl)" alt="image" width="100" height="100" />
+        @if (Model.AvatarUrl == ConstantStrings.DefaultUserAvatar)
+        {
+            <input type="file" name="file" accept="image/jpeg,image/png">
+        }
+        else
+        {
+            @Html.ActionLink("Usuń bieżące zdjęcie", "DeleteImage", new { id = Model.Id })
+            <br>
+        }
+
+        <br>
         <div class="form-group">
             @Html.LabelFor(model => model.Login, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
@@ -55,6 +70,14 @@
             </div>
         </div>
 
+        <div class="form-group">
+            @Html.LabelFor(model => model.EmailConfirmed, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.EmailConfirmed, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.EmailConfirmed, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
         @Html.HiddenFor(model => model.Id)
 
         <div class="form-group">
@@ -66,7 +89,7 @@
 }
 
 <div>
-   @Html.ActionLink("Powrót do listy", "Index", null, new { @class = "btn btn-primary" })
+    @Html.ActionLink("Powrót do listy", "Index", null, new { @class = "btn btn-primary" })
 </div>
 
 @section Scripts {

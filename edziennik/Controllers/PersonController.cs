@@ -39,7 +39,7 @@ namespace edziennik.Controllers
                 UserName = ruser.Login,
                 PasswordHash = hasher.HashPassword(password),
                 Email = ruser.Email,
-                EmailConfirmed = false,
+                EmailConfirmed = ruser.EmailConfirmed,
                 AvatarUrl = ConstantStrings.DefaultUserAvatar,
                 CreateDate = DateTime.Now
             };
@@ -49,35 +49,37 @@ namespace edziennik.Controllers
             if (result.Succeeded)
             {
                 userManager.AddToRole(user.Id, role);
-                var code = userManager.GenerateEmailConfirmationToken(user.Id);
+                if (!user.EmailConfirmed)
+                {
+                    var code = userManager.GenerateEmailConfirmationToken(user.Id);
 
-                var callbackUrl = Url.Action(
+                    var callbackUrl = Url.Action(
 
-                    "ConfirmEmails",
+                        "ConfirmEmails",
 
-                    "Account",
+                        "Account",
 
-                    new { userId = user.Id, code = code },
+                        new {userId = user.Id, code = code},
 
-                    protocol: Request.Url.Scheme);
+                        protocol: Request.Url.Scheme);
 
-                ServicePointManager.ServerCertificateValidationCallback =
-    delegate(object s, X509Certificate certificate,
-             X509Chain chain, SslPolicyErrors sslPolicyErrors)
-    { return true; };
+                    ServicePointManager.ServerCertificateValidationCallback =
+                        delegate(object s, X509Certificate certificate,
+                            X509Chain chain, SslPolicyErrors sslPolicyErrors)
+                        { return true; };
 
-                await userManager.SendEmailAsync(
+                    await userManager.SendEmailAsync(
 
-       user.Id,
+                        user.Id,
 
-       "Rejestracja konta",
+                        "Rejestracja konta",
 
-               "Twoje hasło to trzy pierwsze litery nazwiska(pierwsza litera duża) + 4 ostatnie cyfry numer pesel + #." +
-                "Przykładowo hasło dla uzytkownika Jan Kowlaski numer pesel:12345678910, byłoby nastepujące: Kow8910# ." +
-                "Potwierdź swoją rejestracje klikając na podany link: " +
-                "<a href=\"" + callbackUrl + "\">Potwierdź</a>");
-
-                return user.Id;
+                        "Twoje hasło to trzy pierwsze litery nazwiska(pierwsza litera duża) + 4 ostatnie cyfry numer pesel + #." +
+                        "Przykładowo hasło dla uzytkownika Jan Kowlaski numer pesel:12345678910, byłoby nastepujące: Kow8910# ." +
+                        "Potwierdź swoją rejestracje klikając na podany link: " +
+                        "<a href=\"" + callbackUrl + "\">Potwierdź</a>");
+                }
+                return user.Id;             
             }
             AddErrors(result);
             return "Error";
@@ -91,10 +93,11 @@ namespace edziennik.Controllers
         }
 
         [NonAction]
-        protected async Task UpdateUser(ApplicationUser user, Person person, string email)
+        protected async Task UpdateUser(ApplicationUser user, Person person, string email, bool emailConfirmed)
         {
             user.UserName = person.Pesel;
             user.Email = email;
+            user.EmailConfirmed = emailConfirmed;
             await userManager.UpdateAsync(user);
         }
 

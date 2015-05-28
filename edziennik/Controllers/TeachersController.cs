@@ -1,11 +1,11 @@
-﻿using edziennik.Models;
-using edziennik.Resources;
+﻿using edziennik.Resources;
 using Microsoft.AspNet.Identity;
 using Models.Models;
 using Repositories.Repositories;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using edziennik.Models.ViewModels;
 
 namespace edziennik.Controllers
 {
@@ -38,7 +38,17 @@ namespace edziennik.Controllers
             {
                 return HttpNotFound();
             }
-            return View(teacher);
+            var teacherVm = new TeacherDetailsViewModel
+            {
+                EmailConfirmed = userManager.FindById(teacher.Id).EmailConfirmed,
+                FirstName = teacher.FirstName,
+                Id = teacher.Id,
+                Pesel = teacher.Pesel,
+                SecondName = teacher.SecondName,
+                Surname =  teacher.Surname
+
+            };
+            return View(teacherVm);
         }
 
         // GET: Teachers/Create
@@ -99,6 +109,8 @@ namespace edziennik.Controllers
                 Login = teacher.Pesel,
                 SecondName = teacher.SecondName,
                 Surname = teacher.Surname,
+                EmailConfirmed = userManager.FindById(teacher.Id).EmailConfirmed,
+                AvatarUrl = userManager.FindById(teacher.Id).AvatarUrl
             };
 
             return View(teacherEditVm);
@@ -126,7 +138,7 @@ namespace edziennik.Controllers
                 teacherRepo.Save();
                 
                 var user = await userManager.FindByIdAsync(teacherVm.Id);
-                await UpdateUser(user, teacher, teacherVm.Email);
+                await UpdateUser(user, teacher, teacherVm.Email,teacherVm.EmailConfirmed);
                 Logs.SaveLog("Edit", User.Identity.GetUserId(), 
                              "Teacher", teacher.Id, Request.UserHostAddress);
 

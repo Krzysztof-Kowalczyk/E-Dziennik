@@ -6,6 +6,7 @@ using Repositories.Repositories;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
+using edziennik.Models.ViewModels;
 
 namespace edziennik.Controllers
 {
@@ -123,16 +124,13 @@ namespace edziennik.Controllers
         {
             if(teacherRepo.GetAll().Count == 0)
             {
-                if(Request.IsAjaxRequest())
-                {
-                }
                 return RedirectToAction("Index", new{ error= SubjectCreateError.NoTeachers});
             }
-            else if (classRepo.GetAll().Count == 0)
+            if (classRepo.GetAll().Count == 0)
             {
                 return RedirectToAction("Index", new { error = SubjectCreateError.NoClasses });
             }
-            else if (classroomRepo.GetAll().Count == 0)
+            if (classroomRepo.GetAll().Count == 0)
             {
                 return RedirectToAction("Index", new { error = SubjectCreateError.NoClassrooms });
             }

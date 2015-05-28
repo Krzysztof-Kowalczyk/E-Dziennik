@@ -67,182 +67,7 @@ namespace edziennik.Models
     }
 
     public class UserEditViewModel : UserDetailsViewModel { }
-
-    public class SubjectCreateViewModel
-    {
-        public int Id { get; set; }
-
-        [Display(Name = "Nazwa")]
-        [Required]
-        public string Name { get; set; }
-
-        [Display(Name = "Id nauczyciela")]
-        [Required]
-        public string TeacherId { get; set; }
-
-        [Display(Name = "Id klasy")]
-        [Required]
-        public int ClasssId { get; set; }
-
-        [Display(Name = "Id sali")]
-        [Required]
-        public int ClassroomId { get; set; }
-
-        [Display(Name = "Dzień zajęć")]
-        [Required]
-        public SchoolDay Day { get; set; }
-
-        [Display(Name = "Godzina zajęć")]
-        [Required]
-        public int Hour { get; set; }
-
-        public List<SelectListItem> Teachers { get; set; }
-
-        public List<SelectListItem> Classrooms { get; set; }
-
-        public List<SelectListItem> Classes { get; set; }
-
-        public List<SelectListItem> Days { get; set; }
-
-        public List<SelectListItem> Hours { get; set; }
-
-    }
-
-    public class MarkCreateViewModel
-    {
-        public int Id { get; set; }
-
-        [Display(Name = "Wartość")]
-        public double Value { get; set; }
-
-        [Display(Name = "Id ucznia")]
-        public string StudentId { get; set; }
-
-        [Display(Name = "Id przedmiotu")]
-        public int SubjectId { get; set; }
-
-        [Display(Name = "Id nauczyciela")]
-        public string TeacherId { get; set; }
-
-        [Display(Name = "Opis")]
-        public string Description { get; set; }
-
-        public List<SelectListItem> Subjects { get; set; }
-
-        public List<SelectListItem> Values { get; set; }
-    }
-
-    public class ClassCreateViewModel
-    {
-        public int Id { get; set; }
-
-        [Display(Name = "Nazwa")]
-        public string Name { get; set; }
-
-        [Display(Name = "Wychowawca")]
-        public string TeacherId { get; set; }
-
-        public List<SelectListItem> Teachers { get; set; }
-
-    }
-
-    public class ClassEditViewModel : ClassCreateViewModel
-    {
-        public List<Student> Students { get; set; }
-    }
           
-
-    public class PersonViewModel
-    {
-        public string Id { get; set; }
-
-        [Display(Name = "Imię")]
-        public string FirstName { get; set; }
-        [Display(Name = "Drugie imię")]
-        public string SecondName { get; set; }
-        [Display(Name = "Nazwisko")]
-        public string Surname { get; set; }
-        [Display(Name = "Pesel")]
-        public string Pesel { get; set; }
-    }
-
-    public class StudentViewModel : PersonViewModel
-    {
-        [Display(Name = "Klasa")]
-        public string ClassName { get; set; }
-
-        [Display(Name = "Numer telefonu komórkowego rodzica")]
-        public string CellPhoneNumber { get; set; }
-
-        public List<MarkViewModel> Marks { get; set; }
-    }
-
-    public class StudentListItemViewModel : PersonViewModel
-    {
-        [Display(Name = "Klasa")]
-        public string ClassName { get; set; }
-    }
-
-    public class TeacherViewModel : PersonViewModel
-    {
-    }
-
-    public class MarkViewModel
-    {
-        [Display(Name = "Nauczyciel")]
-        public string Teacher { get; set; }
-
-        [Display(Name = "Przedmiot")]
-        public string Subject { get; set; }
-
-        [Display(Name = "Ocena")]
-        public double Value { get; set; }               
-    }
-
-    public class MarkListItemViewModel : MarkViewModel
-    {
-        public int Id { get; set; }
-
-        [Display(Name = "Nauczyciel")]
-        public string TeacherId { get; set; }
-
-        [Display(Name = "Klasa")]
-        public string Classs { get; set; } 
-
-        [Display(Name = "Uczeń")]
-        public string  Student { get; set; }
-
-    }
-
-    public class MarkDetailsViewModel : MarkListItemViewModel
-    {
-        [Display(Name = "Opis")]
-        public string Description { get; set; }
-    }
-
-    public class SubjectViewModel
-    {
-        public int Id { get; set; }
-
-        [Display(Name = "Nazwa")]
-        public string Name { get; set; }
-
-        [Display(Name = "Nauczyciel")]
-        public string Teacher{ get; set; }
-
-        [Display(Name = "Klasa")]
-        public string Classs { get; set; }
-
-        [Display(Name = "Sala")]
-        public string Classroom { get; set; }
-
-        [Display(Name = "Dzień zajęć")]
-        public SchoolDay Day { get; set; }
-
-        [Display(Name = "Godzina zajęć")]
-        public int Hour { get; set; }
-    }
-
     public class VerifyCodeViewModel
     {
         [Required]
@@ -258,36 +83,6 @@ namespace edziennik.Models
 
         public bool RememberMe { get; set; }
     }
-
-    public class StudentSubjectMarks
-    {
-        public string Id { get; set; }
-
-        [Display(Name = "Imię")]
-        public string FirstName { get; set; }
-        [Display(Name = "Drugie imię")]
-        public string SecondName { get; set; }
-        [Display(Name = "Nazwisko")]
-        public string Surname { get; set; }
-        public List<Mark> Marks { get; set; }
-    }
-
-    public class StudentAddMark
-    {
-        public string Id { get; set; }
-
-        [Display(Name = "Imię")]
-        public string FirstName { get; set; }
-        [Display(Name = "Drugie imię")]
-        public string SecondName { get; set; }
-        [Display(Name = "Nazwisko")]
-        public string Surname { get; set; }
-        [Display(Name = "Przedmiot")]
-        public int SubjectId { get; set; }
-        [Display(Name = "Ocena")]
-        public double Mark { get; set; }
-    }
-
 
     public class ForgotViewModel
     {
@@ -337,35 +132,11 @@ namespace edziennik.Models
         [Display(Name = "Email")]
         public string Email { get; set; }
 
-    }
-
-    public class StudentRegisterViewModel : RegisterViewModel
-    {
-      [Display(Name = "Klasa")]
-      public int ClassId { get; set; }
-
-      [Display(Name = "Numer telefonu komórkowego rodzica")]
-      [RegularExpression(@"\d{9}", ErrorMessage = "Niepoprawny numer !")]
-      public string CellPhoneNumber { get; set; }
-      
-      public List<SelectListItem> Classes { get; set; }
-    }
-
-    public class StudentEditViewModel : StudentRegisterViewModel
-    {
-        public string Id { get; set;}
-    }
-
-    public class TeacherEditViewModel : RegisterViewModel
-    {
-        public string Id { get; set; }
-    }
-
-
-    public class TeacherRegisterViewModel : RegisterViewModel
-    {
+        [Display(Name = "Email potwierdzony")]
+        public bool EmailConfirmed { get; set; }
 
     }
+
 
     public class EditorRegisterViewModel : RegisterViewModel
     {
@@ -401,30 +172,4 @@ namespace edziennik.Models
         public string Email { get; set; }
     }
 
-    public class LogListItemViewModel
-    {
-        public int Id { get; set; }
-
-        [Display(Name = "Data")]
-        public DateTime Date { get; set; }
-
-        [Display(Name = "Akcja")]
-        public string Action { get; set; }
-
-        [Display(Name = "Kto")]
-        public string Who { get; set; }
-
-        [Display(Name = "Co")]
-        public string What { get; set; }
-
-    }
-
-    public class LogDetailsViewModel : LogListItemViewModel
-    {
-        [Display(Name = "Adres Ip")]
-        public string Ip { get; set; }
-        
-        [Display(Name = "Komu")]
-        public string WhatId { get; set; }
-    }
 }

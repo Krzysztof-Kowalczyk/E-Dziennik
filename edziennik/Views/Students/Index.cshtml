@@ -1,10 +1,15 @@
-﻿@model IEnumerable<edziennik.Models.StudentListItemViewModel>
+﻿@model IEnumerable<edziennik.Models.ViewModels.StudentListItemViewModel>
 
 @{
     ViewBag.Title = "Index";
 }
 
 <h2>Index</h2>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger" role="alert">@Html.Raw(ViewBag.Error)</div>
+}
 
 <p>
     @Html.ActionLink("Stwórz nowy", "Create", null, new { @class = "btn btn-primary" })

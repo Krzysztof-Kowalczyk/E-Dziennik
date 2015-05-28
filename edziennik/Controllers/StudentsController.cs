@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using edziennik.Models.ViewModels;
 
 namespace edziennik.Controllers
 {
@@ -29,8 +30,11 @@ namespace edziennik.Controllers
         }
 
         // GET: Students
-        public ActionResult Index()
+        public ActionResult Index(int? error)
         {
+            if (error.HasValue)
+                ViewBag.Error = ConstantStrings.StudentCreateNoClassesError;
+
             var students = studentRepo.GetAll().Select(a => new StudentListItemViewModel
             {
                 FirstName = a.FirstName,
@@ -64,15 +68,15 @@ namespace edziennik.Controllers
                 Value = m.Value
             }).ToList();
 
-            var studentVm = new StudentViewModel()
+            var studentVm = new StudentDetailsViewModel()
             {
                 ClassName = classRepo.FindById(student.ClasssId).Name,
                 FirstName = student.FirstName,
                 SecondName = student.SecondName,
                 Surname = student.Surname,
                 Pesel = student.Pesel,
-                Marks = markVm,
                 Id = student.Id,
+                Marks = markVm,
                 CellPhoneNumber = student.CellPhoneNumber
             };
             return View(studentVm);
@@ -82,6 +86,11 @@ namespace edziennik.Controllers
         [Authorize(Roles = "Admins")]
         public ActionResult Create()
         {
+            if (classRepo.GetAll().Count == 0)
+            {
+                return RedirectToAction("Index", new { error = 1 });
+            }
+
             var student = new StudentRegisterViewModel
             {
                 Classes = ConstantStrings.getClassesSL()
@@ -115,6 +124,7 @@ namespace edziennik.Controllers
                         Surname = studentVm.Surname,
                         Pesel = studentVm.Login,
                         CellPhoneNumber = studentVm.CellPhoneNumber
+
                     };
                         
                     studentRepo.Insert(student);
@@ -153,7 +163,9 @@ namespace edziennik.Controllers
                 SecondName = student.SecondName,
                 Surname = student.Surname,
                 Classes = ConstantStrings.getClassesSL(),
-                CellPhoneNumber = student.CellPhoneNumber
+                CellPhoneNumber = student.CellPhoneNumber,
+                EmailConfirmed = userManager.FindById(student.Id).EmailConfirmed,
+                AvatarUrl = userManager.FindById(student.Id).AvatarUrl
             };
             
             return View(studentEditVm);
@@ -184,7 +196,7 @@ namespace edziennik.Controllers
                 studentRepo.Save();               
 
                 var user = await userManager.FindByIdAsync(studentEvm.Id);                
-                await UpdateUser(user, student, studentEvm.Email);
+                await UpdateUser(user, student, studentEvm.Email,studentEvm.EmailConfirmed);
                 Logs.SaveLog("Edit", User.Identity.GetUserId(), 
                              "Student", student.Id, Request.UserHostAddress);
                

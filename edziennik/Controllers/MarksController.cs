@@ -1,5 +1,4 @@
-﻿using edziennik.Models;
-using edziennik.Resources;
+﻿using edziennik.Resources;
 using edziennik.Validators;
 using Microsoft.AspNet.Identity;
 using Models.Models;
@@ -7,6 +6,7 @@ using Repositories.Repositories;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
+using edziennik.Models.ViewModels;
 
 namespace edziennik.Controllers
 {

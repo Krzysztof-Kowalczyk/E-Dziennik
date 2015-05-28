@@ -1,4 +1,4 @@
-﻿@model Models.Models.Teacher
+﻿@model edziennik.Models.ViewModels.TeacherDetailsViewModel
 
 @{
     ViewBag.Title = "Szczegóły";
@@ -42,6 +42,12 @@
             @Html.DisplayFor(model => model.Pesel)
         </dd>
 
+        <dt>
+            @Html.DisplayNameFor(model => model.EmailConfirmed)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.EmailConfirmed)
+        </dd>
     </dl>
 </div>
 <p>

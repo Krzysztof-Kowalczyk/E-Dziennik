@@ -12,8 +12,9 @@ namespace edziennik.Resources
         public const string LogsPath = "~/Resources/Logs/";
         public const string ClassCreateError = "Nie można stworzyć klasy, gdyż nie istnieje żaden nauczyciel. Kliknij <a href=\"/Teachers/Create\">tutaj</a>, aby dodać nowego";
         public const string SubjectCreateNoTeachersError = "Nie można stworzyć przedmiotu, gdyż nie istnieje żaden nauczyciel. Kliknij <a href=\"/Teachers/Create\">tutaj</a>, aby dodać nowego";
-        public const string SubjectCreateNoClassesError = "Nie można stworzyć przedmiotu, gdyż nie istnieje żadena klasa. Kliknij <a href=\"/Classses/Create\">tutaj</a>, aby dodać nową";
+        public const string SubjectCreateNoClassesError = "Nie można stworzyć przedmiotu, gdyż nie istnieje żadna klasa. Kliknij <a href=\"/Classses/Create\">tutaj</a>, aby dodać nową";
         public const string SubjectCreateNoClassroomsError = "Nie można stworzyć przedmiotu, gdyż nie istnieje żadna sala. Kliknij <a href=\"/Classrooms/Create\">tutaj</a>, aby dodać nową";
+        public const string StudentCreateNoClassesError = "Nie można stworzyć nowego ucznia, gdyż nie istnieje żadna klasa. Kliknij <a href=\"/Classses/Create\">tutaj</a>, aby dodać nową";
         public const int MaxClassStudentCount = 30;
 
         public static SubjectRepository SubjectRepo

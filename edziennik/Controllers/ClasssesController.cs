@@ -6,6 +6,7 @@ using Repositories.Repositories;
 using System;
 using System.Net;
 using System.Web.Mvc;
+using edziennik.Models.ViewModels;
 
 namespace edziennik.Controllers
 {
