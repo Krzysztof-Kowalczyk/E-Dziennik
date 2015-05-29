@@ -6,10 +6,10 @@ namespace Models.Interfaces
 {
     public interface IPersonRepository<T> : IDisposable
     {
-        List<T> GetAll();
-        List<T> GetPage(int? page, int? pageSize); 
+        IQueryable<T> GetAll();
+        IQueryable<T> GetPage(int? page, int? pageSize); 
         T FindById(string id);
-        List<T> FindBySurname(string surname);
+        IQueryable<T> FindBySurname(string surname);
         void Insert(T item);
         void Update(T item);
         void Delete(string id);

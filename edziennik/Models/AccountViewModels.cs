@@ -54,6 +54,7 @@ namespace edziennik.Models
         public string UserName { get; set; }
         [Display(Name = "Email potwierdzony")]
         public bool EmailConfirmed { get; set; }
+        public string Role { get; set; }
     }
 
     public class UserDetailsViewModel : UserListItemViewModel

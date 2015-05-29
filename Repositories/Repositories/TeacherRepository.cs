@@ -9,13 +9,13 @@ namespace Repositories.Repositories
     public class TeacherRepository : ITeacherRepository, IDisposable
     {
         EDziennikContext db = new EDziennikContext();
-        public List<Teacher> GetAll()
+        public IQueryable<Teacher> GetAll()
         {
-            return db.Teachers.ToList();
+            return db.Teachers.AsNoTracking();
         }
-        public List<Teacher> GetPage(int? page = 1, int? pageSize = 10)
+        public IQueryable<Teacher> GetPage(int? page = 1, int? pageSize = 10)
         {
-            var items = db.Teachers.OrderByDescending(o => o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value).ToList();
+            var items = db.Teachers.OrderByDescending(o => o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
 
             return items;
         } 
@@ -25,9 +25,9 @@ namespace Repositories.Repositories
             return db.Teachers.SingleOrDefault(a => a.Id == id);
         }
 
-        public List<Teacher> FindBySurname(string surname)
+        public IQueryable<Teacher> FindBySurname(string surname)
         {
-            return db.Teachers.Where(a => a.Surname == surname.ToLower()).ToList();
+            return db.Teachers.Where(a => a.Surname == surname.ToLower());
         }
 
         public void Insert(Teacher item)

@@ -1,5 +1,5 @@
 ﻿@using PagedList.Mvc
-@model PagedList.IPagedList<Models.Models.Classs>
+@model PagedList.IPagedList<edziennik.Models.ViewModels.ClassListItemViewModel>
 
 <link href="~/Content/PagedList.css" rel="stylesheet"
       type="text/css" />
@@ -21,7 +21,10 @@
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model[0].Name)
+            @Html.ActionLink("Nazwa", "Index", new { sortOrder = ViewBag.NameSort, page = Model.PageNumber })
+        </th>
+        <th>
+            @Html.ActionLink("Wychowawca", "Index", new { sortOrder = ViewBag.TeacherSort, page = Model.PageNumber })
         </th>
         <th></th>
     </tr>
@@ -31,6 +34,9 @@
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Teacher)
             </td>
             <td>
                 @Html.ActionLink("Edycja", "Edit", new { id = item.Id }, new { @class = "btn btn-warning" })

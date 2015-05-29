@@ -9,14 +9,14 @@ namespace Repositories.Repositories
     public class LogRepository : ILogRepository, IDisposable 
     {
         EDziennikContext db = new EDziennikContext();
-        public List<Log> GetAll()
+        public IQueryable<Log> GetAll()
         {
-            return db.Logs.ToList();
+            return db.Logs.AsNoTracking();
         }
 
-        public List<Log> GetPage(int? page = 1, int? pageSize = 10)
+        public IQueryable<Log> GetPage(int? page = 1, int? pageSize = 10)
         {
-            var items = db.Logs.OrderByDescending(o => o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value).ToList();
+            var items = db.Logs.OrderByDescending(o => o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
 
             return items;
         } 

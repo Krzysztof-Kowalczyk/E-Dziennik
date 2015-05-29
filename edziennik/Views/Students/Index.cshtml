@@ -21,19 +21,19 @@
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model[0].FirstName)
+            @Html.ActionLink("Imię", "Index", new { sortOrder = ViewBag.FirstNameSort, page = Model.PageNumber })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model[0].SecondName)
+            @Html.ActionLink("Drugie imię", "Index", new { sortOrder = ViewBag.SecondNameSort, page = Model.PageNumber })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model[0].Surname)
+            @Html.ActionLink("Nazwisko", "Index", new { sortOrder = ViewBag.SurnameSort, page = Model.PageNumber })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model[0].Pesel)
+            @Html.ActionLink("Pesel", "Index", new { sortOrder = ViewBag.PeselSort, page = Model.PageNumber })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model[0].ClassName)
+            @Html.ActionLink("Klasa", "Index", new { sortOrder = ViewBag.ClassSort, page = Model.PageNumber })
         </th>
         <th></th>
     </tr>
@@ -60,7 +60,10 @@
                 @Html.ActionLink("Edycja", "Edit", new { id = item.Id }, new { @class = "btn btn-warning" })
                 @Html.ActionLink("Szczegóły", "Details", new { id = item.Id }, new { @class = "btn btn-primary" })
                 @Html.ActionLink("Usuń", "Delete", new { id = item.Id }, new { @class = "btn btn-danger" })
+                @if(User.IsInRole("Teachers"))
+                { 
                 @Html.ActionLink("Dodaj ocenę", "Create", "Marks", new { studentId = item.Id }, new { @class = "btn btn-primary" })
+                }
 
             </td>
         </tr>

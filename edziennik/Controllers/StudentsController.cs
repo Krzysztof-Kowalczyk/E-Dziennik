@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Web.Mvc;
 using edziennik.Models.ViewModels;
 using PagedList;
+using System;
 
 namespace edziennik.Controllers
 {
@@ -31,7 +32,7 @@ namespace edziennik.Controllers
         }
 
         // GET: Students
-        public ActionResult Index(int? page, int? error)
+        public ActionResult Index(int? page, int? error, string sortOrder)
         {
             if (error.HasValue)
                 ViewBag.Error = ConstantStrings.StudentCreateNoClassesError;
@@ -39,7 +40,48 @@ namespace edziennik.Controllers
             int currentPage = page ?? 1;
             var items = studentRepo.GetAll();
 
-            var students = items.Select(a => new StudentListItemViewModel
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.IdSort = String.IsNullOrEmpty(sortOrder) ? "IdAsc" : "";
+            ViewBag.ClassSort = sortOrder == "ClassAsc" ? "Class" : "ClassAsc";
+            ViewBag.FirstNameSort = sortOrder == "FirstNameAsc" ? "FirstName" : "FirstNameAsc";
+            ViewBag.SecondNameSort = sortOrder == "SecondNameAsc" ? "SecondName" : "SecondNameAsc";
+            ViewBag.SurnameSort = sortOrder == "SurnameAsc" ? "Surname" : "SurnameAsc";
+
+            switch (sortOrder)
+            {
+                case "Class":
+                    items = items.OrderByDescending(s => s.ClasssId);
+                    break;
+                case "ClassAsc":
+                    items = items.OrderBy(s => s.ClasssId);
+                    break;
+                case "FirstName":
+                    items = items.OrderByDescending(s => s.FirstName);
+                    break;
+                case "FirstNameAsc":
+                    items = items.OrderBy(s => s.FirstName);
+                    break;
+                case "SecondName":
+                    items = items.OrderByDescending(s => s.SecondName);
+                    break;
+                case "SecondNameAsc":
+                    items = items.OrderBy(s => s.SecondName);
+                    break;
+                case "Surname":
+                    items = items.OrderByDescending(s => s.Surname);
+                    break;
+                case "SurnameAsc":
+                    items = items.OrderBy(s => s.Surname);
+                    break;
+                case "IdAsc":
+                    items = items.OrderBy(s => s.Id);
+                    break;
+                default:    // id descending
+                    items = items.OrderByDescending(s => s.Id);
+                    break;
+            }
+
+            var students = items.ToList().Select(a => new StudentListItemViewModel
             {
                 FirstName = a.FirstName,
                 SecondName = a.SecondName,
@@ -81,7 +123,8 @@ namespace edziennik.Controllers
                 Pesel = student.Pesel,
                 Id = student.Id,
                 Marks = markVm,
-                CellPhoneNumber = student.CellPhoneNumber
+                CellPhoneNumber = student.CellPhoneNumber,
+                EmailConfirmed = userManager.FindById(student.Id).EmailConfirmed
             };
             return View(studentVm);
         }
@@ -90,7 +133,7 @@ namespace edziennik.Controllers
         [Authorize(Roles = "Admins")]
         public ActionResult Create()
         {
-            if (classRepo.GetAll().Count == 0)
+            if (classRepo.GetAll().ToList().Count == 0)
             {
                 return RedirectToAction("Index", new { error = 1 });
             }

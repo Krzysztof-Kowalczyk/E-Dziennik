@@ -3,8 +3,10 @@ using Microsoft.AspNet.Identity;
 using Models.Models;
 using Repositories.Repositories;
 using System.Net;
+using System.Linq;
 using System.Web.Mvc;
 using PagedList;
+using System;
 
 namespace edziennik.Controllers
 {
@@ -19,12 +21,33 @@ namespace edziennik.Controllers
         }
 
         // GET: Classrooms
-        public ActionResult Index(int? page)
+        public ActionResult Index(int? page, string sortOrder)
         {
             int currentPage = page ?? 1;
-            var items = classroomRepo.GetAll().ToPagedList(currentPage,10);
 
-            return View(items);
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.IdSort = String.IsNullOrEmpty(sortOrder) ? "IdAsc" : "";
+            ViewBag.NameSort = sortOrder == "NameAsc" ? "Name" : "NameAsc";
+
+            var items = classroomRepo.GetAll();
+
+            switch (sortOrder)
+            {
+                case "Name":
+                    items = items.OrderByDescending(s => s.Name);
+                    break;
+                case "NameAsc":
+                    items = items.OrderBy(s => s.Name);
+                    break;
+                case "IdAsc":
+                    items = items.OrderBy(s => s.Id);
+                    break;
+                default:    // id descending
+                    items = items.OrderByDescending(s => s.Id);
+                    break;
+            }
+
+            return View(items.ToPagedList<Classroom>(currentPage, 10));
         }
 
         // GET: Classrooms/Details/5

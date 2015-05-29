@@ -3,10 +3,12 @@ using Microsoft.AspNet.Identity;
 using Models.Models;
 using Repositories.Repositories;
 using System.Net;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using edziennik.Models.ViewModels;
 using PagedList;
+using System;
 
 namespace edziennik.Controllers
 {
@@ -22,12 +24,53 @@ namespace edziennik.Controllers
         }
 
         // GET: Teachers
-        public ActionResult Index(int? page)
+        public ActionResult Index(int? page, string sortOrder)
         {
             int currentPage = page ?? 1;
-            var items = teacherRepo.GetAll().ToPagedList(currentPage, 10);
+            var items = teacherRepo.GetAll();
 
-            return View(items);
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.IdSort = String.IsNullOrEmpty(sortOrder) ? "IdAsc" : "";
+            ViewBag.PeselSort = sortOrder == "PeselAsc" ? "Pesel" : "PeselAsc";
+            ViewBag.FirstNameSort = sortOrder == "FirstNameAsc" ? "FirstName" : "FirstNameAsc";
+            ViewBag.SecondNameSort = sortOrder == "SecondNameAsc" ? "SecondName" : "SecondNameAsc";
+            ViewBag.SurnameSort = sortOrder == "SurnameAsc" ? "Surname" : "SurnameAsc";
+
+            switch (sortOrder)
+            {
+                case "Pesel":
+                    items = items.OrderByDescending(s => s.Pesel);
+                    break;
+                case "PeselAsc":
+                    items = items.OrderBy(s => s.Pesel);
+                    break;
+                case "FirstName":
+                    items = items.OrderByDescending(s => s.FirstName);
+                    break;
+                case "FirstNameAsc":
+                    items = items.OrderBy(s => s.FirstName);
+                    break;
+                case "SecondName":
+                    items = items.OrderByDescending(s => s.SecondName);
+                    break;
+                case "SecondNameAsc":
+                    items = items.OrderBy(s => s.SecondName);
+                    break;
+                case "Surname":
+                    items = items.OrderByDescending(s => s.Surname);
+                    break;
+                case "SurnameAsc":
+                    items = items.OrderBy(s => s.Surname);
+                    break;
+                case "IdAsc":
+                    items = items.OrderBy(s => s.Id);
+                    break;
+                default:    // id descending
+                    items = items.OrderByDescending(s => s.Id);
+                    break;
+            }
+
+            return View(items.ToList().ToPagedList<Teacher>(currentPage, 10));
          
         }
 

@@ -21,19 +21,19 @@
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model[0].Name)
+            @Html.ActionLink("Nazwa", "Index", new { sortOrder = ViewBag.NameSort, page = Model.PageNumber })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model[0].Teacher)
+            @Html.ActionLink("Nauczyciel", "Index", new { sortOrder = ViewBag.TeacherSort, page = Model.PageNumber })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model[0].Classs)
+            @Html.ActionLink("Klasa", "Index", new { sortOrder = ViewBag.ClassSort, page = Model.PageNumber })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model[0].Classroom)
+            @Html.ActionLink("Sala", "Index", new { sortOrder = ViewBag.ClassroomSort, page = Model.PageNumber })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model[0].Hour)
+            @Html.ActionLink("Godzina zajęć", "Index", new { sortOrder = ViewBag.HourSort, page = Model.PageNumber })
         </th>
         <th></th>
     </tr>

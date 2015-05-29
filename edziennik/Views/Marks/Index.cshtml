@@ -14,19 +14,19 @@
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model[0].Classs)
+            @Html.ActionLink("Klasa", "Index", new { sortOrder = ViewBag.ClassSort, page = Model.PageNumber })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model[0].Student)
+            @Html.ActionLink("Uczeń", "Index", new { sortOrder = ViewBag.StudentSort, page = Model.PageNumber })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model[0].Teacher)
+            @Html.ActionLink("Nauczyciel", "Index", new { sortOrder = ViewBag.TeacherSort, page = Model.PageNumber })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model[0].Subject)
+            @Html.ActionLink("Przedmiot", "Index", new { sortOrder = ViewBag.SubjectSort, page = Model.PageNumber })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model[0].Value)
+            @Html.ActionLink("Ocena", "Index", new { sortOrder = ViewBag.ValueSort, page = Model.PageNumber })
         </th>
         <th></th>
     </tr>

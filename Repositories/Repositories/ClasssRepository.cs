@@ -9,14 +9,14 @@ namespace Repositories.Repositories
     public class ClasssRepository : IClasssRepository, IDisposable 
     {
         EDziennikContext db = new EDziennikContext();
-        public List<Classs> GetAll()
+        public IQueryable<Classs> GetAll()
         {
-            return db.Classes.ToList();
+            return db.Classes.AsNoTracking();
         }
 
-        public List<Classs> GetPage(int? page = 1, int? pageSize = 10)
+        public IQueryable<Classs> GetPage(int? page = 1, int? pageSize = 10)
         {
-            var items = db.Classes.OrderByDescending(o => o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value).ToList();
+            var items = db.Classes.OrderByDescending(o => o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
 
             return items;
         } 

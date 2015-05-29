@@ -9,14 +9,14 @@ namespace Repositories.Repositories
     public class SubjectRepository : ISubjectRepository, IDisposable
     {
         EDziennikContext db = new EDziennikContext();
-        public List<Subject> GetAll()
+        public IQueryable<Subject> GetAll()
         {
-            return db.Subjects.ToList();
+            return db.Subjects.AsNoTracking();
         }
 
-        public List<Subject> GetPage(int? page = 1, int? pageSize = 10)
+        public IQueryable<Subject> GetPage(int? page = 1, int? pageSize = 10)
         {
-            var items = db.Subjects.OrderByDescending(o => o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value).ToList();
+            var items = db.Subjects.OrderByDescending(o => o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
 
             return items;
         } 
@@ -52,24 +52,24 @@ namespace Repositories.Repositories
             db.SaveChanges();
         }
 
-        public List<Subject> FindByClassId(int classId)
+        public IQueryable<Subject> FindByClassId(int classId)
         {
-            var subjects = db.Subjects.Where(a => a.ClasssId == classId).ToList();
+            var subjects = db.Subjects.Where(a => a.ClasssId == classId);
             
             return subjects;
         }
 
-        public List<Subject> FindByTeacherId(string teacherId)
+        public IQueryable<Subject> FindByTeacherId(string teacherId)
         {
-            var subjects = db.Subjects.Where(a => a.TeacherId == teacherId).ToList();
+            var subjects = db.Subjects.Where(a => a.TeacherId == teacherId);
 
             return subjects;
         }
 
-        public List<Subject> FindByStudentId(string studentId)
+        public IQueryable<Subject> FindByStudentId(string studentId)
         {
             var classId = db.Students.Single(a => a.Id == studentId).ClasssId;
-            var subjects = db.Subjects.Where(a => a.ClasssId == classId).ToList();
+            var subjects = db.Subjects.Where(a => a.ClasssId == classId);
 
             return subjects;
         }

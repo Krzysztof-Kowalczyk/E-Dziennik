@@ -22,6 +22,23 @@ namespace edziennik.Models.ViewModels
 
     }
 
+    public class ClassListItemViewModel
+    {
+        public int Id { get; set; }
+
+        [Display(Name = "Nazwa")]
+        public string Name { get; set; }
+
+        [Display(Name = "Wychowawca")]
+        public string Teacher { get; set; }
+
+    }
+
+    public class ClassDetailsViewModel : ClassListItemViewModel
+    {
+        public List<Student> Students { get; set; }
+    }
+
     public class ClassEditViewModel : ClassCreateViewModel
     {
         public List<Student> Students { get; set; }

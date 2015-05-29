@@ -8,6 +8,7 @@ using System.Net;
 using System.Web.Mvc;
 using edziennik.Models.ViewModels;
 using PagedList;
+using System;
 
 namespace edziennik.Controllers
 {
@@ -36,7 +37,7 @@ namespace edziennik.Controllers
 
         // GET: Subjects
         [Authorize(Roles = "Admins")]
-        public ActionResult Index(int? page, SubjectCreateError? error)
+        public ActionResult Index(int? page, SubjectCreateError? error, string sortOrder)
         {
             if (error == SubjectCreateError.NoTeachers)
                 ViewBag.Error = ConstantStrings.SubjectCreateNoTeachersError;
@@ -46,9 +47,64 @@ namespace edziennik.Controllers
                 ViewBag.Error = ConstantStrings.SubjectCreateNoClassroomsError;
 
             int currentPage = page ?? 1;
-            var items = subjectRepo.GetAll().ToPagedList(currentPage, 10);
+            var items = subjectRepo.GetAll();
 
-            var subjects = items.Select(a => new SubjectViewModel
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.IdSort = String.IsNullOrEmpty(sortOrder) ? "IdAsc" : "";
+            ViewBag.ClassroomSort = sortOrder == "ClassroomAsc" ? "Classroom" : "ClassroomAsc";
+            ViewBag.ClassSort = sortOrder == "ClassAsc" ? "Class" : "ClassAsc";
+            ViewBag.DaySort = sortOrder == "DayAsc" ? "Day" : "DayAsc";
+            ViewBag.HourSort = sortOrder == "HourAsc" ? "Hour" : "HourAsc";
+            ViewBag.NameSort = sortOrder == "NameAsc" ? "Name" : "NameAsc";
+            ViewBag.TeacherSort = sortOrder == "TeacherAsc" ? "Teacher" : "TeacherAsc";
+
+            switch (sortOrder)
+            {
+                case "Classroom":
+                    items = items.OrderByDescending(s => s.ClassroomId);
+                    break;
+                case "ClassroomAsc":
+                    items = items.OrderBy(s => s.ClassroomId);
+                    break;
+                case "Class":
+                    items = items.OrderByDescending(s => s.ClasssId);
+                    break;
+                case "ClassAsc":
+                    items = items.OrderBy(s => s.ClasssId);
+                    break;
+                case "Day":
+                    items = items.OrderByDescending(s => s.Day);
+                    break;
+                case "DayAsc":
+                    items = items.OrderBy(s => s.Day);
+                    break;
+                case "Hour":
+                    items = items.OrderByDescending(s => s.Hour);
+                    break;
+                case "HourAsc":
+                    items = items.OrderBy(s => s.Hour);
+                    break;
+                case "Name":
+                    items = items.OrderByDescending(s => s.Name);
+                    break;
+                case "NameAsc":
+                    items = items.OrderBy(s => s.Name);
+                    break;
+                case "Teacher":
+                    items = items.OrderByDescending(s => s.TeacherId);
+                    break;
+                case "TeacherAsc":
+                    items = items.OrderBy(s => s.TeacherId);
+                    break;
+                case "IdAsc":
+                    items = items.OrderBy(s => s.Id);
+                    break;
+                default:    // id descending
+                    items = items.OrderByDescending(s => s.Id);
+                    break;
+            }
+
+            var subjects = items.ToList().Select(a => new SubjectViewModel
             {
                 Id = a.Id,
                 Classroom = classroomRepo.FindById(a.ClassroomId).Name,
@@ -63,9 +119,66 @@ namespace edziennik.Controllers
         }
 
         [Authorize(Roles = "Admins,Teachers")]
-        public ActionResult TeacherSubjects(string teacherId)
+        public ActionResult TeacherSubjects(int? page,string teacherId, string sortOrder)
         {
-            var subjects = subjectRepo.FindByTeacherId(teacherId).Select(a => new SubjectViewModel
+            int currentPage = page ?? 1;
+            var items = subjectRepo.FindByTeacherId(teacherId);
+
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.IdSort = String.IsNullOrEmpty(sortOrder) ? "IdAsc" : "";
+            ViewBag.ClassroomSort = sortOrder == "ClassroomAsc" ? "Classroom" : "ClassroomAsc";
+            ViewBag.ClassSort = sortOrder == "ClassAsc" ? "Class" : "ClassAsc";
+            ViewBag.DaySort = sortOrder == "DayAsc" ? "Day" : "DayAsc";
+            ViewBag.HourSort = sortOrder == "HourAsc" ? "Hour" : "HourAsc";
+            ViewBag.NameSort = sortOrder == "NameAsc" ? "Name" : "NameAsc";
+            ViewBag.TeacherSort = sortOrder == "TeacherAsc" ? "Teacher" : "TeacherAsc";
+
+            switch (sortOrder)
+            {
+                case "Classroom":
+                    items = items.OrderByDescending(s => s.ClassroomId);
+                    break;
+                case "ClassroomAsc":
+                    items = items.OrderBy(s => s.ClassroomId);
+                    break;
+                case "Class":
+                    items = items.OrderByDescending(s => s.ClasssId);
+                    break;
+                case "ClassAsc":
+                    items = items.OrderBy(s => s.ClasssId);
+                    break;
+                case "Day":
+                    items = items.OrderByDescending(s => s.Day);
+                    break;
+                case "DayAsc":
+                    items = items.OrderBy(s => s.Day);
+                    break;
+                case "Hour":
+                    items = items.OrderByDescending(s => s.Hour);
+                    break;
+                case "HourAsc":
+                    items = items.OrderBy(s => s.Hour);
+                    break;
+                case "Name":
+                    items = items.OrderByDescending(s => s.Name);
+                    break;
+                case "NameAsc":
+                    items = items.OrderBy(s => s.Name);
+                    break;
+                case "Teacher":
+                    items = items.OrderByDescending(s => s.TeacherId);
+                    break;
+                case "TeacherAsc":
+                    items = items.OrderBy(s => s.TeacherId);
+                    break;
+                case "IdAsc":
+                    items = items.OrderBy(s => s.Id);
+                    break;
+                default:    // id descending
+                    items = items.OrderByDescending(s => s.Id);
+                    break;
+            }
+            var subjects = items.ToList().Select(a => new SubjectViewModel
             {
                 Id = a.Id,
                 Classroom = classroomRepo.FindById(a.ClassroomId).Name,
@@ -74,7 +187,7 @@ namespace edziennik.Controllers
                 Hour = a.Hour,
                 Name = a.Name,
                 Teacher = teacherRepo.FindById(a.TeacherId).FullName
-            });
+            }).ToPagedList(currentPage, 10);
 
             return View("Index", subjects);
         }
@@ -126,15 +239,15 @@ namespace edziennik.Controllers
         [Authorize(Roles = "Admins")]
         public ActionResult Create()
         {
-            if(teacherRepo.GetAll().Count == 0)
+            if(teacherRepo.GetAll().ToList().Count == 0)
             {
                 return RedirectToAction("Index", new{ error= SubjectCreateError.NoTeachers});
             }
-            if (classRepo.GetAll().Count == 0)
+            if (classRepo.GetAll().ToList().Count == 0)
             {
                 return RedirectToAction("Index", new { error = SubjectCreateError.NoClasses });
             }
-            if (classroomRepo.GetAll().Count == 0)
+            if (classroomRepo.GetAll().ToList().Count == 0)
             {
                 return RedirectToAction("Index", new { error = SubjectCreateError.NoClassrooms });
             }

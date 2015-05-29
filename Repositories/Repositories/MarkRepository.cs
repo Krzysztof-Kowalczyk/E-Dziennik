@@ -9,14 +9,14 @@ namespace Repositories.Repositories
     public class MarkRepository : IMarkRepository, IDisposable
     {
         EDziennikContext db = new EDziennikContext();
-        public List<Mark> GetAll()
+        public IQueryable<Mark> GetAll()
         {
-            return db.Marks.ToList();
+            return db.Marks.AsNoTracking();
         }
 
-        public List<Mark> GetPage(int? page = 1, int? pageSize = 10)
+        public IQueryable<Mark> GetPage(int? page = 1, int? pageSize = 10)
         {
-            var items = db.Marks.OrderByDescending(o => o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value).ToList();
+            var items = db.Marks.OrderByDescending(o => o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
 
             return items;
         } 
@@ -51,9 +51,9 @@ namespace Repositories.Repositories
             db.SaveChanges();
         }
 
-       public List<Mark> FindByStudentIdAndSubjectId(string studentId, int subjectId)
+        public IQueryable<Mark> FindByStudentIdAndSubjectId(string studentId, int subjectId)
         {
-            var marks = db.Marks.Where(a => a.StudentId == studentId && a.SubjectId == subjectId).ToList();
+            var marks = db.Marks.Where(a => a.StudentId == studentId && a.SubjectId == subjectId);
 
             return marks;
         }

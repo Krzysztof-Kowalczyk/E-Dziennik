@@ -6,8 +6,8 @@ namespace Models.Interfaces
 {
     public interface IRepository<T> : IDisposable
     {
-        List<T> GetAll();
-        List<T>GetPage(int? page, int? pageSize); 
+        IQueryable<T> GetAll();
+        IQueryable<T> GetPage(int? page, int? pageSize); 
         T FindById(int id);
         void Insert(T item);
         void Update(T item);

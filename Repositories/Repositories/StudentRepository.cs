@@ -9,14 +9,14 @@ namespace Repositories.Repositories
     public class StudentRepository : IStudentRepository, IDisposable
     {
         EDziennikContext db = new EDziennikContext();
-        public List<Student> GetAll()
+        public IQueryable<Student> GetAll()
         {
-            return db.Students.ToList();
+            return db.Students.AsNoTracking();
         }
 
-        public List<Student> GetPage(int? page = 1, int? pageSize = 10)
+        public IQueryable<Student> GetPage(int? page = 1, int? pageSize = 10)
         {
-            var items = db.Students.OrderByDescending(o => o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value).ToList();
+            var items = db.Students.OrderByDescending(o => o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
 
             return items;
         } 
@@ -26,9 +26,9 @@ namespace Repositories.Repositories
             return db.Students.SingleOrDefault(a => a.Id == id);           
         }
 
-        public List<Student> FindBySurname(string surname)
+        public IQueryable<Student> FindBySurname(string surname)
         {
-            return db.Students.Where(a => a.Surname == surname.ToLower()).ToList();
+            return db.Students.Where(a => a.Surname == surname.ToLower());
         }
 
         public void Insert(Student item)

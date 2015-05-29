@@ -16,16 +16,16 @@
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model[0].FirstName)
+            @Html.ActionLink("Imię", "Index", new { sortOrder = ViewBag.FirstNameSort, page = Model.PageNumber })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model[0].SecondName)
+            @Html.ActionLink("Drugie imię", "Index", new { sortOrder = ViewBag.SecondNameSort, page = Model.PageNumber })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model[0].Surname)
+            @Html.ActionLink("Nazwisko", "Index", new { sortOrder = ViewBag.SurnameSort, page = Model.PageNumber })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model[0].Pesel)
+            @Html.ActionLink("Pesel", "Index", new { sortOrder = ViewBag.PeselSort, page = Model.PageNumber })
         </th>
         <th></th>
     </tr>

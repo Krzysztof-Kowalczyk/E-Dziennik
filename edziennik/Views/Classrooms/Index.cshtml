@@ -17,7 +17,7 @@
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model[0].Name)
+            @Html.ActionLink("Nazwa", "Index", new { sortOrder = ViewBag.NameSort, page = Model.PageNumber })
         </th>
         <th></th>
     </tr>

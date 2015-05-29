@@ -5,6 +5,7 @@ using Models.Models;
 using Repositories.Repositories;
 using System;
 using System.Net;
+using System.Linq;
 using System.Web.Mvc;
 using edziennik.Models.ViewModels;
 using PagedList;
@@ -24,15 +25,49 @@ namespace edziennik.Controllers
         }
 
         // GET: Classses
-        public ActionResult Index(int? page, int? error)
+        public ActionResult Index(int? page, int? error, string sortOrder)
         {
             if (error.HasValue)
                 ViewBag.Error = ConstantStrings.ClassCreateError;
 
             int currentPage = page ?? 1;
-            var items = classRepo.GetAll().ToPagedList(currentPage,10);
+            var items = classRepo.GetAll();
 
-            return View(items);
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.IdSort = String.IsNullOrEmpty(sortOrder) ? "IdAsc" : "";
+            ViewBag.NameSort = sortOrder == "Name" ? "NameAsc" : "Name";
+            ViewBag.TeacherSort = sortOrder == "Teacher" ? "TeacherAsc" : "Teacher";
+
+            switch (sortOrder)
+            {
+                case "Name":
+                    items = items.OrderByDescending(s => s.Name);
+                    break;
+                case "NameAsc":
+                    items = items.OrderBy(s => s.Name);
+                    break;
+                case "Teacher":
+                    items = items.OrderByDescending(s => s.TeacherId);
+                    break;
+                case "TeacherAsc":
+                    items = items.OrderBy(s => s.TeacherId);
+                    break;
+                case "IdAsc":
+                    items = items.OrderBy(s => s.Id);
+                    break;
+                default:    // id descending
+                    items = items.OrderByDescending(s => s.Id);
+                    break;
+            }
+
+            var classes= items.ToList().Select(a=> new ClassListItemViewModel
+            {
+                Id = a.Id,
+                Name = a.Name,
+                Teacher = teacherRepo.FindById(a.TeacherId).FullName
+            });
+
+            return View(classes.ToPagedList<ClassListItemViewModel>(currentPage, 10));
 
         }
 
@@ -49,13 +84,21 @@ namespace edziennik.Controllers
             {
                 return HttpNotFound();
             }
-            return View(classs);
+
+            var classVm = new ClassDetailsViewModel
+            {
+                Id = classs.Id,
+                Name = classs.Name,
+                Teacher = teacherRepo.FindById(classs.TeacherId).FullName,
+                Students = classs.Students
+            };
+            return View(classVm);
         }
 
         // GET: Classses/Create
         public ActionResult Create()
         {
-            if (teacherRepo.GetAll().Count == 0 )
+            if (teacherRepo.GetAll().ToList().Count == 0 )
             {
                 return RedirectToAction("Index", 
                       new {error = 1});

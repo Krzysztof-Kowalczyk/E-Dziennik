@@ -41,12 +41,13 @@ namespace edziennik.Controllers
         [Authorize(Roles = "Admins")]
         public ActionResult ShowUsers()
         {
-            var users = userManager.Users.Select(u => new UserListItemViewModel
+            var users = userManager.Users.ToList().Select(u => new UserListItemViewModel
             {
                 Id = u.Id,
                 Email = u.Email,
                 UserName = u.UserName,
-                EmailConfirmed = u.EmailConfirmed
+                EmailConfirmed = u.EmailConfirmed,
+                Role = ApplicationDbContext.Create().Roles.ToList().Single(a=>a.Id == u.Roles.ElementAt(0).RoleId).Name
             }).ToList();
 
             return View(users);

@@ -8,6 +8,7 @@ using System.Net;
 using System.Web.Mvc;
 using edziennik.Models.ViewModels;
 using PagedList;
+using System;
 
 namespace edziennik.Controllers
 {
@@ -33,10 +34,51 @@ namespace edziennik.Controllers
 
         // GET: Marks
         [Authorize(Roles = "Teachers,Admins")]
-        public ActionResult Index(int? page)
+        public ActionResult Index(int? page, string sortOrder)
         {
             int currentPage = page ?? 1;
             var items = markRepo.GetAll();
+
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.IdSort = String.IsNullOrEmpty(sortOrder) ? "IdAsc" : "";
+            ViewBag.StudentSort = sortOrder == "StudentAsc" ? "Student" : "StudentAsc";
+            ViewBag.SubjectSort = sortOrder == "SubjectAsc" ? "Subject" : "SubjectAsc";
+            ViewBag.TeacherSort = sortOrder == "TeacherAsc" ? "Teacher" : "TeacherAsc";
+            ViewBag.ValueSort = sortOrder == "ValueAsc" ? "Value" : "ValueAsc";
+
+            switch (sortOrder)
+            {
+                case "Student":
+                    items = items.OrderByDescending(s => s.StudentId);
+                    break;
+                case "StudentAsc":
+                    items = items.OrderBy(s => s.StudentId);
+                    break;
+                case "Subject":
+                    items = items.OrderByDescending(s => s.SubjectId);
+                    break;
+                case "SubjectAsc":
+                    items = items.OrderBy(s => s.SubjectId);
+                    break;
+                case "Teacher":
+                    items = items.OrderByDescending(s => s.TeacherId);
+                    break;
+                case "TeacherAsc":
+                    items = items.OrderBy(s => s.TeacherId);
+                    break;
+                case "Value":
+                    items = items.OrderByDescending(s => s.Value);
+                    break;
+                case "ValueAsc":
+                    items = items.OrderBy(s => s.Value);
+                    break;
+                case "IdAsc":
+                    items = items.OrderBy(s => s.Id);
+                    break;
+                default:    // id descending
+                    items = items.OrderByDescending(s => s.Id);
+                    break;
+            }
 
             var marks = items.Select(a=> new MarkListItemViewModel
                 {

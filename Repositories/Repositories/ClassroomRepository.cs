@@ -9,14 +9,14 @@ namespace Repositories.Repositories
     public class ClassroomRepository : IClassroomRepository, IDisposable
     {
         EDziennikContext db = new EDziennikContext();
-        public List<Classroom> GetAll()
+        public IQueryable<Classroom> GetAll()
         {
-            return db.Classrooms.ToList();
+            return db.Classrooms.AsNoTracking();
         }
 
-        public List<Classroom> GetPage(int? page = 1, int? pageSize = 10)
+        public IQueryable<Classroom> GetPage(int? page = 1, int? pageSize = 10)
         {
-            var items = db.Classrooms.OrderByDescending(o=>o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value).ToList();
+            var items = db.Classrooms.OrderByDescending(o=>o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
 
             return items;
         } 
@@ -50,9 +50,9 @@ namespace Repositories.Repositories
             db.SaveChanges();
         }
 
-        public List<Subject> GetSubjects(int classroomId)
+        public IQueryable<Subject> GetSubjects(int classroomId)
         {
-            return db.Subjects.Where(a => a.ClassroomId == classroomId).ToList();
+            return db.Subjects.Where(a => a.ClassroomId == classroomId);
         }
 
         private bool disposed = false;
