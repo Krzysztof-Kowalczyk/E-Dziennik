@@ -104,6 +104,19 @@ namespace edziennik.Models
         public bool RememberMe { get; set; }
     }
 
+    public class UserCreateViewModel
+    {
+        [Required(ErrorMessage = "Pole Login jest wymagane.")]
+        [Display(Name = "Login")]
+        public string Login { get; set; }
+
+        [Required(ErrorMessage = "Pole Email jest wymagane.")]
+        [EmailAddress]
+        [Display(Name = "Email")]
+        public string Email { get; set; }
+
+    }
+
     public class RegisterViewModel
     {
         [Required(ErrorMessage = "Pole Pesel jest wymagane.")]

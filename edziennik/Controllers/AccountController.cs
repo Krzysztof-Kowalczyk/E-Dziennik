@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -36,39 +37,108 @@ namespace edziennik.Controllers
             return PartialView("_DisplayPhoto");
         }
 
-        [Authorize(Roles = "Admins")]
-        public ActionResult ShowUsers()
+        [Authorize(Roles = "Admins, Editors")]
+        public ActionResult ShowUsers(int? page, string sortOrder)
         {
-            var users = _userManager.Users.ToList().Select(u => new UserListItemViewModel
+            // var users = SortItems(sortOrder);
+            var usersVm = _userManager.Users.ToList().Select(u => new UserListItemViewModel
             {
                 Id = u.Id,
                 Email = u.Email,
                 UserName = u.UserName,
                 EmailConfirmed = u.EmailConfirmed,
-                Role = ApplicationDbContext.Create().Roles.ToList().Single(a=>a.Id == u.Roles.ElementAt(0).RoleId).Name
+                Role = ApplicationDbContext.Create().Roles.ToList().Single(a => a.Id == u.Roles.ElementAt(0).RoleId).Name
             }).ToList();
 
-            return View(users);
+            return View(usersVm);
         }
 
-        public void Create(RegisterViewModel ruser, string role)
-        {
-            var hasher = new PasswordHasher();
-            var password = ruser.Surname.Substring(0, 3) + ruser.Login.Substring(6, 4);
-            var user = new ApplicationUser
-            {
-                UserName = ruser.Login,
-                PasswordHash = hasher.HashPassword(password),
-                Email = ruser.Email,
-                EmailConfirmed = true,
-                AvatarUrl = ConstantStrings.DefaultUserAvatar
-            };
+        //[NonAction]
+        //private IQueryable<ApplicationUser> SortItems(string sortOrder)
+        //{
+        //    var items = _userManager.Users;
 
-            _userManager.Create(user, password);
-            _userManager.AddToRole(user.Id, role);
-        }
+        //    ViewBag.CurrentSort = sortOrder;
+        //    ViewBag.IdSort = String.IsNullOrEmpty(sortOrder) ? "IdAsc" : "";
+        //    ViewBag.EmailSort = sortOrder == "EmailAsc" ? "Email" : "EmailAsc";
+        //    ViewBag.UserNameSort = sortOrder == "UserNameAsc" ? "UserName" : "UserNameAsc";
+        //    ViewBag.RoleSort = sortOrder == "RoleAsc" ? "Role" : "RoleAsc";
+        //    ViewBag.EmailConfirmedSort = sortOrder == "SurnameAsc" ? "Surname" : "SurnameAsc";
+
+        //    switch (sortOrder)
+        //    {
+        //        case "Class":
+        //            items = items.OrderByDescending(s => s.ClasssId);
+        //            break;
+        //        case "ClassAsc":
+        //            items = items.OrderBy(s => s.ClasssId);
+        //            break;
+        //        case "FirstName":
+        //            items = items.OrderByDescending(s => s.FirstName);
+        //            break;
+        //        case "FirstNameAsc":
+        //            items = items.OrderBy(s => s.FirstName);
+        //            break;
+        //        case "SecondName":
+        //            items = items.OrderByDescending(s => s.SecondName);
+        //            break;
+        //        case "SecondNameAsc":
+        //            items = items.OrderBy(s => s.SecondName);
+        //            break;
+        //        case "Surname":
+        //            items = items.OrderByDescending(s => s.Surname);
+        //            break;
+        //        case "SurnameAsc":
+        //            items = items.OrderBy(s => s.Surname);
+        //            break;
+        //        case "IdAsc":
+        //            items = items.OrderBy(s => s.Id);
+        //            break;
+        //        default:    // id descending
+        //            items = items.OrderByDescending(s => s.Id);
+        //            break;
+        //    }
+        //    return items;
+        //}
 
         [Authorize(Roles = "Admins")]
+        public ActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admins")]
+        public async Task<ActionResult> Create(UserCreateViewModel ruser, string role)
+        {
+            if (ModelState.IsValid)
+            {
+                var hasher = new PasswordHasher();
+                var password = "Editor123#";
+                var user = new ApplicationUser
+                {
+                    UserName = ruser.Login,
+                    PasswordHash = hasher.HashPassword(password),
+                    Email = ruser.Email,
+                    EmailConfirmed = true,
+                    AvatarUrl = ConstantStrings.DefaultUserAvatar,
+                    CreateDate = DateTime.Now
+                };
+                user.LastPasswordChange = user.CreateDate;
+
+                var result = _userManager.Create(user, password);
+                if (result.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(user.Id, "Editors");
+
+                    return RedirectToAction("ShowUsers");
+                }
+                AddErrors(result);
+            }
+            return View();
+        }
+
+        [Authorize(Roles = "Admins,Editors")]
         public ActionResult Details(string id)
         {
             var user = _userManager.FindById(id);
@@ -80,34 +150,11 @@ namespace edziennik.Controllers
                 UserName = user.UserName,
                 UserRoles = _userManager.GetRoles(user.Id).ToArray(),
                 AvatarUrl = user.AvatarUrl,
-                Roles = ApplicationDbContext.Create().Roles.Select(r => new SelectListItem
+                Roles = new List<SelectListItem>
                 {
-                    Value = r.Name,
-                    Text = r.Name
-                }).ToList()
-            };
-
-            return View(vm);
-        }
-
-        [Authorize(Roles = "Admins")]
-        public ActionResult Edit(string id)
-        {
-            var user = _userManager.FindById(id);
-
-            var vm = new UserEditViewModel
-            {
-                Id = user.Id,
-                Email = user.Email,
-                EmailConfirmed = user.EmailConfirmed,
-                UserName = user.UserName,
-                UserRoles = _userManager.GetRoles(user.Id).ToArray(),
-                AvatarUrl = user.AvatarUrl,
-                Roles = ApplicationDbContext.Create().Roles.Select(r => new SelectListItem
-                {
-                    Value = r.Name,
-                    Text = r.Name
-                }).ToList()
+                    new SelectListItem{Value = "Admins", Text="Admins"},
+                    new SelectListItem{Value = "Editors", Text="Editors"}
+                } 
             };
 
             return View(vm);
@@ -144,10 +191,33 @@ namespace edziennik.Controllers
         }
 
         [Authorize(Roles = "Admins")]
+        public ActionResult Edit(string id)
+        {
+            var user = _userManager.FindById(id);
+
+            var vm = new UserEditViewModel
+            {
+                Id = user.Id,
+                Email = user.Email,
+                EmailConfirmed = user.EmailConfirmed,
+                UserName = user.UserName,
+                UserRoles = _userManager.GetRoles(user.Id).ToArray(),
+                AvatarUrl = user.AvatarUrl,
+                Roles = new List<SelectListItem>
+                {
+                    new SelectListItem{Value = "Admins", Text="Admins"},
+                    new SelectListItem{Value = "Editors", Text="Editors"}
+                }
+            };
+
+            return View(vm);
+        }
+
+        [Authorize(Roles = "Admins")]
         [HttpPost]
         public ActionResult Edit(UserEditViewModel user, HttpPostedFileBase file)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && user.UserRoles != null)
             {
                 var dbPost = _userManager.FindById(user.Id);
                 if (dbPost == null)
@@ -174,14 +244,19 @@ namespace edziennik.Controllers
 
                 return RedirectToAction("Details", dbPost);
             }
+            user.UserRoles = _userManager.GetRoles(user.Id).ToArray();
 
-            return RedirectToAction("ShowUsers");
+            return View(user);
         }
 
         [Authorize(Roles = "Admins")]
-        public ActionResult Delete(string id)
+        public async Task<ActionResult> Delete(string id)
         {
-            var user = _userManager.FindById(id);
+            if (await _userManager.IsInRoleAsync(id, "Admins"))
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
+            var user = await _userManager.FindByIdAsync(id);
+
             var vm = new UserDetailsViewModel
             {
                 Id = user.Id,
@@ -202,10 +277,13 @@ namespace edziennik.Controllers
         [HttpPost]
         [Authorize(Roles = "Admins")]
         [ActionName("Delete")]
-        public ActionResult DeletePost(string id)
+        public async Task<ActionResult> DeletePost(string id)
         {
-            var user = _userManager.FindById(id);
-            _userManager.Delete(user);
+            if (await _userManager.IsInRoleAsync(id, "Admins"))
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
+            var user = await _userManager.FindByIdAsync(id);
+            await _userManager.DeleteAsync(user);
 
             return RedirectToAction("ShowUsers");
         }

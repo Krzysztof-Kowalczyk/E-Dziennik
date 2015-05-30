@@ -125,6 +125,8 @@ namespace edziennik.Controllers
                 Value = m.Value
             }).ToList();
 
+            var user = UserManager.FindById(student.Id);
+            
             var studentVm = new StudentDetailsViewModel()
             {
                 ClassName = _classRepo.FindById(student.ClasssId).Name,
@@ -135,7 +137,8 @@ namespace edziennik.Controllers
                 Id = student.Id,
                 Marks = markVm,
                 CellPhoneNumber = student.CellPhoneNumber,
-                EmailConfirmed = UserManager.FindById(student.Id).EmailConfirmed
+                EmailConfirmed = user.EmailConfirmed,
+                AvatarUrl = user.AvatarUrl
             };
             return View(studentVm);
         }

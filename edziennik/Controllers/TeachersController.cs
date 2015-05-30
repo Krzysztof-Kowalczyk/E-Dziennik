@@ -99,15 +99,17 @@ namespace edziennik.Controllers
             {
                 return HttpNotFound();
             }
+            var user = UserManager.FindById(teacher.Id);
+            
             var teacherVm = new TeacherDetailsViewModel
             {
-                EmailConfirmed = UserManager.FindById(teacher.Id).EmailConfirmed,
+                EmailConfirmed = user.EmailConfirmed,
                 FirstName = teacher.FirstName,
                 Id = teacher.Id,
                 Pesel = teacher.Pesel,
                 SecondName = teacher.SecondName,
-                Surname =  teacher.Surname
-
+                Surname =  teacher.Surname,
+                AvatarUrl = user.AvatarUrl
             };
             return View(teacherVm);
         }

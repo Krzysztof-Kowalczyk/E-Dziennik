@@ -58,6 +58,9 @@ namespace edziennik.Models.ViewModels
         [Display(Name = "Oceny")]
         public List<MarkViewModel> Marks { get; set; }
 
+        [Display(Name = "Zdjęcie")]
+        public string AvatarUrl { get; set; }
+
     }
 
     public class StudentListItemViewModel : PersonViewModel
