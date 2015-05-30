@@ -18,7 +18,7 @@ namespace edziennik.Controllers
         NoClassrooms = 2,
         NoTeachers = 3
     }
-    
+
     public class SubjectsController : Controller
     {
         private readonly SubjectRepository subjectRepo;
@@ -49,60 +49,7 @@ namespace edziennik.Controllers
             int currentPage = page ?? 1;
             var items = subjectRepo.GetAll();
 
-            ViewBag.CurrentSort = sortOrder;
-            ViewBag.IdSort = String.IsNullOrEmpty(sortOrder) ? "IdAsc" : "";
-            ViewBag.ClassroomSort = sortOrder == "ClassroomAsc" ? "Classroom" : "ClassroomAsc";
-            ViewBag.ClassSort = sortOrder == "ClassAsc" ? "Class" : "ClassAsc";
-            ViewBag.DaySort = sortOrder == "DayAsc" ? "Day" : "DayAsc";
-            ViewBag.HourSort = sortOrder == "HourAsc" ? "Hour" : "HourAsc";
-            ViewBag.NameSort = sortOrder == "NameAsc" ? "Name" : "NameAsc";
-            ViewBag.TeacherSort = sortOrder == "TeacherAsc" ? "Teacher" : "TeacherAsc";
-
-            switch (sortOrder)
-            {
-                case "Classroom":
-                    items = items.OrderByDescending(s => s.ClassroomId);
-                    break;
-                case "ClassroomAsc":
-                    items = items.OrderBy(s => s.ClassroomId);
-                    break;
-                case "Class":
-                    items = items.OrderByDescending(s => s.ClasssId);
-                    break;
-                case "ClassAsc":
-                    items = items.OrderBy(s => s.ClasssId);
-                    break;
-                case "Day":
-                    items = items.OrderByDescending(s => s.Day);
-                    break;
-                case "DayAsc":
-                    items = items.OrderBy(s => s.Day);
-                    break;
-                case "Hour":
-                    items = items.OrderByDescending(s => s.Hour);
-                    break;
-                case "HourAsc":
-                    items = items.OrderBy(s => s.Hour);
-                    break;
-                case "Name":
-                    items = items.OrderByDescending(s => s.Name);
-                    break;
-                case "NameAsc":
-                    items = items.OrderBy(s => s.Name);
-                    break;
-                case "Teacher":
-                    items = items.OrderByDescending(s => s.TeacherId);
-                    break;
-                case "TeacherAsc":
-                    items = items.OrderBy(s => s.TeacherId);
-                    break;
-                case "IdAsc":
-                    items = items.OrderBy(s => s.Id);
-                    break;
-                default:    // id descending
-                    items = items.OrderByDescending(s => s.Id);
-                    break;
-            }
+            items = SortItems(sortOrder, items);
 
             var subjects = items.ToList().Select(a => new SubjectViewModel
             {
@@ -114,16 +61,18 @@ namespace edziennik.Controllers
                 Name = a.Name,
                 Teacher = teacherRepo.FindById(a.TeacherId).FullName
             }).ToPagedList(currentPage, 10);
-            
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_SubjectList", subjects);
+            }
+
             return View(subjects);
         }
 
-        [Authorize(Roles = "Admins,Teachers")]
-        public ActionResult TeacherSubjects(int? page,string teacherId, string sortOrder)
+        [NonAction]
+        private IQueryable<Subject> SortItems(string sortOrder, IQueryable<Subject> items)
         {
-            int currentPage = page ?? 1;
-            var items = subjectRepo.FindByTeacherId(teacherId);
-
             ViewBag.CurrentSort = sortOrder;
             ViewBag.IdSort = String.IsNullOrEmpty(sortOrder) ? "IdAsc" : "";
             ViewBag.ClassroomSort = sortOrder == "ClassroomAsc" ? "Classroom" : "ClassroomAsc";
@@ -178,6 +127,17 @@ namespace edziennik.Controllers
                     items = items.OrderByDescending(s => s.Id);
                     break;
             }
+            return items;
+        }
+
+        [Authorize(Roles = "Admins,Teachers")]
+        public ActionResult TeacherSubjects(int? page, string teacherId, string sortOrder)
+        {
+            int currentPage = page ?? 1;
+            var items = subjectRepo.FindByTeacherId(teacherId);
+
+            items = SortItems(sortOrder, items);
+
             var subjects = items.ToList().Select(a => new SubjectViewModel
             {
                 Id = a.Id,
@@ -193,9 +153,13 @@ namespace edziennik.Controllers
         }
 
         [Authorize(Roles = "Students,Admins,Teachers")]
-        public ActionResult StudentSubjects(string studentId)
+        public ActionResult StudentSubjects(int? page, string studentId, string sortOrder)
         {
-            var subjects = subjectRepo.FindByStudentId(studentId).Select(a => new SubjectViewModel
+            int currentPage = page ?? 1;
+            var items = subjectRepo.FindByStudentId(studentId);
+            items = SortItems(sortOrder, items);
+
+            var subjects = items.ToList().Select(a => new SubjectViewModel
             {
                 Id = a.Id,
                 Classroom = classroomRepo.FindById(a.ClassroomId).Name,
@@ -216,7 +180,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            var subject = subjectRepo.FindById((int) id);
+            var subject = subjectRepo.FindById((int)id);
 
             if (subject == null)
             {
@@ -235,20 +199,37 @@ namespace edziennik.Controllers
 
             return View(subjectVm);
         }
-        
+
         [Authorize(Roles = "Admins")]
         public ActionResult Create()
         {
-            if(teacherRepo.GetAll().ToList().Count == 0)
+            if (teacherRepo.GetAll().ToList().Count == 0)
             {
-                return RedirectToAction("Index", new{ error= SubjectCreateError.NoTeachers});
+                if (Request.IsAjaxRequest())
+                {
+                    ViewBag.Error = ConstantStrings.SubjectCreateNoTeachersError;
+                    return PartialView("_CreateError");
+                }
+
+                return RedirectToAction("Index", new { error = SubjectCreateError.NoTeachers });
             }
             if (classRepo.GetAll().ToList().Count == 0)
             {
+                if (Request.IsAjaxRequest())
+                {
+                    ViewBag.Error = ConstantStrings.SubjectCreateNoClassesError;
+                    return PartialView("_CreateError");
+                }
+
                 return RedirectToAction("Index", new { error = SubjectCreateError.NoClasses });
             }
             if (classroomRepo.GetAll().ToList().Count == 0)
             {
+                if (Request.IsAjaxRequest())
+                {
+                    ViewBag.Error = ConstantStrings.SubjectCreateNoClassroomsError;
+                    return PartialView("_CreateError");
+                }
                 return RedirectToAction("Index", new { error = SubjectCreateError.NoClassrooms });
             }
 
@@ -260,6 +241,9 @@ namespace edziennik.Controllers
                 Hours = ConstantStrings.getSchoolHoursSL(),
                 Teachers = ConstantStrings.getTeachersSL()
             };
+
+            if (Request.IsAjaxRequest())
+                return JavaScript("window.location = '" + Url.Action("Create") + "'");
 
             return View(subjectVm);
         }
@@ -287,7 +271,7 @@ namespace edziennik.Controllers
 
                 subjectRepo.Insert(subject);
                 subjectRepo.Save();
-                Logs.SaveLog("Create", User.Identity.GetUserId(), 
+                Logs.SaveLog("Create", User.Identity.GetUserId(),
                              "Subject", subject.Id.ToString(), Request.UserHostAddress);
                 return RedirectToAction("Index");
             }
@@ -302,7 +286,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Subject subject = subjectRepo.FindById((int) id);
+            Subject subject = subjectRepo.FindById((int)id);
             if (subject == null)
             {
                 return HttpNotFound();
@@ -347,7 +331,7 @@ namespace edziennik.Controllers
 
                 subjectRepo.Update(subject);
                 subjectRepo.Save();
-                Logs.SaveLog("Edit", User.Identity.GetUserId(), 
+                Logs.SaveLog("Edit", User.Identity.GetUserId(),
                              "Subject", subject.Id.ToString(), Request.UserHostAddress);
                 return RedirectToAction("Index");
             }
@@ -362,7 +346,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Subject subject = subjectRepo.FindById((int) id);
+            Subject subject = subjectRepo.FindById((int)id);
             if (subject == null)
             {
                 return HttpNotFound();
@@ -380,6 +364,18 @@ namespace edziennik.Controllers
             Logs.SaveLog("Delete", User.Identity.GetUserId(),
                          "Subject", id.ToString(), Request.UserHostAddress);
             return RedirectToAction("Index");
+        }
+
+        public ActionResult Hours(string classroom, string day)
+        {
+            var s = subjectRepo.FindByDate(Int32.Parse(classroom), Int32.Parse(day)).ToList();
+            return Json(new[] 
+            {
+        new { id = "", name = "" },
+        new { id = "bmw", name = "BMW" },
+        new { id = "mer", name = "Mercedes" },
+        new { id = "aud", name = "Audi" }
+        }, JsonRequestBehavior.AllowGet);
         }
 
         protected override void Dispose(bool disposing)

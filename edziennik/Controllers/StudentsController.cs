@@ -38,6 +38,29 @@ namespace edziennik.Controllers
                 ViewBag.Error = ConstantStrings.StudentCreateNoClassesError;
 
             int currentPage = page ?? 1;
+            var items = SortItems(sortOrder);
+
+            var students = items.ToList().Select(a => new StudentListItemViewModel
+            {
+                FirstName = a.FirstName,
+                SecondName = a.SecondName,
+                Surname = a.Surname,
+                ClassName = classRepo.FindById(a.ClasssId).Name,
+                Pesel = a.Pesel,
+                Id = a.Id
+            }).ToPagedList(currentPage, 10);
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_StudentList", students);
+            }
+
+            return View(students);
+        }
+
+        [NonAction]
+        private IQueryable<Student> SortItems(string sortOrder)
+        {
             var items = studentRepo.GetAll();
 
             ViewBag.CurrentSort = sortOrder;
@@ -80,18 +103,7 @@ namespace edziennik.Controllers
                     items = items.OrderByDescending(s => s.Id);
                     break;
             }
-
-            var students = items.ToList().Select(a => new StudentListItemViewModel
-            {
-                FirstName = a.FirstName,
-                SecondName = a.SecondName,
-                Surname = a.Surname,
-                ClassName = classRepo.FindById(a.ClasssId).Name,
-                Pesel = a.Pesel,
-                Id = a.Id
-            }).ToPagedList(currentPage, 10);
-
-            return View(students);
+            return items;
         }
 
         // GET: Students/Details/5

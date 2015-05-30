@@ -213,6 +213,8 @@
     <Content Include="Scripts\jquery-2.1.3.min.js" />
     <Content Include="Scripts\jquery-2.1.3.min.map" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <Content Include="Scripts\jquery.unobtrusive-ajax.js" />
+    <Content Include="Scripts\jquery.unobtrusive-ajax.min.js" />
     <Content Include="Scripts\jquery.validate.js" />
     <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
@@ -223,6 +225,7 @@
     <Content Include="Scripts\respond.matchmedia.addListener.js" />
     <Content Include="Scripts\respond.matchmedia.addListener.min.js" />
     <Content Include="Scripts\respond.min.js" />
+    <Content Include="Scripts\SubjectPopulateSelectLists.js" />
     <Content Include="Scripts\Validators.js" />
     <Content Include="Scripts\_references.js" />
     <Content Include="Web.config">
@@ -310,6 +313,14 @@
     <Content Include="Views\Account\ChangePassword.cshtml" />
     <Content Include="Views\Account\EmailNotConfirmed.cshtml" />
     <Content Include="Views\Account\SendEmailConfirmationToken.cshtml" />
+    <Content Include="Views\Shared\_CreateError.cshtml" />
+    <Content Include="Views\Classrooms\_ClassroomList.cshtml" />
+    <Content Include="Views\Teachers\_TeacherList.cshtml" />
+    <Content Include="Views\Subjects\_SubjectList.cshtml" />
+    <Content Include="Views\Students\_StudentList.cshtml" />
+    <Content Include="Views\Marks\_MarkList.cshtml" />
+    <Content Include="Views\Logs\_LogList.cshtml" />
+    <Content Include="Views\Classses\_ClassList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

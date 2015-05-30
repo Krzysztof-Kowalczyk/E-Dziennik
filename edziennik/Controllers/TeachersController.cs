@@ -27,6 +27,21 @@ namespace edziennik.Controllers
         public ActionResult Index(int? page, string sortOrder)
         {
             int currentPage = page ?? 1;
+            var items = SortItems(sortOrder);
+
+            var teacherPl = items.ToList().ToPagedList<Teacher>(currentPage, 10);
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_TeacherList", teacherPl);
+            }
+
+            return View(teacherPl);        
+        }
+
+        [NonAction]
+        private IQueryable<Teacher> SortItems(string sortOrder)
+        {
             var items = teacherRepo.GetAll();
 
             ViewBag.CurrentSort = sortOrder;
@@ -69,9 +84,7 @@ namespace edziennik.Controllers
                     items = items.OrderByDescending(s => s.Id);
                     break;
             }
-
-            return View(items.ToList().ToPagedList<Teacher>(currentPage, 10));
-         
+            return items;
         }
 
         // GET: Teachers/Details/5ff

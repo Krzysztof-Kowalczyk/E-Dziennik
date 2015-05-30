@@ -30,7 +30,31 @@ namespace edziennik.Controllers
             if (error.HasValue)
                 ViewBag.Error = ConstantStrings.ClassCreateError;
 
+
             int currentPage = page ?? 1;
+            var items = SortItems(sortOrder);
+
+            var classes = items.ToList().Select(a => new ClassListItemViewModel
+            {
+                Id = a.Id,
+                Name = a.Name,
+                Teacher = teacherRepo.FindById(a.TeacherId).FullName
+            });
+
+            var classesPl = classes.ToPagedList<ClassListItemViewModel>(currentPage, 10);
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_ClassList", classesPl);
+            }
+
+            return View(classesPl);
+
+        }
+
+        [NonAction]
+        private IQueryable<Classs> SortItems(string sortOrder)
+        {
             var items = classRepo.GetAll();
 
             ViewBag.CurrentSort = sortOrder;
@@ -59,16 +83,7 @@ namespace edziennik.Controllers
                     items = items.OrderByDescending(s => s.Id);
                     break;
             }
-
-            var classes= items.ToList().Select(a=> new ClassListItemViewModel
-            {
-                Id = a.Id,
-                Name = a.Name,
-                Teacher = teacherRepo.FindById(a.TeacherId).FullName
-            });
-
-            return View(classes.ToPagedList<ClassListItemViewModel>(currentPage, 10));
-
+            return items;
         }
 
         // GET: Classses/Details/5
@@ -99,16 +114,23 @@ namespace edziennik.Controllers
         // GET: Classses/Create
         public ActionResult Create()
         {
-            if (teacherRepo.GetAll().ToList().Count == 0 )
+            if (teacherRepo.GetAll().ToList().Count == 0)
             {
-                return RedirectToAction("Index", 
-                      new {error = 1});
+                if (Request.IsAjaxRequest())
+                {
+                    ViewBag.Error = ConstantStrings.ClassCreateError;
+                    return PartialView("_CreateError");
+                }
+                return RedirectToAction("Index", new { error = 1 });
             }
             var classVm = new ClassCreateViewModel
             {
                 Teachers = ConstantStrings.getTeachersSL()
             };
 
+            if (Request.IsAjaxRequest())
+                return JavaScript("window.location = '" + Url.Action("Create") + "'");
+            
             return View(classVm);
         }
 
@@ -130,7 +152,7 @@ namespace edziennik.Controllers
 
                 classRepo.Insert(classs);
                 classRepo.Save();
-                Logs.SaveLog("Create", User.Identity.GetUserId(), 
+                Logs.SaveLog("Create", User.Identity.GetUserId(),
                             "Class", classs.Id.ToString(), Request.UserHostAddress);
                 return RedirectToAction("Index");
             }
@@ -179,7 +201,7 @@ namespace edziennik.Controllers
 
                 classRepo.Update(classs);
                 classRepo.Save();
-                Logs.SaveLog("Edit", User.Identity.GetUserId(), 
+                Logs.SaveLog("Edit", User.Identity.GetUserId(),
                              "Class", classs.Id.ToString(), Request.UserHostAddress);
                 return RedirectToAction("Index");
             }
@@ -193,7 +215,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Classs classs = classRepo.FindById((int) id);
+            Classs classs = classRepo.FindById((int)id);
             if (classs == null)
             {
                 return HttpNotFound();

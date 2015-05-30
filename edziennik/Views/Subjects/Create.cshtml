@@ -1,4 +1,7 @@
 ﻿@model edziennik.Models.ViewModels.SubjectCreateViewModel
+@section scripts{
+    @Scripts.Render("~/Scripts/SubjectPopulateSelectLists.js")
+}
 
 @{
     ViewBag.Title = "Stwórz";
@@ -6,17 +9,17 @@
 
 <h2>Stwórz</h2>
 
-@using (Html.BeginForm()) 
+@using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
-    
+
     <div class="form-horizontal">
         <h4>Subject</h4>
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         @for (var i = 0; i < Model.Teachers.Count; i++)
         {
-            @Html.HiddenFor(m=>m.Teachers[i].Text)
+            @Html.HiddenFor(m => m.Teachers[i].Text)
             @Html.HiddenFor(m => m.Teachers[i].Value)
         }
         @for (var i = 0; i < Model.Days.Count; i++)
@@ -50,7 +53,7 @@
         <div class="form-group">
             <label class="control-label col-md-2">Nauczyciel</label>
             <div class="col-md-10">
-                @Html.DropDownListFor(m=>m.TeacherId,Model.Teachers)
+                @Html.DropDownListFor(m => m.TeacherId, Model.Teachers, "")
                 @Html.ValidationMessageFor(model => model.TeacherId, "", new { @class = "text-danger" })
             </div>
         </div>
@@ -58,7 +61,7 @@
         <div class="form-group">
             <label class="control-label col-md-2">Klasa</label>
             <div class="col-md-10">
-                @Html.DropDownListFor(m => m.ClasssId, Model.Classes)
+                @Html.DropDownListFor(m => m.ClasssId, Model.Classes, "")
                 @Html.ValidationMessageFor(model => model.ClasssId, "", new { @class = "text-danger" })
             </div>
         </div>
@@ -66,8 +69,8 @@
         <div class="form-group">
             <label class="control-label col-md-2">Sala</label>
             <div class="col-md-10">
-                @Html.DropDownListFor(m => m.ClassroomId, Model.Classrooms)
-                @Html.ValidationMessageFor(model => model.ClassroomId, "", new {@class = "text-danger"})
+                @Html.DropDownListFor(m => m.ClassroomId, Model.Classrooms, "")
+                @Html.ValidationMessageFor(model => model.ClassroomId, "", new { @class = "text-danger" })
             </div>
         </div>
 
@@ -75,15 +78,15 @@
         <div class="form-group">
             @Html.LabelFor(model => model.Day, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.DropDownListFor(m => m.Day, Model.Days)
-                @Html.ValidationMessageFor(model => model.Day, "", new {@class = "text-danger"})
+                @Html.DropDownListFor(m => m.Day, Model.Days, "")
+                @Html.ValidationMessageFor(model => model.Day, "", new { @class = "text-danger" })
             </div>
         </div>
 
         <div class="form-group">
             @Html.LabelFor(model => model.Hour, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.DropDownListFor(m => m.Hour, Model.Hours)
+                @Html.DropDownListFor(m => m.Hour, Model.Hours, "")
                 @Html.ValidationMessageFor(model => model.Hour, "", new { @class = "text-danger" })
             </div>
         </div>
@@ -97,7 +100,7 @@
 }
 
 <div>
-   @Html.ActionLink("Powrót do listy", "Index", null, new { @class = "btn btn-primary" })
+    @Html.ActionLink("Powrót do listy", "Index", null, new { @class = "btn btn-primary" })
 </div>
 
 

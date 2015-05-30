@@ -37,6 +37,30 @@ namespace edziennik.Controllers
         public ActionResult Index(int? page, string sortOrder)
         {
             int currentPage = page ?? 1;
+            var items = SortItems(sortOrder);
+
+            var marks = items.ToList().Select(a=> new MarkListItemViewModel
+                {
+                    Student = studentRepo.FindById(a.StudentId).FullName,
+                    Teacher = teacherRepo.FindById(a.TeacherId).FullName,
+                    Subject = subjectRepo.FindById(a.SubjectId).Name,
+                    Value   = a.Value,
+                    Classs  = classRepo.FindByMarkId(a.Id).Name,
+                    Id = a.Id,
+                    TeacherId = a.TeacherId
+                }).ToPagedList(currentPage, 10);
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_MarkList", marks);
+            }
+           
+            return View(marks);
+        }
+
+        [NonAction]
+        private IQueryable<Mark> SortItems(string sortOrder)
+        {
             var items = markRepo.GetAll();
 
             ViewBag.CurrentSort = sortOrder;
@@ -79,19 +103,7 @@ namespace edziennik.Controllers
                     items = items.OrderByDescending(s => s.Id);
                     break;
             }
-
-            var marks = items.Select(a=> new MarkListItemViewModel
-                {
-                    Student = studentRepo.FindById(a.StudentId).FullName,
-                    Teacher = teacherRepo.FindById(a.TeacherId).FullName,
-                    Subject = subjectRepo.FindById(a.SubjectId).Name,
-                    Value   = a.Value,
-                    Classs  = classRepo.FindByMarkId(a.Id).Name,
-                    Id = a.Id,
-                    TeacherId = a.TeacherId
-                }).ToPagedList(currentPage, 10); 
-           
-            return View(marks);
+            return items;
         }
        
         [Authorize(Roles = "Students, Teachers, Admins")]

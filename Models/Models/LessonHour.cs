@@ -2,7 +2,7 @@
 {
     public enum SchoolDay
     {
-       Poniedziałek,
+       Poniedziałek = 1,
         Wtorek,
         Środa,
         Czwartek,

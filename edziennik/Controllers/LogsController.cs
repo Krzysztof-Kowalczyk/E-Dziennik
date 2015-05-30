@@ -26,6 +26,28 @@ namespace edziennik.Controllers
         public ActionResult Index(int? page, string sortOrder)
         {
             int currentPage = page ?? 1;
+            var items = SortItems(sortOrder);
+
+            var logs = items.ToList().Select(a => new LogListItemViewModel
+                {
+                    Id = a.Id,
+                    Action = a.Action,
+                    What = a.What,
+                    Who = userManager.FindById(a.Who).UserName,
+                    Date = a.Date
+                }).ToPagedList(currentPage, 10);
+            
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_LogList", logs);
+            }
+
+            return View(logs);
+        }
+
+        [NonAction]
+        private IQueryable<Log> SortItems(string sortOrder)
+        {
             var items = LogRepository.GetAll();
 
             ViewBag.CurrentSort = sortOrder;
@@ -68,17 +90,7 @@ namespace edziennik.Controllers
                     items = items.OrderByDescending(s => s.Id);
                     break;
             }
-
-            var logs = items.ToList().Select(a=>new LogListItemViewModel
-                {
-                    Id = a.Id,
-                    Action = a.Action,
-                    What = a.What,
-                    Who = userManager.FindById(a.Who).UserName,
-                    Date = a.Date
-                }).ToPagedList(currentPage, 10); 
-
-            return View(logs);
+            return items;
         }
 
         // GET: Logs/Details/5
@@ -114,7 +126,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Log log = LogRepository.FindById((int) id);
+            Log log = LogRepository.FindById((int)id);
             if (log == null)
             {
                 return HttpNotFound();

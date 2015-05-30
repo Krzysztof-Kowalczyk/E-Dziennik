@@ -24,12 +24,25 @@ namespace edziennik.Controllers
         public ActionResult Index(int? page, string sortOrder)
         {
             int currentPage = page ?? 1;
+            var items = SortItems(sortOrder);
+            var itemsPl = items.ToPagedList<Classroom>(currentPage, 10);
+
+               if(Request.IsAjaxRequest())
+               {
+                   return PartialView("_ClassroomList",itemsPl);
+               }
+
+            return View(itemsPl);
+        }
+
+        [NonAction]
+        private IQueryable<Classroom> SortItems(string sortOrder)
+        {
+            var items = classroomRepo.GetAll();
 
             ViewBag.CurrentSort = sortOrder;
             ViewBag.IdSort = String.IsNullOrEmpty(sortOrder) ? "IdAsc" : "";
             ViewBag.NameSort = sortOrder == "NameAsc" ? "Name" : "NameAsc";
-
-            var items = classroomRepo.GetAll();
 
             switch (sortOrder)
             {
@@ -46,8 +59,7 @@ namespace edziennik.Controllers
                     items = items.OrderByDescending(s => s.Id);
                     break;
             }
-
-            return View(items.ToPagedList<Classroom>(currentPage, 10));
+            return items;
         }
 
         // GET: Classrooms/Details/5
@@ -57,7 +69,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Classroom classroom = classroomRepo.FindById((int) id);
+            Classroom classroom = classroomRepo.FindById((int)id);
             if (classroom == null)
             {
                 return HttpNotFound();
@@ -82,7 +94,7 @@ namespace edziennik.Controllers
             {
                 classroomRepo.Insert(classroom);
                 classroomRepo.Save();
-                Logs.SaveLog("Create", User.Identity.GetUserId(), 
+                Logs.SaveLog("Create", User.Identity.GetUserId(),
                             "Classroom", classroom.Id.ToString(), Request.UserHostAddress);
                 return RedirectToAction("Index");
             }
@@ -97,7 +109,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Classroom classroom = classroomRepo.FindById((int) id);
+            Classroom classroom = classroomRepo.FindById((int)id);
             if (classroom == null)
             {
                 return HttpNotFound();
@@ -116,7 +128,7 @@ namespace edziennik.Controllers
             {
                 classroomRepo.Update(classroom);
                 classroomRepo.Save();
-                Logs.SaveLog("Edit", User.Identity.GetUserId(), 
+                Logs.SaveLog("Edit", User.Identity.GetUserId(),
                              "Classroom", classroom.Id.ToString(), Request.UserHostAddress);
                 return RedirectToAction("Index");
             }
@@ -130,7 +142,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Classroom classroom = classroomRepo.FindById((int) id);
+            Classroom classroom = classroomRepo.FindById((int)id);
             if (classroom == null)
             {
                 return HttpNotFound();
@@ -145,7 +157,7 @@ namespace edziennik.Controllers
         {
             classroomRepo.Delete(id);
             classroomRepo.Save();
-            Logs.SaveLog("Edit", User.Identity.GetUserId(), 
+            Logs.SaveLog("Edit", User.Identity.GetUserId(),
                         "Classroom", id.ToString(), Request.UserHostAddress);
             return RedirectToAction("Index");
         }
