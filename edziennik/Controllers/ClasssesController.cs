@@ -90,6 +90,7 @@ namespace edziennik.Controllers
                 Id = classs.Id,
                 Name = classs.Name,
                 Teacher = teacherRepo.FindById(classs.TeacherId).FullName,
+                TeacherId = classs.TeacherId,
                 Students = classs.Students
             };
             return View(classVm);

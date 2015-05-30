@@ -1,14 +1,14 @@
 ﻿@model IEnumerable<edziennik.Models.UserListItemViewModel>
 @{
     ViewBag.Title = "Lista użytkowników";
-    var controller = "";
+    var controller = "Account";
 }
 <h1 class="title">Lista użytkowników</h1>
 <p>
-    @Html.ActionLink("Dodaj nowego ucznia","Create","Students") |
-    @Html.ActionLink("Dodaj nowego nauczyciela", "Create","Teachers") |
+    @Html.ActionLink("Dodaj nowego ucznia", "Create", "Students") |
+    @Html.ActionLink("Dodaj nowego nauczyciela", "Create", "Teachers") |
     @Html.ActionLink("Dodaj nowego edytora", "CreateEditor") |
-    @Html.ActionLink("Wszyscy uczniowie", "Index","Students") |
+    @Html.ActionLink("Wszyscy uczniowie", "Index", "Students") |
     @Html.ActionLink("Wszyscy nauczyciele", "Index", "Teachers") |
     @Html.ActionLink("Wszyscy edytorzy", "Index", "Editors") |
 </p>
@@ -27,11 +27,6 @@
     </tr>
     @foreach (var item in Model)
     {
-
-        if (item.Role == "Admins")
-        {
-            controller = "Account";
-        }
         if (item.Role == "Students")
         {
             controller = "Students";
@@ -51,11 +46,10 @@
                 @Html.DisplayFor(modelItem => item.EmailConfirmed)
             </td>
             <td>
-                @Html.ActionLink("Edycja", "Edit",controller, new { id = item.Id }, new { @class = "btn btn-warning" })
+                @Html.ActionLink("Edycja", "Edit", controller, new { id = item.Id }, new { @class = "btn btn-warning" })
                 @Html.ActionLink("Szczegóły", "Details", controller, new { id = item.Id }, new { @class = "btn btn-primary" })
                 @Html.ActionLink("Usuń", "Delete", controller, new { id = item.Id }, new { @class = "btn btn-danger" })
             </td>
         </tr>
     }
 </table>
-

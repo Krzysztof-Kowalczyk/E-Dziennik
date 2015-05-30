@@ -25,8 +25,8 @@ namespace edziennik.Validators
 
             ApplicationDbContext = new ApplicationDbContext();
             UserManager = new UserManager<ApplicationUser>
-                                         (new UserStore<ApplicationUser>(ApplicationDbContext));        
-            
+                                         (new UserStore<ApplicationUser>(ApplicationDbContext));
+
             var rd = httpContext.Request.RequestContext.RouteData;
             var id = Convert.ToInt32(rd.Values["id"]);
             var userId = httpContext.User.Identity.GetUserId();
@@ -39,9 +39,9 @@ namespace edziennik.Validators
             }
 
             var mark = _markRepo.FindById(id);
-         
+
             return mark != null && mark.TeacherId == user.Id;
         }
     }
-    
+
 }

@@ -32,6 +32,9 @@ namespace edziennik.Models.ViewModels
         [Display(Name = "Wychowawca")]
         public string Teacher { get; set; }
 
+        [Display(Name = "Id Wychowawcy")]
+        public string TeacherId { get; set; }
+
     }
 
     public class ClassDetailsViewModel : ClassListItemViewModel

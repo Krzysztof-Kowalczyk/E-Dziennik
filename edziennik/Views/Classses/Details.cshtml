@@ -24,7 +24,7 @@
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.Teacher)
+            @Html.ActionLink(Model.Teacher, "Details","Teachers", new { id=Model.TeacherId },null)
         </dd>
 
     </dl>
