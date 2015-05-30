@@ -1,26 +1,26 @@
-﻿using edziennik.Models;
-using edziennik.Resources;
-using Microsoft.AspNet.Identity;
-using Microsoft.Owin.Security;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using edziennik.Models;
+using edziennik.Resources;
+using Microsoft.AspNet.Identity;
+using Microsoft.Owin.Security;
 
 namespace edziennik.Controllers
 {
     [Authorize]
     public class ManageController : Controller
     {
-        private readonly ApplicationUserManager userManager;
-        private readonly IAuthenticationManager authenticationManager;
+        private readonly ApplicationUserManager _userManager;
+        private readonly IAuthenticationManager _authenticationManager;
 
         public ManageController(ApplicationUserManager userManager, IAuthenticationManager authenticationManager)
         {
-            this.userManager = userManager;
-            this.authenticationManager = authenticationManager;
+            _userManager = userManager;
+            _authenticationManager = authenticationManager;
         }
 
         //
@@ -39,10 +39,10 @@ namespace edziennik.Controllers
             var model = new IndexViewModel
             {
                 HasPassword = HasPassword(),
-                PhoneNumber = await userManager.GetPhoneNumberAsync(User.Identity.GetUserId()),
-                TwoFactor = await userManager.GetTwoFactorEnabledAsync(User.Identity.GetUserId()),
-                Logins = await userManager.GetLoginsAsync(User.Identity.GetUserId()),
-                BrowserRemembered = await authenticationManager.TwoFactorBrowserRememberedAsync(User.Identity.GetUserId())
+                PhoneNumber = await _userManager.GetPhoneNumberAsync(User.Identity.GetUserId()),
+                TwoFactor = await _userManager.GetTwoFactorEnabledAsync(User.Identity.GetUserId()),
+                Logins = await _userManager.GetLoginsAsync(User.Identity.GetUserId()),
+                BrowserRemembered = await _authenticationManager.TwoFactorBrowserRememberedAsync(User.Identity.GetUserId())
             };
             return View(model);
         }
@@ -51,7 +51,7 @@ namespace edziennik.Controllers
         // GET: /Manage/RemoveLogin
         public ActionResult RemoveLogin()
         {
-            var linkedAccounts = userManager.GetLogins(User.Identity.GetUserId());
+            var linkedAccounts = _userManager.GetLogins(User.Identity.GetUserId());
             ViewBag.ShowRemoveButton = HasPassword() || linkedAccounts.Count > 1;
             return View(linkedAccounts);
         }
@@ -59,7 +59,7 @@ namespace edziennik.Controllers
         [HttpGet]
         public ActionResult ChangeAvatar()
         {
-            ViewBag.AvatarURL = userManager.FindById(User.Identity.GetUserId()).AvatarUrl;
+            ViewBag.AvatarURL = _userManager.FindById(User.Identity.GetUserId()).AvatarUrl;
             return View();
         }
 
@@ -68,7 +68,7 @@ namespace edziennik.Controllers
         {
             if (file != null && file.ContentLength > 0 && file.ContentLength < 3000000)
             {
-                var cUser = userManager.FindById(User.Identity.GetUserId());
+                var cUser = _userManager.FindById(User.Identity.GetUserId());
 
                 var fileName = Path.GetFileName(file.FileName);
                 var uniqueFileName = Guid.NewGuid() + fileName;
@@ -77,7 +77,7 @@ namespace edziennik.Controllers
                 file.SaveAs(absolutePath);
 
                 cUser.AvatarUrl = relativePath;
-                await userManager.UpdateAsync(cUser);
+                await _userManager.UpdateAsync(cUser);
             }
 
             return View();
@@ -95,10 +95,10 @@ namespace edziennik.Controllers
 
         public async Task<ActionResult> DeleteAvatar()
         {
-            var cUser = userManager.FindById(User.Identity.GetUserId());
+            var cUser = _userManager.FindById(User.Identity.GetUserId());
             DeleteImg(cUser.AvatarUrl);
             cUser.AvatarUrl = ConstantStrings.DefaultUserAvatar;
-            await userManager.UpdateAsync(cUser);
+            await _userManager.UpdateAsync(cUser);
 
             return RedirectToAction("ChangeAvatar");
         }
@@ -110,10 +110,10 @@ namespace edziennik.Controllers
         public async Task<ActionResult> RemoveLogin(string loginProvider, string providerKey)
         {
             ManageMessageId? message;
-            var result = await userManager.RemoveLoginAsync(User.Identity.GetUserId(), new UserLoginInfo(loginProvider, providerKey));
+            var result = await _userManager.RemoveLoginAsync(User.Identity.GetUserId(), new UserLoginInfo(loginProvider, providerKey));
             if (result.Succeeded)
             {
-                var user = await userManager.FindByIdAsync(User.Identity.GetUserId());
+                var user = await _userManager.FindByIdAsync(User.Identity.GetUserId());
                 if (user != null)
                 {
                     await SignInAsync(user, isPersistent: false);
@@ -145,15 +145,15 @@ namespace edziennik.Controllers
                 return View(model);
             }
             // Generate the token and send it
-            var code = await userManager.GenerateChangePhoneNumberTokenAsync(User.Identity.GetUserId(), model.Number);
-            if (userManager.SmsService != null)
+            var code = await _userManager.GenerateChangePhoneNumberTokenAsync(User.Identity.GetUserId(), model.Number);
+            if (_userManager.SmsService != null)
             {
                 var message = new IdentityMessage
                 {
                     Destination = model.Number,
                     Body = "Twój kod bezpieczeństwa to " + code
                 };
-                await userManager.SmsService.SendAsync(message);
+                await _userManager.SmsService.SendAsync(message);
             }
             return RedirectToAction("VerifyPhoneNumber", new { PhoneNumber = model.Number });
         }
@@ -163,8 +163,8 @@ namespace edziennik.Controllers
         [HttpPost]
         public async Task<ActionResult> EnableTwoFactorAuthentication()
         {
-            await userManager.SetTwoFactorEnabledAsync(User.Identity.GetUserId(), true);
-            var user = await userManager.FindByIdAsync(User.Identity.GetUserId());
+            await _userManager.SetTwoFactorEnabledAsync(User.Identity.GetUserId(), true);
+            var user = await _userManager.FindByIdAsync(User.Identity.GetUserId());
             if (user != null)
             {
                 await SignInAsync(user, isPersistent: false);
@@ -177,8 +177,8 @@ namespace edziennik.Controllers
         [HttpPost]
         public async Task<ActionResult> DisableTwoFactorAuthentication()
         {
-            await userManager.SetTwoFactorEnabledAsync(User.Identity.GetUserId(), false);
-            var user = await userManager.FindByIdAsync(User.Identity.GetUserId());
+            await _userManager.SetTwoFactorEnabledAsync(User.Identity.GetUserId(), false);
+            var user = await _userManager.FindByIdAsync(User.Identity.GetUserId());
             if (user != null)
             {
                 await SignInAsync(user, isPersistent: false);
@@ -190,7 +190,7 @@ namespace edziennik.Controllers
         // GET: /Manage/VerifyPhoneNumber
         public async Task<ActionResult> VerifyPhoneNumber(string phoneNumber)
         {
-            var code = await userManager.GenerateChangePhoneNumberTokenAsync(User.Identity.GetUserId(), phoneNumber);
+            var code = await _userManager.GenerateChangePhoneNumberTokenAsync(User.Identity.GetUserId(), phoneNumber);
             // Send an SMS through the SMS provider to verify the phone number
             return phoneNumber == null ? View("Error") : View(new VerifyPhoneNumberViewModel { PhoneNumber = phoneNumber });
         }
@@ -205,10 +205,10 @@ namespace edziennik.Controllers
             {
                 return View(model);
             }
-            var result = await userManager.ChangePhoneNumberAsync(User.Identity.GetUserId(), model.PhoneNumber, model.Code);
+            var result = await _userManager.ChangePhoneNumberAsync(User.Identity.GetUserId(), model.PhoneNumber, model.Code);
             if (result.Succeeded)
             {
-                var user = await userManager.FindByIdAsync(User.Identity.GetUserId());
+                var user = await _userManager.FindByIdAsync(User.Identity.GetUserId());
                 if (user != null)
                 {
                     await SignInAsync(user, isPersistent: false);
@@ -224,12 +224,12 @@ namespace edziennik.Controllers
         // GET: /Manage/RemovePhoneNumber
         public async Task<ActionResult> RemovePhoneNumber()
         {
-            var result = await userManager.SetPhoneNumberAsync(User.Identity.GetUserId(), null);
+            var result = await _userManager.SetPhoneNumberAsync(User.Identity.GetUserId(), null);
             if (!result.Succeeded)
             {
                 return RedirectToAction("Index", new { Message = ManageMessageId.Error });
             }
-            var user = await userManager.FindByIdAsync(User.Identity.GetUserId());
+            var user = await _userManager.FindByIdAsync(User.Identity.GetUserId());
             if (user != null)
             {
                 await SignInAsync(user, isPersistent: false);
@@ -254,15 +254,15 @@ namespace edziennik.Controllers
             {
                 return View(model);
             }
-            var result = await userManager.ChangePasswordAsync(User.Identity.GetUserId(), model.OldPassword, model.NewPassword);
+            var result = await _userManager.ChangePasswordAsync(User.Identity.GetUserId(), model.OldPassword, model.NewPassword);
             if (result.Succeeded)
             {
-                var user = await userManager.FindByIdAsync(User.Identity.GetUserId());
+                var user = await _userManager.FindByIdAsync(User.Identity.GetUserId());
                 if (user != null)
                 {
                     await SignInAsync(user, isPersistent: false);
                     user.LastPasswordChange = DateTime.Now;
-                    await userManager.UpdateAsync(user);
+                    await _userManager.UpdateAsync(user);
                 }
                 return RedirectToAction("Index", new { Message = ManageMessageId.ChangePasswordSuccess });
             }
@@ -285,10 +285,10 @@ namespace edziennik.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await userManager.AddPasswordAsync(User.Identity.GetUserId(), model.NewPassword);
+                var result = await _userManager.AddPasswordAsync(User.Identity.GetUserId(), model.NewPassword);
                 if (result.Succeeded)
                 {
-                    var user = await userManager.FindByIdAsync(User.Identity.GetUserId());
+                    var user = await _userManager.FindByIdAsync(User.Identity.GetUserId());
                     if (user != null)
                     {
                         await SignInAsync(user, isPersistent: false);
@@ -310,13 +310,13 @@ namespace edziennik.Controllers
                 message == ManageMessageId.RemoveLoginSuccess ? "Zewnętrzny login został usunięty."
                 : message == ManageMessageId.Error ? "Wystąpił bład."
                 : "";
-            var user = await userManager.FindByIdAsync(User.Identity.GetUserId());
+            var user = await _userManager.FindByIdAsync(User.Identity.GetUserId());
             if (user == null)
             {
                 return View("Error");
             }
-            var userLogins = await userManager.GetLoginsAsync(User.Identity.GetUserId());
-            var otherLogins = authenticationManager.GetExternalAuthenticationTypes().Where(auth => userLogins.All(ul => auth.AuthenticationType != ul.LoginProvider)).ToList();
+            var userLogins = await _userManager.GetLoginsAsync(User.Identity.GetUserId());
+            var otherLogins = _authenticationManager.GetExternalAuthenticationTypes().Where(auth => userLogins.All(ul => auth.AuthenticationType != ul.LoginProvider)).ToList();
             ViewBag.ShowRemoveButton = user.PasswordHash != null || userLogins.Count > 1;
             return View(new ManageLoginsViewModel
             {
@@ -339,12 +339,12 @@ namespace edziennik.Controllers
         // GET: /Manage/LinkLoginCallback
         public async Task<ActionResult> LinkLoginCallback()
         {
-            var loginInfo = await authenticationManager.GetExternalLoginInfoAsync(XsrfKey, User.Identity.GetUserId());
+            var loginInfo = await _authenticationManager.GetExternalLoginInfoAsync(XsrfKey, User.Identity.GetUserId());
             if (loginInfo == null)
             {
                 return RedirectToAction("ManageLogins", new { Message = ManageMessageId.Error });
             }
-            var result = await userManager.AddLoginAsync(User.Identity.GetUserId(), loginInfo.Login);
+            var result = await _userManager.AddLoginAsync(User.Identity.GetUserId(), loginInfo.Login);
             return result.Succeeded ? RedirectToAction("ManageLogins") : RedirectToAction("ManageLogins", new { Message = ManageMessageId.Error });
         }
 
@@ -362,8 +362,8 @@ namespace edziennik.Controllers
 
         private async Task SignInAsync(ApplicationUser user, bool isPersistent)
         {
-            authenticationManager.SignOut(DefaultAuthenticationTypes.ExternalCookie, DefaultAuthenticationTypes.TwoFactorCookie);
-            authenticationManager.SignIn(new AuthenticationProperties { IsPersistent = isPersistent }, await user.GenerateUserIdentityAsync(userManager));
+            _authenticationManager.SignOut(DefaultAuthenticationTypes.ExternalCookie, DefaultAuthenticationTypes.TwoFactorCookie);
+            _authenticationManager.SignIn(new AuthenticationProperties { IsPersistent = isPersistent }, await user.GenerateUserIdentityAsync(_userManager));
         }
 
         private void AddErrors(IdentityResult result)
@@ -376,7 +376,7 @@ namespace edziennik.Controllers
 
         private bool HasPassword()
         {
-            var user = userManager.FindById(User.Identity.GetUserId());
+            var user = _userManager.FindById(User.Identity.GetUserId());
             if (user != null)
             {
                 return user.PasswordHash != null;
@@ -386,7 +386,7 @@ namespace edziennik.Controllers
 
         private bool HasPhoneNumber()
         {
-            var user = userManager.FindById(User.Identity.GetUserId());
+            var user = _userManager.FindById(User.Identity.GetUserId());
             if (user != null)
             {
                 return user.PhoneNumber != null;

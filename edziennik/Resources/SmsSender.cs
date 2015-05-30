@@ -1,5 +1,4 @@
 ﻿using System;
-using edziennik.Models;
 using edziennik.Models.ViewModels;
 using Twilio;
 

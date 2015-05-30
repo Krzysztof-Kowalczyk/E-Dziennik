@@ -1,39 +1,38 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using Models.Interfaces;
 using Models.Models;
-using System;
 
 namespace Repositories.Repositories
 {
-    public class LogRepository : ILogRepository, IDisposable 
+    public class LogRepository : ILogRepository 
     {
-        EDziennikContext db = new EDziennikContext();
+        readonly EDziennikContext _db = new EDziennikContext();
         public IQueryable<Log> GetAll()
         {
-            return db.Logs.AsNoTracking();
+            return _db.Logs.AsNoTracking();
         }
 
         public IQueryable<Log> GetPage(int? page = 1, int? pageSize = 10)
         {
-            var items = db.Logs.OrderByDescending(o => o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
+            var items = _db.Logs.OrderByDescending(o => o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
 
             return items;
         } 
 
         public Log FindById(int id)
         {
-            return db.Logs.SingleOrDefault(a => a.Id == id);
+            return _db.Logs.SingleOrDefault(a => a.Id == id);
         }
 
         public void Insert(Log item)
         {
-            db.Logs.Add(item);
+            _db.Logs.Add(item);
         }
 
         public void Update(Log item)
         {
-            var log = db.Logs.Single(a => a.Id == item.Id);
+            var log = _db.Logs.Single(a => a.Id == item.Id);
             log.Action = item.Action;
             log.Date = item.Date;
             log.What = item.What;
@@ -43,26 +42,26 @@ namespace Repositories.Repositories
 
         public void Delete(int id)
         {
-            var log = db.Logs.Single(a => a.Id == id);
-            db.Logs.Remove(log);
+            var log = _db.Logs.Single(a => a.Id == id);
+            _db.Logs.Remove(log);
         }
 
         public void Save()
         {
-            db.SaveChanges();
+            _db.SaveChanges();
         }
 
-         private bool disposed = false;
+         private bool _disposed = false;
         protected virtual void Dispose(bool disposing)
         {
-            if (!this.disposed)
+            if (!_disposed)
             {
                 if (disposing)
                 {
-                    db.Dispose();
+                    _db.Dispose();
                 }
             }
-            this.disposed = true;
+            _disposed = true;
         }
 
         public void Dispose()

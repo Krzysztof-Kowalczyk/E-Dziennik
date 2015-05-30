@@ -5,9 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using edziennik.Models;
 using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
-using Microsoft.Owin;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.DataProtection;
 
@@ -63,14 +61,14 @@ namespace edziennik
         {
             //var this = new ApplicationUserManager(new UserStore<ApplicationUser>(context.Get<ApplicationDbContext>()));
             // Configure validation logic for usernames
-            this.UserValidator = new UserValidator<ApplicationUser>(this)
+            UserValidator = new UserValidator<ApplicationUser>(this)
             {
                 AllowOnlyAlphanumericUserNames = false,
                 RequireUniqueEmail = true
             };
 
             // Configure validation logic for passwords
-            this.PasswordValidator = new PasswordValidator
+            PasswordValidator = new PasswordValidator
             {
                 RequiredLength = 6,
                 RequireNonLetterOrDigit = true,
@@ -80,30 +78,30 @@ namespace edziennik
             };
 
             // Configure user lockout defaults
-            this.UserLockoutEnabledByDefault = true;
-            this.DefaultAccountLockoutTimeSpan = TimeSpan.FromMinutes(5);
-            this.MaxFailedAccessAttemptsBeforeLockout = 5;
+            UserLockoutEnabledByDefault = true;
+            DefaultAccountLockoutTimeSpan = TimeSpan.FromMinutes(5);
+            MaxFailedAccessAttemptsBeforeLockout = 5;
 
             // Register two factor authentication providers. This application uses Phone and Emails as a step of receiving a code for verifying the user
             // You can write your own provider and plug it in here.
-            this.RegisterTwoFactorProvider("Phone Code", new PhoneNumberTokenProvider<ApplicationUser>
+            RegisterTwoFactorProvider("Phone Code", new PhoneNumberTokenProvider<ApplicationUser>
             {
                 MessageFormat = "Your security code is {0}"
             });
-            this.RegisterTwoFactorProvider("Email Code", new EmailTokenProvider<ApplicationUser>
+            RegisterTwoFactorProvider("Email Code", new EmailTokenProvider<ApplicationUser>
             {
                 Subject = "Security Code",
                 BodyFormat = "Your security code is {0}"
             });
-            this.EmailService = new EmailService();
-            this.SmsService = new SmsService();
+            EmailService = new EmailService();
+            SmsService = new SmsService();
             var dataProtectionProvider = Startup.DataProtectionProvider;
             
             if (dataProtectionProvider != null)
             {
             IDataProtector dataProtector = dataProtectionProvider.Create("ASP.NET Identity");
 
-            this.UserTokenProvider = new DataProtectorTokenProvider<ApplicationUser>(dataProtector);
+            UserTokenProvider = new DataProtectorTokenProvider<ApplicationUser>(dataProtector);
             }
         }
 

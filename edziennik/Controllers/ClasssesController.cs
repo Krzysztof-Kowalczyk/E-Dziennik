@@ -1,27 +1,26 @@
-﻿using edziennik.Models;
+﻿using System;
+using System.Linq;
+using System.Net;
+using System.Web.Mvc;
+using edziennik.Models.ViewModels;
 using edziennik.Resources;
 using Microsoft.AspNet.Identity;
 using Models.Models;
-using Repositories.Repositories;
-using System;
-using System.Net;
-using System.Linq;
-using System.Web.Mvc;
-using edziennik.Models.ViewModels;
 using PagedList;
+using Repositories.Repositories;
 
 namespace edziennik.Controllers
 {
     [Authorize(Roles = "Admins")]
     public class ClasssesController : Controller
     {
-        private readonly ClasssRepository classRepo;
-        private readonly TeacherRepository teacherRepo;
+        private readonly ClasssRepository _classRepo;
+        private readonly TeacherRepository _teacherRepo;
 
-        public ClasssesController(ClasssRepository _repo, TeacherRepository _teacherRepo)
+        public ClasssesController(ClasssRepository classRepo, TeacherRepository teacherRepo)
         {
-            classRepo = _repo;
-            teacherRepo = _teacherRepo;
+            _classRepo = classRepo;
+            _teacherRepo = teacherRepo;
         }
 
         // GET: Classses
@@ -38,10 +37,10 @@ namespace edziennik.Controllers
             {
                 Id = a.Id,
                 Name = a.Name,
-                Teacher = teacherRepo.FindById(a.TeacherId).FullName
+                Teacher = _teacherRepo.FindById(a.TeacherId).FullName
             });
 
-            var classesPl = classes.ToPagedList<ClassListItemViewModel>(currentPage, 10);
+            var classesPl = classes.ToPagedList(currentPage, 10);
 
             if (Request.IsAjaxRequest())
             {
@@ -55,7 +54,7 @@ namespace edziennik.Controllers
         [NonAction]
         private IQueryable<Classs> SortItems(string sortOrder)
         {
-            var items = classRepo.GetAll();
+            var items = _classRepo.GetAll();
 
             ViewBag.CurrentSort = sortOrder;
             ViewBag.IdSort = String.IsNullOrEmpty(sortOrder) ? "IdAsc" : "";
@@ -93,7 +92,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Classs classs = classRepo.FindById((int)id);
+            Classs classs = _classRepo.FindById((int)id);
 
             if (classs == null)
             {
@@ -104,7 +103,7 @@ namespace edziennik.Controllers
             {
                 Id = classs.Id,
                 Name = classs.Name,
-                Teacher = teacherRepo.FindById(classs.TeacherId).FullName,
+                Teacher = _teacherRepo.FindById(classs.TeacherId).FullName,
                 TeacherId = classs.TeacherId,
                 Students = classs.Students
             };
@@ -114,7 +113,7 @@ namespace edziennik.Controllers
         // GET: Classses/Create
         public ActionResult Create()
         {
-            if (teacherRepo.GetAll().ToList().Count == 0)
+            if (_teacherRepo.GetAll().ToList().Count == 0)
             {
                 if (Request.IsAjaxRequest())
                 {
@@ -125,7 +124,7 @@ namespace edziennik.Controllers
             }
             var classVm = new ClassCreateViewModel
             {
-                Teachers = ConstantStrings.getTeachersSL()
+                Teachers = ConstantStrings.GetTeachersSl()
             };
 
             if (Request.IsAjaxRequest())
@@ -150,8 +149,8 @@ namespace edziennik.Controllers
                     TeacherId = classVm.TeacherId
                 };
 
-                classRepo.Insert(classs);
-                classRepo.Save();
+                _classRepo.Insert(classs);
+                _classRepo.Save();
                 Logs.SaveLog("Create", User.Identity.GetUserId(),
                             "Class", classs.Id.ToString(), Request.UserHostAddress);
                 return RedirectToAction("Index");
@@ -167,14 +166,14 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Classs classs = classRepo.FindById((int)id);
+            Classs classs = _classRepo.FindById((int)id);
             if (classs == null)
             {
                 return HttpNotFound();
             }
             var classVm = new ClassCreateViewModel
             {
-                Teachers = ConstantStrings.getTeachersSL(),
+                Teachers = ConstantStrings.GetTeachersSl(),
                 Id = classs.Id,
                 Name = classs.Name,
                 TeacherId = classs.TeacherId
@@ -199,8 +198,8 @@ namespace edziennik.Controllers
                     TeacherId = classVm.TeacherId
                 };
 
-                classRepo.Update(classs);
-                classRepo.Save();
+                _classRepo.Update(classs);
+                _classRepo.Save();
                 Logs.SaveLog("Edit", User.Identity.GetUserId(),
                              "Class", classs.Id.ToString(), Request.UserHostAddress);
                 return RedirectToAction("Index");
@@ -215,7 +214,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Classs classs = classRepo.FindById((int)id);
+            Classs classs = _classRepo.FindById((int)id);
             if (classs == null)
             {
                 return HttpNotFound();
@@ -228,8 +227,8 @@ namespace edziennik.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            classRepo.Delete(id);
-            classRepo.Save();
+            _classRepo.Delete(id);
+            _classRepo.Save();
             Logs.SaveLog("Delete", User.Identity.GetUserId(),
                          "Class", id.ToString(), Request.UserHostAddress);
             return RedirectToAction("Index");
@@ -237,7 +236,7 @@ namespace edziennik.Controllers
 
         protected override void Dispose(bool disposing)
         {
-            classRepo.Dispose();
+            _classRepo.Dispose();
             base.Dispose(disposing);
         }
 

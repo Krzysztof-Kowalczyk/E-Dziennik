@@ -1,39 +1,38 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using Models.Interfaces;
 using Models.Models;
-using System;
 
 namespace Repositories.Repositories
 {
-    public class MarkRepository : IMarkRepository, IDisposable
+    public class MarkRepository : IMarkRepository
     {
-        EDziennikContext db = new EDziennikContext();
+        readonly EDziennikContext _db = new EDziennikContext();
         public IQueryable<Mark> GetAll()
         {
-            return db.Marks.AsNoTracking();
+            return _db.Marks.AsNoTracking();
         }
 
         public IQueryable<Mark> GetPage(int? page = 1, int? pageSize = 10)
         {
-            var items = db.Marks.OrderByDescending(o => o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
+            var items = _db.Marks.OrderByDescending(o => o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
 
             return items;
         } 
 
         public Mark FindById(int id)
         {
-            return db.Marks.SingleOrDefault(a => a.Id == id);
+            return _db.Marks.SingleOrDefault(a => a.Id == id);
         }
 
         public void Insert(Mark item)
         {
-            db.Marks.Add(item);
+            _db.Marks.Add(item);
         }
 
         public void Update(Mark item)
         {
-            var mark = db.Marks.Single(a => a.Id == item.Id);
+            var mark = _db.Marks.Single(a => a.Id == item.Id);
             mark.Value = item.Value;
             mark.Description = item.Description;
             mark.StudentId = item.StudentId;
@@ -42,33 +41,33 @@ namespace Repositories.Repositories
 
         public void Delete(int id)
         {
-            var mark = db.Marks.Single(a => a.Id == id);
-            db.Marks.Remove(mark);
+            var mark = _db.Marks.Single(a => a.Id == id);
+            _db.Marks.Remove(mark);
         }
 
         public void Save()
         {
-            db.SaveChanges();
+            _db.SaveChanges();
         }
 
         public IQueryable<Mark> FindByStudentIdAndSubjectId(string studentId, int subjectId)
         {
-            var marks = db.Marks.Where(a => a.StudentId == studentId && a.SubjectId == subjectId);
+            var marks = _db.Marks.Where(a => a.StudentId == studentId && a.SubjectId == subjectId);
 
             return marks;
         }
 
-                private bool disposed = false;
+                private bool _disposed = false;
         protected virtual void Dispose(bool disposing)
         {
-            if (!this.disposed)
+            if (!_disposed)
             {
                 if (disposing)
                 {
-                    db.Dispose();
+                    _db.Dispose();
                 }
             }
-            this.disposed = true;
+            _disposed = true;
         }
 
         public void Dispose()

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Models.Models;
+﻿using Models.Models;
 
 namespace Models.Interfaces
 {

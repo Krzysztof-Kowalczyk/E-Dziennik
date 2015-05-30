@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
 using Models.Models;
-using System.Linq;
 
 namespace Models.Interfaces
 {

@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
+﻿using System.Linq;
 using Models.Models;
-using System.Linq;
 
 namespace Models.Interfaces
 {

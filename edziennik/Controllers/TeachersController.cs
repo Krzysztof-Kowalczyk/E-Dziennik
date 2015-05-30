@@ -1,26 +1,26 @@
-﻿using edziennik.Resources;
-using Microsoft.AspNet.Identity;
-using Models.Models;
-using Repositories.Repositories;
-using System.Net;
+﻿using System;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using edziennik.Models.ViewModels;
+using edziennik.Resources;
+using Microsoft.AspNet.Identity;
+using Models.Models;
 using PagedList;
-using System;
+using Repositories.Repositories;
 
 namespace edziennik.Controllers
 {
     [Authorize(Roles = "Admins")]
     public class TeachersController : PersonController
     {
-        private readonly TeacherRepository teacherRepo;
+        private readonly TeacherRepository _teacherRepo;
 
-        public TeachersController(ApplicationUserManager userManager,TeacherRepository _repo)
+        public TeachersController(ApplicationUserManager userManager,TeacherRepository teacheRepo)
             :base(userManager)
         {
-            teacherRepo = _repo;
+            _teacherRepo = teacheRepo;
         }
 
         // GET: Teachers
@@ -29,7 +29,7 @@ namespace edziennik.Controllers
             int currentPage = page ?? 1;
             var items = SortItems(sortOrder);
 
-            var teacherPl = items.ToList().ToPagedList<Teacher>(currentPage, 10);
+            var teacherPl = items.ToList().ToPagedList(currentPage, 10);
 
             if (Request.IsAjaxRequest())
             {
@@ -42,7 +42,7 @@ namespace edziennik.Controllers
         [NonAction]
         private IQueryable<Teacher> SortItems(string sortOrder)
         {
-            var items = teacherRepo.GetAll();
+            var items = _teacherRepo.GetAll();
 
             ViewBag.CurrentSort = sortOrder;
             ViewBag.IdSort = String.IsNullOrEmpty(sortOrder) ? "IdAsc" : "";
@@ -94,14 +94,14 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Teacher teacher = teacherRepo.FindById(id);
+            Teacher teacher = _teacherRepo.FindById(id);
             if (teacher == null)
             {
                 return HttpNotFound();
             }
             var teacherVm = new TeacherDetailsViewModel
             {
-                EmailConfirmed = userManager.FindById(teacher.Id).EmailConfirmed,
+                EmailConfirmed = UserManager.FindById(teacher.Id).EmailConfirmed,
                 FirstName = teacher.FirstName,
                 Id = teacher.Id,
                 Pesel = teacher.Pesel,
@@ -139,8 +139,8 @@ namespace edziennik.Controllers
                     Surname = teacherVm.Surname,
                     Pesel = teacherVm.Login
                 };
-                teacherRepo.Insert(teacher);
-                teacherRepo.Save();
+                _teacherRepo.Insert(teacher);
+                _teacherRepo.Save();
                 Logs.SaveLog("Create", User.Identity.GetUserId(), 
                              "Teacher", teacher.Id, Request.UserHostAddress);
                 return RedirectToAction("Index");
@@ -156,13 +156,13 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Teacher teacher = teacherRepo.FindById(id);
+            Teacher teacher = _teacherRepo.FindById(id);
             if (teacher == null)
             {
                 return HttpNotFound();
             }
 
-            var user = userManager.FindById(teacher.Id);
+            var user = UserManager.FindById(teacher.Id);
             var teacherEditVm = new TeacherEditViewModel
             {
                 FirstName = teacher.FirstName,
@@ -196,10 +196,10 @@ namespace edziennik.Controllers
                     Surname = teacherVm.Surname
                 };
 
-                teacherRepo.Update(teacher);
-                teacherRepo.Save();
+                _teacherRepo.Update(teacher);
+                _teacherRepo.Save();
                 
-                var user = await userManager.FindByIdAsync(teacherVm.Id);
+                var user = await UserManager.FindByIdAsync(teacherVm.Id);
                 await UpdateUser(user, teacher, teacherVm.Email,teacherVm.EmailConfirmed);
                 Logs.SaveLog("Edit", User.Identity.GetUserId(), 
                              "Teacher", teacher.Id, Request.UserHostAddress);
@@ -216,7 +216,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Teacher teacher = teacherRepo.FindById(id);
+            Teacher teacher = _teacherRepo.FindById(id);
             if (teacher == null)
             {
                 return HttpNotFound();
@@ -229,8 +229,8 @@ namespace edziennik.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(string id)
         {
-            teacherRepo.Delete(id);
-            teacherRepo.Save();
+            _teacherRepo.Delete(id);
+            _teacherRepo.Save();
             DeleteUser(id);
             Logs.SaveLog("Delete", User.Identity.GetUserId(), 
                          "Teacher", id, Request.UserHostAddress);
@@ -238,7 +238,7 @@ namespace edziennik.Controllers
         }
         protected override void Dispose(bool disposing)
         {
-            teacherRepo.Dispose();
+            _teacherRepo.Dispose();
             base.Dispose(disposing);
         }
 

@@ -42,7 +42,7 @@ namespace edziennik.Resources
             get { return new ClasssRepository(); }
         }
 
-        public static List<SelectListItem> getStudentsSL()
+        public static List<SelectListItem> GetStudentsSl()
         {
             var students = StudentRepo.GetAll().Select(c => new SelectListItem
             {
@@ -54,7 +54,7 @@ namespace edziennik.Resources
             return students;
         }
 
-        public static List<SelectListItem> getStudentSubjectsSL(int classId, string teacherId)
+        public static List<SelectListItem> GetStudentSubjectsSl(int classId, string teacherId)
         {
             var subjects =
                 SubjectRepo.FindByClassId(classId).Where(a => a.TeacherId == teacherId).Select(c => new SelectListItem
@@ -68,7 +68,7 @@ namespace edziennik.Resources
             
         }
 
-        public static List<SelectListItem> getTeachersSL()
+        public static List<SelectListItem> GetTeachersSl()
         {
             var teachers = TeacherRepo.GetAll().Select(c => new SelectListItem
             {
@@ -80,7 +80,7 @@ namespace edziennik.Resources
             return teachers;
         }
 
-        public static List<SelectListItem> getClassesSL()
+        public static List<SelectListItem> GetClassesSl()
         {
             var classes = ClassRepo.GetAll().Select(c => new SelectListItem
             {
@@ -91,7 +91,7 @@ namespace edziennik.Resources
             return classes;
         }
 
-        public static List<SelectListItem> getClassroomsSL()
+        public static List<SelectListItem> GetClassroomsSl()
         {
             var classrooms = ClassroomRepo.GetAll().Select(c => new SelectListItem
             {
@@ -102,7 +102,7 @@ namespace edziennik.Resources
             return classrooms;
         }
 
-        public static List<SelectListItem> getSchoolHoursSL()
+        public static List<SelectListItem> GetSchoolHoursSl()
         {
             var hours = new List<SelectListItem>()
             {
@@ -123,7 +123,7 @@ namespace edziennik.Resources
             return hours;
         }
 
-        public static List<SelectListItem> getSchoolDaysSL()
+        public static List<SelectListItem> GetSchoolDaysSl()
         {
             var days = new List<SelectListItem>()
             {
@@ -137,7 +137,7 @@ namespace edziennik.Resources
             return days;
         }
 
-        public static List<SelectListItem> getMarksSL()
+        public static List<SelectListItem> GetMarksSl()
         {
             var days = new List<SelectListItem>()
             {

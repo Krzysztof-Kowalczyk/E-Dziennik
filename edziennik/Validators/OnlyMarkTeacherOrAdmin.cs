@@ -1,10 +1,10 @@
-﻿using Repositories.Repositories;
-using System;
+﻿using System;
 using System.Web;
 using System.Web.Mvc;
-using Microsoft.AspNet.Identity;
 using edziennik.Models;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Repositories.Repositories;
 
 namespace edziennik.Validators
 {
