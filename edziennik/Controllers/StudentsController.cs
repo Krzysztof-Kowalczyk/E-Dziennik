@@ -37,7 +37,9 @@ namespace edziennik.Controllers
                 ViewBag.Error = ConstantStrings.StudentCreateNoClassesError;
 
             int currentPage = page ?? 1;
-            var items = SortItems(sortOrder);
+            
+            var items = _studentRepo.GetAll();
+            items = SortItems(sortOrder, items);
 
             var students = items.ToList().Select(a => new StudentListItemViewModel
             {
@@ -57,10 +59,40 @@ namespace edziennik.Controllers
             return View(students);
         }
 
-        [NonAction]
-        private IQueryable<Student> SortItems(string sortOrder)
+        public ActionResult ClassStudents(int? page, int? error, string sortOrder, int? classId)
         {
-            var items = _studentRepo.GetAll();
+            if (classId == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
+            if (error.HasValue)
+                ViewBag.Error = ConstantStrings.StudentCreateNoClassesError;
+
+            int currentPage = page ?? 1;
+
+            var items = _studentRepo.FindByClassId((int)classId);
+            items = SortItems(sortOrder, items);
+
+            var students = items.ToList().Select(a => new ClassStudentViewModel
+            {
+                FirstName = a.FirstName,
+                SecondName = a.SecondName,
+                Surname = a.Surname,
+                ClassName = _classRepo.FindById(a.ClasssId).Name,
+                Pesel = a.Pesel,
+                Id = a.Id,
+                ClassId = a.ClasssId
+            }).ToPagedList(currentPage, 10);
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_ClassStudentList", students);
+            }
+
+            return View(students);
+        }
+
+        [NonAction]
+        private IQueryable<Student> SortItems(string sortOrder, IQueryable<Student> items)
+        {
 
             ViewBag.CurrentSort = sortOrder;
             ViewBag.IdSort = String.IsNullOrEmpty(sortOrder) ? "IdAsc" : "";

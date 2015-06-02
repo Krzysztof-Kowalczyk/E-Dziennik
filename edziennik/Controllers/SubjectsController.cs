@@ -24,14 +24,17 @@ namespace edziennik.Controllers
         private readonly ClasssRepository _classRepo;
         private readonly ClassroomRepository _classroomRepo;
         private readonly TeacherRepository _teacherRepo;
+        private readonly StudentRepository _studentRepo;
 
         public SubjectsController(SubjectRepository subjectRepo, ClasssRepository classRepo,
-                                  ClassroomRepository classroomRepo, TeacherRepository teacherRepo)
+                                  ClassroomRepository classroomRepo, TeacherRepository teacherRepo,
+                                  StudentRepository studentRepository)
         {
             _subjectRepo = subjectRepo;
             _classRepo = classRepo;
             _classroomRepo = classroomRepo;
             _teacherRepo = teacherRepo;
+            _studentRepo = studentRepository;
         }
 
         // GET: Subjects
@@ -137,7 +140,7 @@ namespace edziennik.Controllers
 
             items = SortItems(sortOrder, items);
 
-            var subjects = items.ToList().Select(a => new SubjectViewModel
+            var subjects = items.ToList().Select(a => new TeacherSubjectViewModel
             {
                 Id = a.Id,
                 Classroom = _classroomRepo.FindById(a.ClassroomId).Name,
@@ -145,10 +148,16 @@ namespace edziennik.Controllers
                 Day = a.Day,
                 Hour = a.Hour,
                 Name = a.Name,
-                Teacher = _teacherRepo.FindById(a.TeacherId).FullName
+                Teacher = _teacherRepo.FindById(a.TeacherId).FullName,
+                TeacherId = a.TeacherId
             }).ToPagedList(currentPage, 10);
 
-            return View("Index", subjects);
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_TeacherSubjectsList", subjects);
+            }
+
+            return View(subjects);
         }
 
         [Authorize(Roles = "Students,Admins,Teachers")]
@@ -158,7 +167,7 @@ namespace edziennik.Controllers
             var items = _subjectRepo.FindByStudentId(studentId);
             items = SortItems(sortOrder, items);
 
-            var subjects = items.ToList().Select(a => new SubjectViewModel
+            var subjects = items.ToList().Select(a => new StudentSubjectViewModel
             {
                 Id = a.Id,
                 Classroom = _classroomRepo.FindById(a.ClassroomId).Name,
@@ -166,10 +175,44 @@ namespace edziennik.Controllers
                 Day = a.Day,
                 Hour = a.Hour,
                 Name = a.Name,
-                Teacher = _teacherRepo.FindById(a.TeacherId).FullName
+                Teacher = _teacherRepo.FindById(a.TeacherId).FullName,
+                StudentId = studentId,
+                Student = _studentRepo.FindById(studentId).FullName
             }).ToPagedList(currentPage, 10);
 
-            return View("Index", subjects);
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_StudentSubjectsList", subjects);
+            }
+
+            return View(subjects);
+        }
+
+        [Authorize(Roles = "Students,Admins,Teachers")]
+        public ActionResult ClassSubjects(int? page, string sortOrder, int classId)
+        {
+            int currentPage = page ?? 1;
+            var items = _subjectRepo.FindByClassId(classId);
+            items = SortItems(sortOrder, items);
+
+            var subjects = items.ToList().Select(a => new ClassSubjectViewModel
+            {
+                Id = a.Id,
+                Classroom = _classroomRepo.FindById(a.ClassroomId).Name,
+                Classs = _classRepo.FindById(a.ClasssId).Name,
+                Day = a.Day,
+                Hour = a.Hour,
+                Name = a.Name,
+                Teacher = _teacherRepo.FindById(a.TeacherId).FullName,
+                ClassId = classId
+            }).ToPagedList(currentPage, 10);
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_ClassSubjectsList", subjects);
+            }
+
+            return View(subjects);
         }
 
         [Authorize]

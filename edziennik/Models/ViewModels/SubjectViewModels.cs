@@ -25,4 +25,21 @@ namespace edziennik.Models.ViewModels
         [Display(Name = "Godzina zajęć")]
         public int Hour { get; set; }
     }
+
+    public class TeacherSubjectViewModel : SubjectViewModel
+    {
+        public string TeacherId { get; set; }
+    }
+
+    public class StudentSubjectViewModel : SubjectViewModel
+    {
+        public string StudentId { get; set; }
+
+        public string Student { get; set; }
+    }
+
+    public class ClassSubjectViewModel : SubjectViewModel
+    {
+        public int ClassId { get; set; }
+    }
 }

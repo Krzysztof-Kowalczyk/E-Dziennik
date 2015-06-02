@@ -1,4 +1,4 @@
-﻿@model PagedList.IPagedList<edziennik.Models.ViewModels.SubjectViewModel>
+﻿@model PagedList.IPagedList<edziennik.Models.ViewModels.StudentSubjectViewModel>
 @{
     var ajaxOptions = new AjaxOptions
                      {
@@ -11,22 +11,22 @@
 <table class="table">
     <tr>
         <th>
-            @Ajax.ActionLink("Nazwa", "Index", new { sortOrder = ViewBag.NameSort, page = Model.PageNumber }, ajaxOptions, null)
+            @Ajax.ActionLink("Nazwa", "StudentSubjects", new { sortOrder = ViewBag.NameSort, page = Model.PageNumber, studentId = Model[0].StudentId }, ajaxOptions, null)
         </th>
         <th>
-            @Ajax.ActionLink("Nauczyciel", "Index", new { sortOrder = ViewBag.TeacherSort, page = Model.PageNumber }, ajaxOptions, null)
+            @Ajax.ActionLink("Nauczyciel", "StudentSubjects", new { sortOrder = ViewBag.TeacherSort, page = Model.PageNumber, studentId = Model[0].StudentId }, ajaxOptions, null)
         </th>
         <th>
-            @Ajax.ActionLink("Klasa", "Index", new { sortOrder = ViewBag.ClassSort, page = Model.PageNumber }, ajaxOptions, null)
+            @Ajax.ActionLink("Klasa", "StudentSubjects", new { sortOrder = ViewBag.ClassSort, page = Model.PageNumber, studentId = Model[0].StudentId }, ajaxOptions, null)
         </th>
         <th>
-            @Ajax.ActionLink("Sala", "Index", new { sortOrder = ViewBag.ClassroomSort, page = Model.PageNumber }, ajaxOptions, null)
+            @Ajax.ActionLink("Sala", "StudentSubjects", new { sortOrder = ViewBag.ClassroomSort, page = Model.PageNumber, studentId = Model[0].StudentId }, ajaxOptions, null)
         </th>
         <th>
-            @Ajax.ActionLink("Godzina zajęć", "Index", new { sortOrder = ViewBag.HourSort, page = Model.PageNumber }, ajaxOptions, null)
+            @Ajax.ActionLink("Godzina zajęć", "StudentSubjects", new { sortOrder = ViewBag.HourSort, page = Model.PageNumber, studentId = Model[0].StudentId }, ajaxOptions, null)
         </th>
         <th>
-            @Ajax.ActionLink("Dzień zajęć", "Index", new { sortOrder = ViewBag.DaySort, page = Model.PageNumber }, ajaxOptions, null)
+            @Ajax.ActionLink("Dzień zajęć", "StudentSubjects", new { sortOrder = ViewBag.DaySort, page = Model.PageNumber, studentId = Model[0].StudentId }, ajaxOptions, null)
         </th>
         <th></th>
     </tr>
@@ -67,4 +67,3 @@
     }
 
 </table>
-

@@ -65,6 +65,11 @@ namespace Repositories.Repositories
             return _db.Students.Single(a => a.Id == mark.StudentId);
         }
 
+        public IQueryable<Student> FindByClassId(int classId)
+        {
+            return _db.Students.Where(a => a.ClasssId == classId);
+        }
+
         private bool _disposed = false;
         protected virtual void Dispose(bool disposing)
         {

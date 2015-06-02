@@ -85,6 +85,10 @@
     }
 </div>
 <p>
-    @Html.ActionLink("Edycja", "Edit", new { id = Model.Id }, new { @class = "btn btn-warning" })
-    @Html.ActionLink("Powrót do listy", "Index", null, new { @class = "btn btn-primary" })
+    @Html.ActionLink("Przedmioty", "StudentSubjects","Subjects", new { studentId = Model.Id }, new { @class = "btn btn-info" })
+    @if (User.IsInRole("Admins") || User.IsInRole("Editors"))
+    {
+        @Html.ActionLink("Edycja", "Edit", new {id = Model.Id}, new {@class = "btn btn-warning"})
+    }
+    @Html.ActionLink("Powrót do listy", "Index", null, new {@class = "btn btn-primary"})
 </p>

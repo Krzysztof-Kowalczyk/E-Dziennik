@@ -321,6 +321,14 @@
     <Content Include="Views\Logs\_LogList.cshtml" />
     <Content Include="Views\Classses\_ClassList.cshtml" />
     <Content Include="Views\Account\Create.cshtml" />
+    <Content Include="Views\Subjects\TeacherSubjects.cshtml" />
+    <Content Include="Views\Subjects\_TeacherSubjectsList.cshtml" />
+    <Content Include="Views\Subjects\StudentSubjects.cshtml" />
+    <Content Include="Views\Subjects\_StudentSubjectsList.cshtml" />
+    <Content Include="Views\Students\ClassStudents.cshtml" />
+    <Content Include="Views\Students\_ClassStudentList.cshtml" />
+    <Content Include="Views\Subjects\ClassSubjects.cshtml" />
+    <Content Include="Views\Subjects\_ClassSubjectsList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -69,6 +69,11 @@ namespace edziennik.Models.ViewModels
         public string ClassName { get; set; }
     }
 
+    public class ClassStudentViewModel : StudentListItemViewModel
+    {
+        public int ClassId { get; set; }
+    }
+
     public class StudentRegisterViewModel : RegisterViewModel
     {
         [Display(Name = "Klasa")]
