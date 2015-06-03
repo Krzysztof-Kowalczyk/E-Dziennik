@@ -298,7 +298,9 @@ namespace edziennik.Controllers
         [Authorize(Roles = "Admins")]
         public ActionResult Create(SubjectCreateViewModel subjectVm)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(subjectVm);
+
+            if (IsClassroomFreeAtDate(subjectVm))
             {
                 var subject = new Subject
                 {
@@ -314,11 +316,21 @@ namespace edziennik.Controllers
                 _subjectRepo.Insert(subject);
                 _subjectRepo.Save();
                 Logs.SaveLog("Create", User.Identity.GetUserId(),
-                             "Subject", subject.Id.ToString(), Request.UserHostAddress);
+                    "Subject", subject.Id.ToString(), Request.UserHostAddress);
                 return RedirectToAction("Index");
             }
+            ModelState.AddModelError("","Wybrana sala jest zajęta wybranum terminie");
 
             return View(subjectVm);
+        }
+
+
+        private bool IsClassroomFreeAtDate(SubjectCreateViewModel subjectVm)
+        {
+            var subjects = _subjectRepo.FindByClassroomAndDate(subjectVm.ClassroomId, 
+                                                   (int)subjectVm.Day, subjectVm.Hour).ToList();
+            
+            return !subjects.Any();
         }
 
         [Authorize(Roles = "Admins")]
@@ -409,15 +421,28 @@ namespace edziennik.Controllers
         }
 
         public ActionResult Hours(string classroom, string day)
-        {
-            var s = _subjectRepo.FindByDate(Int32.Parse(classroom), Int32.Parse(day)).ToList();
-            return Json(new[] 
+        {         
+            var hours = ConstantStrings.GetSchoolHoursSl();
+
+            int cr;
+            int  dy;
+            if (Int32.TryParse(classroom, out cr) && Int32.TryParse(day, out dy))
             {
-        new { id = "", name = "" },
-        new { id = "bmw", name = "BMW" },
-        new { id = "mer", name = "Mercedes" },
-        new { id = "aud", name = "Audi" }
-        }, JsonRequestBehavior.AllowGet);
+                var subjects = _subjectRepo.FindByClassroomAndDay(cr, dy).ToList();
+                foreach (var t in subjects)
+                {
+                    for (int j = hours.Count - 1; j >= 0; j--)
+                    {
+                        if (t.Hour == Int32.Parse(hours[j].Value))
+                        {
+                            hours.Remove(hours[j]);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return Json(hours, JsonRequestBehavior.AllowGet);
         }
 
         protected override void Dispose(bool disposing)

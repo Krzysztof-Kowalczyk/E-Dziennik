@@ -1,5 +1,5 @@
 ﻿$(function () {
-    $("Select#Day").change(function () {
+    $("Select#Day").bind("change keyup input", function () {
         var selectedClassroom = $('select#ClassroomId').find(":selected").attr('value');
         var selectedDay = $('select#Day').find(":selected").attr('value');
         if (selectedClassroom != "" && selectedDay != "") {
@@ -7,14 +7,14 @@
                 var list = $('Select#Hour');
                 list.find('option').remove();
                 $(hours).each(function (index, hour) {
-                    list.append('<option value="' + hour.id + '">' + hour.name + '</option>');
+                    list.append('<option value="' + hour.Value + '">' + hour.Text + '</option>');
                 });
             });
         }
     });
 
 
-    $("Select#ClassroomId").change(function () {
+    $("Select#ClassroomId").bind("change keyup input", function () {
         var selectedClassroom = $('select#ClassroomId').find(":selected").attr('value');
         var selectedDay = $('select#Day').find(":selected").attr('value');
         if (selectedClassroom != "" && selectedDay != "") {
@@ -22,7 +22,7 @@
                 var list = $('Select#Hour');
                 list.find('option').remove();
                 $(hours).each(function (index, hour) {
-                    list.append('<option value="' + hour.id + '">' + hour.name + '</option>');
+                    list.append('<option value="' + hour.Value + '">' + hour.Text + '</option>');
                 });
             });
         }

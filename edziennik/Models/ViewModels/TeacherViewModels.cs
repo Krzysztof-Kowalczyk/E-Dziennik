@@ -18,9 +18,7 @@ namespace edziennik.Models.ViewModels
         public string Id { get; set; }
     }
 
-
     public class TeacherRegisterViewModel : RegisterViewModel
     {
-
     }
 }

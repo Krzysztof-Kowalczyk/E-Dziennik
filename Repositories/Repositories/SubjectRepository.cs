@@ -51,7 +51,13 @@ namespace Repositories.Repositories
             _db.SaveChanges();
         }
 
-         public IQueryable<Subject> FindByDate(int classroomId, int day)
+        public IQueryable<Subject> FindByClassroomAndDate(int classroomId, int day, int hour)
+        {
+            return _db.Subjects.Where(a => a.ClassroomId == classroomId 
+                                      && a.Day == ((SchoolDay)day) && a.Hour == hour);
+        }
+
+        public IQueryable<Subject> FindByClassroomAndDay(int classroomId, int day)
         {
            return _db.Subjects.Where(a => a.ClassroomId == classroomId && a.Day == ((SchoolDay)day));
         }

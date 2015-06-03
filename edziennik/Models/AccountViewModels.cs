@@ -126,13 +126,16 @@ namespace edziennik.Models
         public string Login { get; set; }
 
         [Required(ErrorMessage = "Pole Imię jest wymagane.")]
+        [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "Imię może składac się tylko z liter")]
         [StringLength(30, ErrorMessage = "{0} musi się składać minimum z {2} znaków.", MinimumLength = 2)]
         [Display(Name = "Imię")]
         public string FirstName { get; set; }
 
+        [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "Drugie imię może składac się tylko z liter")]
         [Display(Name = "Drugie imię")]
         public string SecondName { get; set; }
 
+        [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "Nazwisko może składac się tylko z liter")]
         [Required(ErrorMessage = "Pole Nazwisko jest wymagane.")]
         [StringLength(100, ErrorMessage = "{0} musi się składać minimum z {2} znaków.", MinimumLength = 2)]
         [Display(Name = "Nazwisko")]

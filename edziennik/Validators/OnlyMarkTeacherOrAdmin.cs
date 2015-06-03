@@ -10,7 +10,6 @@ namespace edziennik.Validators
 {
     public class OnlyMarkTeacherOrAdmin : AuthorizeAttribute
     {
-        readonly TeacherRepository _teacherRepo = new TeacherRepository();
         readonly MarkRepository _markRepo = new MarkRepository();
         protected ApplicationDbContext ApplicationDbContext { get; set; }
         protected UserManager<ApplicationUser> UserManager { get; set; }

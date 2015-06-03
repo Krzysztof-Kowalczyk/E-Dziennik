@@ -9,7 +9,7 @@
             <li>
                 <div style="padding-top:10px">
                     <a href="@Url.Action("ChangeAvatar", "Manage")">
-                        <img src="@Url.Content(Html.Action("AvatarURL", "Account", new { userName = User.Identity.GetUserId()}).ToString())" alt="image" width="30" height="30" />
+                        <img src="@Url.Content(Html.Action("AvatarURL", "Account", new { id = User.Identity.GetUserId()}).ToString())" alt="image" width="30" height="30" />
                     </a>
                 </div>
             <li>

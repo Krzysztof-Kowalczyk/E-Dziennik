@@ -10,8 +10,10 @@ namespace edziennik.Models.ViewModels
         public int Id { get; set; }
 
         [Display(Name = "Nazwa")]
+        [Required]
         public string Name { get; set; }
 
+        [Required]
         [Display(Name = "Wychowawca")]
         public string TeacherId { get; set; }
 

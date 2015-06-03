@@ -114,7 +114,7 @@ namespace edziennik.Controllers
             if (ModelState.IsValid)
             {
                 var hasher = new PasswordHasher();
-                var password = "Editor123#";
+                const string password = "Editor123#";
                 var user = new ApplicationUser
                 {
                     UserName = ruser.Login,
