@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
+using edziennik.Models.ViewModels;
 using edziennik.Resources;
 using Microsoft.AspNet.Identity;
 using Models.Models;
@@ -74,7 +75,13 @@ namespace edziennik.Controllers
             {
                 return HttpNotFound();
             }
-            return View(classroom);
+            var classroomVm = new ClassroomDetailsViewModel
+            {
+                Id = classroom.Id,
+                Name = classroom.Name,
+                SubjectsCount = classroom.Subjects != null ? classroom.Subjects.Count : 0
+            };
+            return View(classroomVm);
         }
 
         // GET: Classrooms/Create

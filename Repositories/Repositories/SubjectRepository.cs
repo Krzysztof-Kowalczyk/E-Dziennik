@@ -62,6 +62,11 @@ namespace Repositories.Repositories
            return _db.Subjects.Where(a => a.ClassroomId == classroomId && a.Day == ((SchoolDay)day));
         }
 
+        public IQueryable<Subject> FindByClassroomId(int classroomId)
+        {
+            return _db.Subjects.Where(a => a.ClassroomId == classroomId);
+        }
+
         public IQueryable<Subject> FindByClassId(int classId)
         {
             var subjects = _db.Subjects.Where(a => a.ClasssId == classId);

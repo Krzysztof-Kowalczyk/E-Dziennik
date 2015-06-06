@@ -1,4 +1,4 @@
-﻿@model Models.Models.Classroom
+﻿@model edziennik.Models.ViewModels.ClassroomDetailsViewModel
 
 @{
     ViewBag.Title = "Szczegóły";
@@ -18,9 +18,18 @@
             @Html.DisplayFor(model => model.Name)
         </dd>
 
+        <dt>
+            @Html.DisplayNameFor(model => model.SubjectsCount)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.SubjectsCount)
+        </dd>
+
     </dl>
 </div>
 <p>
+    @Html.ActionLink("Lista przedmiotów", "ClassroomSubjects","Subjects", new { classroomId = Model.Id }, new { @class = "btn btn-info" })
     @Html.ActionLink("Edycja", "Edit", new { id = Model.Id }, new { @class = "btn btn-warning" })
     @Html.ActionLink("Powrót do listy", "Index", null, new { @class = "btn btn-primary" })
 </p>

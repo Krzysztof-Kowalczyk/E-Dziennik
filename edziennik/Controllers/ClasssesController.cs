@@ -106,7 +106,8 @@ namespace edziennik.Controllers
                 Name = classs.Name,
                 Teacher = _teacherRepo.FindById(classs.TeacherId).FullName,
                 TeacherId = classs.TeacherId,
-                Students = classs.Students
+               // Students = classs.Students,
+                StudentCount = classs.Students!=null ? classs.Students.Count : 0
             };
             return View(classVm);
         }

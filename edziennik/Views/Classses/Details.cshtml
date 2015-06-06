@@ -24,18 +24,26 @@
         </dt>
 
         <dd>
-            @Html.ActionLink(Model.Teacher, "Details","Teachers", new { id=Model.TeacherId },null)
+            @Html.ActionLink(Model.Teacher, "Details", "Teachers", new {id = Model.TeacherId}, null)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.StudentCount)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.StudentCount)
         </dd>
 
     </dl>
-    <label>Lista uczniów</label>
+    @*<label>Lista uczniów</label>
     @foreach (var student in Model.Students)
     {
         
         var name = student.FirstName + " " + student.SecondName + " " + student.Surname;
         <p>@i. @name</p>
         i++;
-    }
+    }*@
 </div>
 <p>
     @Html.ActionLink("Lista uczniów", "ClassStudents","Students", new { classId = Model.Id }, new { @class = "btn btn-info" })

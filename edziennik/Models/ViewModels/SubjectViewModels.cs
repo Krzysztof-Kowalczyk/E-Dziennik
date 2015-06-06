@@ -83,4 +83,9 @@ namespace edziennik.Models.ViewModels
     {
         public int ClassId { get; set; }
     }
+
+    public class ClassroomSubjectViewModel : SubjectViewModel
+    {
+        public int ClassroomId { get; set; }
+    }
 }

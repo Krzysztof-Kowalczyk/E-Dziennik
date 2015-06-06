@@ -38,7 +38,10 @@ namespace edziennik.Models.ViewModels
 
     public class ClassDetailsViewModel : ClassListItemViewModel
     {
-        public List<Student> Students { get; set; }
+       // public List<Student> Students { get; set; }
+
+        [Display(Name = "Ilość uczniów")]
+        public int StudentCount { get; set; }
     }
 
     public class ClassEditViewModel : ClassCreateViewModel

@@ -215,6 +215,33 @@ namespace edziennik.Controllers
             return View(subjects);
         }
 
+        [Authorize(Roles = "Students,Admins,Teachers")]
+        public ActionResult ClassroomSubjects(int? page, string sortOrder, int classroomId)
+        {
+            int currentPage = page ?? 1;
+            var items = _subjectRepo.FindByClassroomId(classroomId);
+            items = SortItems(sortOrder, items);
+
+            var subjects = items.ToList().Select(a => new ClassroomSubjectViewModel
+            {
+                Id = a.Id,
+                Classroom = _classroomRepo.FindById(a.ClassroomId).Name,
+                Classs = _classRepo.FindById(a.ClasssId).Name,
+                Day = a.Day,
+                Hour = a.Hour,
+                Name = a.Name,
+                Teacher = _teacherRepo.FindById(a.TeacherId).FullName,
+                ClassroomId = classroomId
+            }).ToPagedList(currentPage, 10);
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_ClassroomSubjectsList", subjects);
+            }
+
+            return View(subjects);
+        }
+
         [Authorize]
         public ActionResult Details(int? id)
         {
