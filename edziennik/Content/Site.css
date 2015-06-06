@@ -1,7 +1,13 @@
-﻿body {
+﻿@font-face{
+        font-family:Bellota;
+        src:url(/fonts/Bellota-BoldItalic.otf);
+        }
+
+body {
     padding-top: 50px;
     padding-bottom: 20px;
     background-color: #F5F5DC;
+    font-family: "Bellota";
 }
 
 /* Set padding to keep content from hitting the edges */
