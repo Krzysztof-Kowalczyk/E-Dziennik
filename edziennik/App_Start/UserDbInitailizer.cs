@@ -5,7 +5,7 @@ using edziennik.Resources;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 
-namespace edziennik.App_Start
+namespace edziennik
 {
     public class UserDbInitializer : DropCreateDatabaseIfModelChanges<ApplicationDbContext>
     {

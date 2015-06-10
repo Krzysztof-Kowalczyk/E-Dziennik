@@ -1,15 +1,16 @@
 ﻿@model IEnumerable<edziennik.Models.UserListItemViewModel>
 @{
     ViewBag.Title = "Lista użytkowników";
+    var controller = "Account";
 }
 <h1 class="title">Lista użytkowników</h1>
 <p>
-    @Html.ActionLink("Dodaj nowego ucznia","Create","Students") |
-    @Html.ActionLink("Dodaj nowego nauczyciela", "Create","Teachers") |
-    @Html.ActionLink("Dodaj nowego edytora", "CreateEditor") |
-    @Html.ActionLink("Wszyscy uczniowie", "Index","Students") |
-    @Html.ActionLink("Wszyscy nauczyciele", "Index", "Teachers") |
-    @Html.ActionLink("Wszyscy edytorzy", "Index", "Editors") |
+    @Html.ActionLink("Dodaj nowego ucznia", "Create", "Students", null, new { @class = "btn btn-primary" })
+    @Html.ActionLink("Dodaj nowego nauczyciela", "Create", "Teachers", null, new { @class = "btn btn-primary" })
+    @Html.ActionLink("Dodaj nowego edytora", "Create","Account", null, new { @class = "btn btn-primary" })
+    @Html.ActionLink("Wszyscy uczniowie", "Index", "Students", null, new { @class = "btn btn-primary" })
+    @Html.ActionLink("Wszyscy nauczyciele", "Index", "Teachers", null, new { @class = "btn btn-primary" })
+    @Html.ActionLink("Wszyscy edytorzy", "Index", "Editors", null, new { @class = "btn btn-primary" })
 </p>
 <table class="table">
     <tr>
@@ -26,6 +27,18 @@
     </tr>
     @foreach (var item in Model)
     {
+        if (item.Role == "Students")
+        {
+            controller = "Students";
+        }
+        if (item.Role == "Teachers")
+        {
+            controller = "Teachers";
+        }
+        if (item.Role == "Admins" || item.Role == "Editors")
+        {
+            controller = "Account";
+        }
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Email)
@@ -37,11 +50,16 @@
                 @Html.DisplayFor(modelItem => item.EmailConfirmed)
             </td>
             <td>
-                @Html.ActionLink("Edycja", "Edit", new { id = item.Id }) |
-                @Html.ActionLink("Szczegóły", "Details", new { id = item.Id }) |
-                @Html.ActionLink("Usuń", "Delete", new { id = item.Id })
+                @if ((item.Role != "Admins" || item.Role != "Editors") && !User.IsInRole("Editors"))
+                {
+                    @Html.ActionLink("Edycja", "Edit", controller, new {id = item.Id}, new {@class = "btn btn-warning"})
+                }
+                @Html.ActionLink("Szczegóły", "Details", controller, new {id = item.Id}, new {@class = "btn btn-primary"})
+                @if (item.Role != "Admins")
+                {
+                    @Html.ActionLink("Usuń", "Delete", controller, new {id = item.Id}, new {@class = "btn btn-danger"})
+                }
             </td>
         </tr>
     }
 </table>
-

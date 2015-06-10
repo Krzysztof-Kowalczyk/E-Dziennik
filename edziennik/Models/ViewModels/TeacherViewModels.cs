@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Web;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace edziennik.Models.ViewModels
 {
@@ -10,6 +6,9 @@ namespace edziennik.Models.ViewModels
     {
         [Display(Name = "Email potwierdzony")]
         public bool EmailConfirmed { get; set; }
+
+        [Display(Name = "Zdjęcie")]
+        public string AvatarUrl { get; set; }
     }
 
     public class TeacherEditViewModel : RegisterViewModel
@@ -19,9 +18,7 @@ namespace edziennik.Models.ViewModels
         public string Id { get; set; }
     }
 
-
     public class TeacherRegisterViewModel : RegisterViewModel
     {
-
     }
 }

@@ -1,23 +1,21 @@
-﻿using edziennik.Models;
+﻿using System;
+using System.Net;
+using System.Threading.Tasks;
+using System.Web.Mvc;
+using edziennik.Models;
 using edziennik.Resources;
 using Microsoft.AspNet.Identity;
 using Models.Models;
-using System;
-using System.Net;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
-using System.Web.Mvc;
 
 namespace edziennik.Controllers
 {
     public abstract class PersonController : Controller
     {
-        protected readonly ApplicationUserManager userManager;
+        protected readonly ApplicationUserManager UserManager;
 
         protected PersonController(ApplicationUserManager userManager)
         {
-            this.userManager = userManager;
+            UserManager = userManager;
         }
 
         [NonAction]
@@ -45,39 +43,13 @@ namespace edziennik.Controllers
             };
             user.LastPasswordChange = user.CreateDate;
 
-            var result = userManager.Create(user, password);
+            var result = UserManager.Create(user, password);
             if (result.Succeeded)
             {
-                userManager.AddToRole(user.Id, role);
+                UserManager.AddToRole(user.Id, role);
                 if (!user.EmailConfirmed)
                 {
-                    var code = userManager.GenerateEmailConfirmationToken(user.Id);
-
-                    var callbackUrl = Url.Action(
-
-                        "ConfirmEmails",
-
-                        "Account",
-
-                        new {userId = user.Id, code = code},
-
-                        protocol: Request.Url.Scheme);
-
-                    ServicePointManager.ServerCertificateValidationCallback =
-                        delegate(object s, X509Certificate certificate,
-                            X509Chain chain, SslPolicyErrors sslPolicyErrors)
-                        { return true; };
-
-                    await userManager.SendEmailAsync(
-
-                        user.Id,
-
-                        "Rejestracja konta",
-
-                        "Twoje hasło to trzy pierwsze litery nazwiska(pierwsza litera duża) + 4 ostatnie cyfry numer pesel + #." +
-                        "Przykładowo hasło dla uzytkownika Jan Kowlaski numer pesel:12345678910, byłoby nastepujące: Kow8910# ." +
-                        "Potwierdź swoją rejestracje klikając na podany link: " +
-                        "<a href=\"" + callbackUrl + "\">Potwierdź</a>");
+                    await SendEmailActivationToken(user);
                 }
                 return user.Id;             
             }
@@ -86,10 +58,40 @@ namespace edziennik.Controllers
         }
 
         [NonAction]
+        private async Task SendEmailActivationToken(ApplicationUser user)
+        {
+            var code = UserManager.GenerateEmailConfirmationToken(user.Id);
+
+            var callbackUrl = Url.Action(
+
+                "ConfirmEmails",
+
+                "Account",
+
+                new { userId = user.Id, code = code },
+
+                protocol: Request.Url.Scheme);
+
+            ServicePointManager.ServerCertificateValidationCallback =
+                (s, certificate, chain, sslPolicyErrors) => true;
+
+            await UserManager.SendEmailAsync(
+
+                user.Id,
+
+                "Rejestracja konta",
+
+                "Twoje hasło to trzy pierwsze litery nazwiska(pierwsza litera duża) + 4 ostatnie cyfry numer pesel + #." +
+                "Przykładowo hasło dla uzytkownika Jan Kowlaski numer pesel:12345678910, byłoby nastepujące: Kow8910# ." +
+                "Potwierdź swoją rejestracje klikając na podany link: " +
+                "<a href=\"" + callbackUrl + "\">Potwierdź</a>");
+        }
+
+        [NonAction]
         protected void DeleteUser(string id)
         {
-            var user = userManager.FindById(id);
-            userManager.Delete(user);
+            var user = UserManager.FindById(id);
+            UserManager.Delete(user);
         }
 
         [NonAction]
@@ -98,7 +100,7 @@ namespace edziennik.Controllers
             user.UserName = person.Pesel;
             user.Email = email;
             user.EmailConfirmed = emailConfirmed;
-            await userManager.UpdateAsync(user);
+            await UserManager.UpdateAsync(user);
         }
 
     }

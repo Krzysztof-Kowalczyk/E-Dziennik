@@ -1,51 +1,140 @@
-﻿using edziennik.Models;
-using edziennik.Resources;
-using Microsoft.AspNet.Identity;
-using Models.Models;
-using Repositories.Repositories;
+﻿using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using edziennik.Models.ViewModels;
+using edziennik.Resources;
+using Microsoft.AspNet.Identity;
+using Models.Models;
+using PagedList;
+using Repositories.Repositories;
 
 namespace edziennik.Controllers
 {
     [Authorize]
     public class StudentsController : PersonController
     {
-        private readonly StudentRepository studentRepo;
-        private readonly ClasssRepository classRepo;
-        private readonly SubjectRepository subjectRepo;
-        private readonly TeacherRepository teacherRepo;
+        private readonly StudentRepository _studentRepo;
+        private readonly ClasssRepository _classRepo;
+        private readonly SubjectRepository _subjectRepo;
+        private readonly TeacherRepository _teacherRepo;
 
-        public StudentsController(ApplicationUserManager userManager,StudentRepository _repo, ClasssRepository _classsRepo,
-                                  SubjectRepository _subjectRepo, TeacherRepository _teacherRepo)
+        public StudentsController(ApplicationUserManager userManager,StudentRepository studentRepo, ClasssRepository classsRepo,
+                                  SubjectRepository subjectRepo, TeacherRepository teacherRepo)
             :base(userManager)
         {
-            studentRepo = _repo;
-            classRepo = _classsRepo;
-            teacherRepo = _teacherRepo;
-            subjectRepo = _subjectRepo;
+            _studentRepo = studentRepo;
+            _classRepo = classsRepo;
+            _teacherRepo = teacherRepo;
+            _subjectRepo = subjectRepo;
         }
 
         // GET: Students
-        public ActionResult Index(int? error)
+        public ActionResult Index(int? page, int? error, string sortOrder)
         {
             if (error.HasValue)
                 ViewBag.Error = ConstantStrings.StudentCreateNoClassesError;
 
-            var students = studentRepo.GetAll().Select(a => new StudentListItemViewModel
+            int currentPage = page ?? 1;
+            
+            var items = _studentRepo.GetAll();
+            items = SortItems(sortOrder, items);
+
+            var students = items.ToList().Select(a => new StudentListItemViewModel
             {
                 FirstName = a.FirstName,
                 SecondName = a.SecondName,
                 Surname = a.Surname,
-                ClassName = classRepo.FindById(a.ClasssId).Name,
+                ClassName = _classRepo.FindById(a.ClasssId).Name,
                 Pesel = a.Pesel,
                 Id = a.Id
-            });
+            }).ToPagedList(currentPage, 10);
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_StudentList", students);
+            }
 
             return View(students);
+        }
+
+        public ActionResult ClassStudents(int? page, int? error, string sortOrder, int? classId)
+        {
+            if (classId == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
+            if (error.HasValue)
+                ViewBag.Error = ConstantStrings.StudentCreateNoClassesError;
+
+            int currentPage = page ?? 1;
+
+            var items = _studentRepo.FindByClassId((int)classId);
+            items = SortItems(sortOrder, items);
+
+            var students = items.ToList().Select(a => new ClassStudentViewModel
+            {
+                FirstName = a.FirstName,
+                SecondName = a.SecondName,
+                Surname = a.Surname,
+                ClassName = _classRepo.FindById(a.ClasssId).Name,
+                Pesel = a.Pesel,
+                Id = a.Id,
+                ClassId = a.ClasssId
+            }).ToPagedList(currentPage, 10);
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_ClassStudentList", students);
+            }
+
+            return View(students);
+        }
+
+        [NonAction]
+        private IQueryable<Student> SortItems(string sortOrder, IQueryable<Student> items)
+        {
+
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.IdSort = String.IsNullOrEmpty(sortOrder) ? "IdAsc" : "";
+            ViewBag.ClassSort = sortOrder == "ClassAsc" ? "Class" : "ClassAsc";
+            ViewBag.FirstNameSort = sortOrder == "FirstNameAsc" ? "FirstName" : "FirstNameAsc";
+            ViewBag.SecondNameSort = sortOrder == "SecondNameAsc" ? "SecondName" : "SecondNameAsc";
+            ViewBag.SurnameSort = sortOrder == "SurnameAsc" ? "Surname" : "SurnameAsc";
+
+            switch (sortOrder)
+            {
+                case "Class":
+                    items = items.OrderByDescending(s => s.ClasssId);
+                    break;
+                case "ClassAsc":
+                    items = items.OrderBy(s => s.ClasssId);
+                    break;
+                case "FirstName":
+                    items = items.OrderByDescending(s => s.FirstName);
+                    break;
+                case "FirstNameAsc":
+                    items = items.OrderBy(s => s.FirstName);
+                    break;
+                case "SecondName":
+                    items = items.OrderByDescending(s => s.SecondName);
+                    break;
+                case "SecondNameAsc":
+                    items = items.OrderBy(s => s.SecondName);
+                    break;
+                case "Surname":
+                    items = items.OrderByDescending(s => s.Surname);
+                    break;
+                case "SurnameAsc":
+                    items = items.OrderBy(s => s.Surname);
+                    break;
+                case "IdAsc":
+                    items = items.OrderBy(s => s.Id);
+                    break;
+                default:    // id descending
+                    items = items.OrderByDescending(s => s.Id);
+                    break;
+            }
+            return items;
         }
 
         // GET: Students/Details/5
@@ -55,7 +144,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Student student = studentRepo.FindById(id);
+            Student student = _studentRepo.FindById(id);
             if (student == null)
             {
                 return HttpNotFound();
@@ -63,21 +152,25 @@ namespace edziennik.Controllers
 
             var markVm = student.Marks.Select(m => new MarkViewModel
             {
-                Subject = subjectRepo.FindById(m.SubjectId).Name,
-                Teacher = teacherRepo.FindById(m.TeacherId).FullName,
+                Subject = _subjectRepo.FindById(m.SubjectId).Name,
+                Teacher = _teacherRepo.FindById(m.TeacherId).FullName,
                 Value = m.Value
             }).ToList();
 
+            var user = UserManager.FindById(student.Id);
+            
             var studentVm = new StudentDetailsViewModel()
             {
-                ClassName = classRepo.FindById(student.ClasssId).Name,
+                ClassName = _classRepo.FindById(student.ClasssId).Name,
                 FirstName = student.FirstName,
                 SecondName = student.SecondName,
                 Surname = student.Surname,
                 Pesel = student.Pesel,
                 Id = student.Id,
                 Marks = markVm,
-                CellPhoneNumber = student.CellPhoneNumber
+                CellPhoneNumber = student.CellPhoneNumber,
+                EmailConfirmed = user.EmailConfirmed,
+                AvatarUrl = user.AvatarUrl
             };
             return View(studentVm);
         }
@@ -86,14 +179,14 @@ namespace edziennik.Controllers
         [Authorize(Roles = "Admins")]
         public ActionResult Create()
         {
-            if (classRepo.GetAll().Count == 0)
+            if (_classRepo.GetAll().ToList().Count == 0)
             {
                 return RedirectToAction("Index", new { error = 1 });
             }
 
             var student = new StudentRegisterViewModel
             {
-                Classes = ConstantStrings.getClassesSL()
+                Classes = ConstantStrings.GetClassesSl()
             };
 
             return View(student);
@@ -109,7 +202,7 @@ namespace edziennik.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (classRepo.FindById(studentVm.ClassId).
+                if (_classRepo.FindById(studentVm.ClassId).
                                        Students.Count != ConstantStrings.MaxClassStudentCount)
                 {
                     var userid = await CreateUser(studentVm, "Students");
@@ -127,8 +220,8 @@ namespace edziennik.Controllers
 
                     };
                         
-                    studentRepo.Insert(student);
-                    studentRepo.Save();
+                    _studentRepo.Insert(student);
+                    _studentRepo.Save();
                     Logs.SaveLog("Create", User.Identity.GetUserId(), 
                                  "Student", student.Id, Request.UserHostAddress);
                     return RedirectToAction("Index");
@@ -147,25 +240,26 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Student student = studentRepo.FindById(id);
+            Student student = _studentRepo.FindById(id);
             if (student == null)
             {
                 return HttpNotFound();
             }
 
+            var user = UserManager.FindById(student.Id);
             var studentEditVm = new StudentEditViewModel
             {
                 FirstName = student.FirstName,
                 ClassId = student.ClasssId,
-                Email = userManager.FindById(student.Id).Email,
+                Email = user.Email,
                 Id = student.Id,
                 Login = student.Pesel,
                 SecondName = student.SecondName,
                 Surname = student.Surname,
-                Classes = ConstantStrings.getClassesSL(),
+                Classes = ConstantStrings.GetClassesSl(),
                 CellPhoneNumber = student.CellPhoneNumber,
-                EmailConfirmed = userManager.FindById(student.Id).EmailConfirmed,
-                AvatarUrl = userManager.FindById(student.Id).AvatarUrl
+                EmailConfirmed = user.EmailConfirmed,
+                AvatarUrl = user.AvatarUrl
             };
             
             return View(studentEditVm);
@@ -192,10 +286,10 @@ namespace edziennik.Controllers
                     CellPhoneNumber = studentEvm.CellPhoneNumber
                 };
 
-                studentRepo.Update(student);
-                studentRepo.Save();               
+                _studentRepo.Update(student);
+                _studentRepo.Save();               
 
-                var user = await userManager.FindByIdAsync(studentEvm.Id);                
+                var user = await UserManager.FindByIdAsync(studentEvm.Id);                
                 await UpdateUser(user, student, studentEvm.Email,studentEvm.EmailConfirmed);
                 Logs.SaveLog("Edit", User.Identity.GetUserId(), 
                              "Student", student.Id, Request.UserHostAddress);
@@ -214,7 +308,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Student student = studentRepo.FindById(id);
+            Student student = _studentRepo.FindById(id);
             if (student == null)
             {
                 return HttpNotFound();
@@ -222,7 +316,7 @@ namespace edziennik.Controllers
 
             var studentVm = new StudentListItemViewModel
             {
-                ClassName = classRepo.FindById(student.ClasssId).Name,
+                ClassName = _classRepo.FindById(student.ClasssId).Name,
                 FirstName = student.FirstName,
                 Id = student.Id,
                 Pesel = student.Pesel,
@@ -239,8 +333,8 @@ namespace edziennik.Controllers
         [Authorize(Roles = "Admins")]
         public ActionResult DeleteConfirmed(string id)
         {
-            studentRepo.Delete(id);
-            studentRepo.Save();
+            _studentRepo.Delete(id);
+            _studentRepo.Save();
             DeleteUser(id);
             Logs.SaveLog("Delete", User.Identity.GetUserId(),
                          "Student", id, Request.UserHostAddress);
@@ -249,7 +343,7 @@ namespace edziennik.Controllers
 
         protected override void Dispose(bool disposing)
         {
-            studentRepo.Dispose();
+            _studentRepo.Dispose();
             base.Dispose(disposing);
         }
 

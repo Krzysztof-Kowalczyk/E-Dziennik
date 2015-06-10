@@ -1,4 +1,12 @@
-﻿@model IEnumerable<Models.Models.Classroom>
+﻿@using PagedList.Mvc
+@model PagedList.IPagedList<Models.Models.Classroom>
+@section scripts{
+    @Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.min.js")
+}
+
+<link href="~/Content/PagedList.css" rel="stylesheet"
+      type="text/css" />
+
 
 @{
     ViewBag.Title = "Index";
@@ -7,27 +15,12 @@
 <h2>Index</h2>
 
 <p>
-    @Html.ActionLink("Stwórz nowy", "Create", null, new {@class="btn btn-primary"})
+    @Html.ActionLink("Stwórz nowy", "Create", null, new { @class = "btn btn-primary" })
 </p>
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.Name)
-        </th>
-        <th></th>
-    </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.Name)
-        </td>
-        <td>
-            @Html.ActionLink("Edycja", "Edit", new { id = item.Id }, new { @class = "btn btn-warning" }) 
-            @Html.ActionLink("Szczegóły", "Details", new { id = item.Id }, new { @class = "btn btn-primary" }) 
-            @Html.ActionLink("Usuń", "Delete", new { id = item.Id }, new { @class = "btn btn-danger" })
-        </td>
-    </tr>
-}
+<div id="ClassroomList">
+    @Html.Partial("_ClassroomList")
 
-</table>
+</div>
+
+@Html.PagedListPager(Model, page => Url.Action("Index", new { page, pageSize = Model.PageSize }))

@@ -1,4 +1,11 @@
-﻿@model IEnumerable<edziennik.Models.ViewModels.LogListItemViewModel>
+﻿@using PagedList.Mvc
+@model PagedList.IPagedList<edziennik.Models.ViewModels.LogListItemViewModel>
+@section scripts{
+    @Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.min.js")
+}
+
+<link href="~/Content/PagedList.css" rel="stylesheet"
+      type="text/css" />
 
 @{
     ViewBag.Title = "Index";
@@ -6,42 +13,8 @@
 
 <h2>Index</h2>
 
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.Date)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Action)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Who)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.What)
-        </th>
-        <th></th>
-    </tr>
+<div id="LogList">
+    @Html.Partial("_LogList")
+</div>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.Date)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Action)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Who)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.What)
-        </td>
-        <td>
-            @Html.ActionLink("Szczegóły", "Details", new { id = item.Id }, new { @class = "btn btn-primary" })
-            @Html.ActionLink("Usuń", "Delete", new { id = item.Id }, new { @class = "btn btn-danger" })
-        </td>
-    </tr>
-}
-
-</table>
+@Html.PagedListPager(Model, page => Url.Action("Index", new { page, pageSize = Model.PageSize }))

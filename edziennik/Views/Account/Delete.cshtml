@@ -39,8 +39,8 @@
         @Html.AntiForgeryToken()
 
         <div class="form-actions no-color">
-            <input type="submit" value="Usuń" class="btn btn-default" /> |
-            @Html.ActionLink("Powrót do lity użytkowników", "ShowUsers")
+            <input type="submit" value="Usuń" class="btn btn-default" /> 
+            @Html.ActionLink("Powrót do listy", "ShowUsers", null, new { @class = "btn btn-primary" })
         </div>
     }
 </div>

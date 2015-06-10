@@ -1,16 +1,15 @@
-﻿using Repositories.Repositories;
-using System;
+﻿using System;
 using System.Web;
 using System.Web.Mvc;
-using Microsoft.AspNet.Identity;
 using edziennik.Models;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Repositories.Repositories;
 
 namespace edziennik.Validators
 {
     public class OnlyMarkTeacherOrAdmin : AuthorizeAttribute
     {
-        readonly TeacherRepository _teacherRepo = new TeacherRepository();
         readonly MarkRepository _markRepo = new MarkRepository();
         protected ApplicationDbContext ApplicationDbContext { get; set; }
         protected UserManager<ApplicationUser> UserManager { get; set; }
@@ -25,8 +24,8 @@ namespace edziennik.Validators
 
             ApplicationDbContext = new ApplicationDbContext();
             UserManager = new UserManager<ApplicationUser>
-                                         (new UserStore<ApplicationUser>(ApplicationDbContext));        
-            
+                                         (new UserStore<ApplicationUser>(ApplicationDbContext));
+
             var rd = httpContext.Request.RequestContext.RouteData;
             var id = Convert.ToInt32(rd.Values["id"]);
             var userId = httpContext.User.Identity.GetUserId();
@@ -39,9 +38,9 @@ namespace edziennik.Validators
             }
 
             var mark = _markRepo.FindById(id);
-         
+
             return mark != null && mark.TeacherId == user.Id;
         }
     }
-    
+
 }

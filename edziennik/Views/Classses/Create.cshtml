@@ -4,6 +4,10 @@
     ViewBag.Title = "Stwórz";
 }
 
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+
 <h2>Stwórz</h2>
 
 @using (Html.BeginForm()) 
@@ -31,7 +35,7 @@
         <div class="form-group">
             <label class="control-label col-md-2">Nauczyciel</label>
             <div class="col-md-10">
-                @Html.DropDownListFor(m=>m.TeacherId, Model.Teachers)
+                @Html.DropDownListFor(m=>m.TeacherId, Model.Teachers,"")
                 @Html.ValidationMessageFor(model => model.TeacherId, "", new { @class = "text-danger" })
             </div>
         </div>

@@ -1,12 +1,13 @@
-﻿using edziennik.Models;
-using edziennik.Resources;
-using Microsoft.AspNet.Identity;
-using Models.Models;
-using Repositories.Repositories;
+﻿using System;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using edziennik.Models.ViewModels;
+using edziennik.Resources;
+using Microsoft.AspNet.Identity;
+using Models.Models;
+using PagedList;
+using Repositories.Repositories;
 
 namespace edziennik.Controllers
 {
@@ -16,26 +17,29 @@ namespace edziennik.Controllers
         NoClassrooms = 2,
         NoTeachers = 3
     }
-    
+
     public class SubjectsController : Controller
     {
-        private readonly SubjectRepository subjectRepo;
-        private readonly ClasssRepository classRepo;
-        private readonly ClassroomRepository classroomRepo;
-        private readonly TeacherRepository teacherRepo;
+        private readonly SubjectRepository _subjectRepo;
+        private readonly ClasssRepository _classRepo;
+        private readonly ClassroomRepository _classroomRepo;
+        private readonly TeacherRepository _teacherRepo;
+        private readonly StudentRepository _studentRepo;
 
-        public SubjectsController(SubjectRepository sr, ClasssRepository _classsRepo,
-                                  ClassroomRepository _classroomRepo, TeacherRepository _teacherRepo)
+        public SubjectsController(SubjectRepository subjectRepo, ClasssRepository classRepo,
+                                  ClassroomRepository classroomRepo, TeacherRepository teacherRepo,
+                                  StudentRepository studentRepository)
         {
-            subjectRepo = sr;
-            classRepo = _classsRepo;
-            classroomRepo = _classroomRepo;
-            teacherRepo = _teacherRepo;
+            _subjectRepo = subjectRepo;
+            _classRepo = classRepo;
+            _classroomRepo = classroomRepo;
+            _teacherRepo = teacherRepo;
+            _studentRepo = studentRepository;
         }
 
         // GET: Subjects
         [Authorize(Roles = "Admins")]
-        public ActionResult Index(SubjectCreateError? error)
+        public ActionResult Index(int? page, SubjectCreateError? error, string sortOrder)
         {
             if (error == SubjectCreateError.NoTeachers)
                 ViewBag.Error = ConstantStrings.SubjectCreateNoTeachersError;
@@ -44,52 +48,198 @@ namespace edziennik.Controllers
             else if (error == SubjectCreateError.NoClassrooms)
                 ViewBag.Error = ConstantStrings.SubjectCreateNoClassroomsError;
 
-            var subjects = subjectRepo.GetAll().Select(a => new SubjectViewModel
+            int currentPage = page ?? 1;
+            var items = _subjectRepo.GetAll();
+
+            items = SortItems(sortOrder, items);
+
+            var subjects = items.ToList().Select(a => new SubjectViewModel
             {
                 Id = a.Id,
-                Classroom = classroomRepo.FindById(a.ClassroomId).Name,
-                Classs = classRepo.FindById(a.ClasssId).Name,
+                Classroom = _classroomRepo.FindById(a.ClassroomId).Name,
+                Classs = _classRepo.FindById(a.ClasssId).Name,
                 Day = a.Day,
                 Hour = a.Hour,
                 Name = a.Name,
-                Teacher = teacherRepo.FindById(a.TeacherId).FullName
-            });
-            
+                Teacher = _teacherRepo.FindById(a.TeacherId).FullName
+            }).ToPagedList(currentPage, 10);
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_SubjectList", subjects);
+            }
+
             return View(subjects);
         }
 
-        [Authorize(Roles = "Admins,Teachers")]
-        public ActionResult TeacherSubjects(string teacherId)
+        [NonAction]
+        private IQueryable<Subject> SortItems(string sortOrder, IQueryable<Subject> items)
         {
-            var subjects = subjectRepo.FindByTeacherId(teacherId).Select(a => new SubjectViewModel
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.IdSort = String.IsNullOrEmpty(sortOrder) ? "IdAsc" : "";
+            ViewBag.ClassroomSort = sortOrder == "ClassroomAsc" ? "Classroom" : "ClassroomAsc";
+            ViewBag.ClassSort = sortOrder == "ClassAsc" ? "Class" : "ClassAsc";
+            ViewBag.DaySort = sortOrder == "DayAsc" ? "Day" : "DayAsc";
+            ViewBag.HourSort = sortOrder == "HourAsc" ? "Hour" : "HourAsc";
+            ViewBag.NameSort = sortOrder == "NameAsc" ? "Name" : "NameAsc";
+            ViewBag.TeacherSort = sortOrder == "TeacherAsc" ? "Teacher" : "TeacherAsc";
+
+            switch (sortOrder)
+            {
+                case "Classroom":
+                    items = items.OrderByDescending(s => s.ClassroomId);
+                    break;
+                case "ClassroomAsc":
+                    items = items.OrderBy(s => s.ClassroomId);
+                    break;
+                case "Class":
+                    items = items.OrderByDescending(s => s.ClasssId);
+                    break;
+                case "ClassAsc":
+                    items = items.OrderBy(s => s.ClasssId);
+                    break;
+                case "Day":
+                    items = items.OrderByDescending(s => s.Day);
+                    break;
+                case "DayAsc":
+                    items = items.OrderBy(s => s.Day);
+                    break;
+                case "Hour":
+                    items = items.OrderByDescending(s => s.Hour);
+                    break;
+                case "HourAsc":
+                    items = items.OrderBy(s => s.Hour);
+                    break;
+                case "Name":
+                    items = items.OrderByDescending(s => s.Name);
+                    break;
+                case "NameAsc":
+                    items = items.OrderBy(s => s.Name);
+                    break;
+                case "Teacher":
+                    items = items.OrderByDescending(s => s.TeacherId);
+                    break;
+                case "TeacherAsc":
+                    items = items.OrderBy(s => s.TeacherId);
+                    break;
+                case "IdAsc":
+                    items = items.OrderBy(s => s.Id);
+                    break;
+                default:    // id descending
+                    items = items.OrderByDescending(s => s.Id);
+                    break;
+            }
+            return items;
+        }
+
+        [Authorize(Roles = "Admins,Teachers")]
+        public ActionResult TeacherSubjects(int? page, string teacherId, string sortOrder)
+        {
+            int currentPage = page ?? 1;
+            var items = _subjectRepo.FindByTeacherId(teacherId);
+
+            items = SortItems(sortOrder, items);
+
+            var subjects = items.ToList().Select(a => new TeacherSubjectViewModel
             {
                 Id = a.Id,
-                Classroom = classroomRepo.FindById(a.ClassroomId).Name,
-                Classs = classRepo.FindById(a.ClasssId).Name,
+                Classroom = _classroomRepo.FindById(a.ClassroomId).Name,
+                Classs = _classRepo.FindById(a.ClasssId).Name,
                 Day = a.Day,
                 Hour = a.Hour,
                 Name = a.Name,
-                Teacher = teacherRepo.FindById(a.TeacherId).FullName
-            });
+                Teacher = _teacherRepo.FindById(a.TeacherId).FullName,
+                TeacherId = a.TeacherId
+            }).ToPagedList(currentPage, 10);
 
-            return View("Index", subjects);
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_TeacherSubjectsList", subjects);
+            }
+
+            return View(subjects);
         }
 
         [Authorize(Roles = "Students,Admins,Teachers")]
-        public ActionResult StudentSubjects(string studentId)
+        public ActionResult StudentSubjects(int? page, string studentId, string sortOrder)
         {
-            var subjects = subjectRepo.FindByStudentId(studentId).Select(a => new SubjectViewModel
+            int currentPage = page ?? 1;
+            var items = _subjectRepo.FindByStudentId(studentId);
+            items = SortItems(sortOrder, items);
+
+            var subjects = items.ToList().Select(a => new StudentSubjectViewModel
             {
                 Id = a.Id,
-                Classroom = classroomRepo.FindById(a.ClassroomId).Name,
-                Classs = classRepo.FindById(a.ClasssId).Name,
+                Classroom = _classroomRepo.FindById(a.ClassroomId).Name,
+                Classs = _classRepo.FindById(a.ClasssId).Name,
                 Day = a.Day,
                 Hour = a.Hour,
                 Name = a.Name,
-                Teacher = teacherRepo.FindById(a.TeacherId).FullName
-            });
+                Teacher = _teacherRepo.FindById(a.TeacherId).FullName,
+                StudentId = studentId,
+                Student = _studentRepo.FindById(studentId).FullName
+            }).ToPagedList(currentPage, 10);
 
-            return View("Index", subjects);
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_StudentSubjectsList", subjects);
+            }
+
+            return View(subjects);
+        }
+
+        [Authorize(Roles = "Students,Admins,Teachers")]
+        public ActionResult ClassSubjects(int? page, string sortOrder, int classId)
+        {
+            int currentPage = page ?? 1;
+            var items = _subjectRepo.FindByClassId(classId);
+            items = SortItems(sortOrder, items);
+
+            var subjects = items.ToList().Select(a => new ClassSubjectViewModel
+            {
+                Id = a.Id,
+                Classroom = _classroomRepo.FindById(a.ClassroomId).Name,
+                Classs = _classRepo.FindById(a.ClasssId).Name,
+                Day = a.Day,
+                Hour = a.Hour,
+                Name = a.Name,
+                Teacher = _teacherRepo.FindById(a.TeacherId).FullName,
+                ClassId = classId
+            }).ToPagedList(currentPage, 10);
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_ClassSubjectsList", subjects);
+            }
+
+            return View(subjects);
+        }
+
+        [Authorize(Roles = "Students,Admins,Teachers")]
+        public ActionResult ClassroomSubjects(int? page, string sortOrder, int classroomId)
+        {
+            int currentPage = page ?? 1;
+            var items = _subjectRepo.FindByClassroomId(classroomId);
+            items = SortItems(sortOrder, items);
+
+            var subjects = items.ToList().Select(a => new ClassroomSubjectViewModel
+            {
+                Id = a.Id,
+                Classroom = _classroomRepo.FindById(a.ClassroomId).Name,
+                Classs = _classRepo.FindById(a.ClasssId).Name,
+                Day = a.Day,
+                Hour = a.Hour,
+                Name = a.Name,
+                Teacher = _teacherRepo.FindById(a.TeacherId).FullName,
+                ClassroomId = classroomId
+            }).ToPagedList(currentPage, 10);
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_ClassroomSubjectsList", subjects);
+            }
+
+            return View(subjects);
         }
 
         [Authorize]
@@ -99,7 +249,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            var subject = subjectRepo.FindById((int) id);
+            var subject = _subjectRepo.FindById((int)id);
 
             if (subject == null)
             {
@@ -108,41 +258,61 @@ namespace edziennik.Controllers
             var subjectVm = new SubjectViewModel
             {
                 Id = subject.Id,
-                Classroom = classroomRepo.FindById(subject.ClassroomId).Name,
-                Classs = classRepo.FindById(subject.ClasssId).Name,
+                Classroom = _classroomRepo.FindById(subject.ClassroomId).Name,
+                Classs = _classRepo.FindById(subject.ClasssId).Name,
                 Day = subject.Day,
                 Hour = subject.Hour,
                 Name = subject.Name,
-                Teacher = teacherRepo.FindById(subject.TeacherId).FullName
+                Teacher = _teacherRepo.FindById(subject.TeacherId).FullName
             };
 
             return View(subjectVm);
         }
-        
+
         [Authorize(Roles = "Admins")]
         public ActionResult Create()
         {
-            if(teacherRepo.GetAll().Count == 0)
+            if (_teacherRepo.GetAll().ToList().Count == 0)
             {
-                return RedirectToAction("Index", new{ error= SubjectCreateError.NoTeachers});
+                if (Request.IsAjaxRequest())
+                {
+                    ViewBag.Error = ConstantStrings.SubjectCreateNoTeachersError;
+                    return PartialView("_CreateError");
+                }
+
+                return RedirectToAction("Index", new { error = SubjectCreateError.NoTeachers });
             }
-            if (classRepo.GetAll().Count == 0)
+            if (_classRepo.GetAll().ToList().Count == 0)
             {
+                if (Request.IsAjaxRequest())
+                {
+                    ViewBag.Error = ConstantStrings.SubjectCreateNoClassesError;
+                    return PartialView("_CreateError");
+                }
+
                 return RedirectToAction("Index", new { error = SubjectCreateError.NoClasses });
             }
-            if (classroomRepo.GetAll().Count == 0)
+            if (_classroomRepo.GetAll().ToList().Count == 0)
             {
+                if (Request.IsAjaxRequest())
+                {
+                    ViewBag.Error = ConstantStrings.SubjectCreateNoClassroomsError;
+                    return PartialView("_CreateError");
+                }
                 return RedirectToAction("Index", new { error = SubjectCreateError.NoClassrooms });
             }
 
             var subjectVm = new SubjectCreateViewModel
             {
-                Classes = ConstantStrings.getClassesSL(),
-                Classrooms = ConstantStrings.getClassroomsSL(),
-                Days = ConstantStrings.getSchoolDaysSL(),
-                Hours = ConstantStrings.getSchoolHoursSL(),
-                Teachers = ConstantStrings.getTeachersSL()
+                Classes = ConstantStrings.GetClassesSl(),
+                Classrooms = ConstantStrings.GetClassroomsSl(),
+                Days = ConstantStrings.GetSchoolDaysSl(),
+                Hours = ConstantStrings.GetSchoolHoursSl(),
+                Teachers = ConstantStrings.GetTeachersSl()
             };
+
+            if (Request.IsAjaxRequest())
+                return JavaScript("window.location = '" + Url.Action("Create") + "'");
 
             return View(subjectVm);
         }
@@ -155,7 +325,9 @@ namespace edziennik.Controllers
         [Authorize(Roles = "Admins")]
         public ActionResult Create(SubjectCreateViewModel subjectVm)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return View(subjectVm);
+
+            if (IsClassroomFreeAtDate(subjectVm))
             {
                 var subject = new Subject
                 {
@@ -168,14 +340,24 @@ namespace edziennik.Controllers
                     TeacherId = subjectVm.TeacherId
                 };
 
-                subjectRepo.Insert(subject);
-                subjectRepo.Save();
-                Logs.SaveLog("Create", User.Identity.GetUserId(), 
-                             "Subject", subject.Id.ToString(), Request.UserHostAddress);
+                _subjectRepo.Insert(subject);
+                _subjectRepo.Save();
+                Logs.SaveLog("Create", User.Identity.GetUserId(),
+                    "Subject", subject.Id.ToString(), Request.UserHostAddress);
                 return RedirectToAction("Index");
             }
+            ModelState.AddModelError("","Wybrana sala jest zajęta wybranum terminie");
 
             return View(subjectVm);
+        }
+
+
+        private bool IsClassroomFreeAtDate(SubjectCreateViewModel subjectVm)
+        {
+            var subjects = _subjectRepo.FindByClassroomAndDate(subjectVm.ClassroomId, 
+                                                   (int)subjectVm.Day, subjectVm.Hour).ToList();
+            
+            return !subjects.Any();
         }
 
         [Authorize(Roles = "Admins")]
@@ -185,7 +367,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Subject subject = subjectRepo.FindById((int) id);
+            Subject subject = _subjectRepo.FindById((int)id);
             if (subject == null)
             {
                 return HttpNotFound();
@@ -193,11 +375,11 @@ namespace edziennik.Controllers
 
             var subjectVm = new SubjectCreateViewModel
             {
-                Classes = ConstantStrings.getClassesSL(),
-                Classrooms = ConstantStrings.getClassroomsSL(),
-                Days = ConstantStrings.getSchoolDaysSL(),
-                Hours = ConstantStrings.getSchoolHoursSL(),
-                Teachers = ConstantStrings.getTeachersSL(),
+                Classes = ConstantStrings.GetClassesSl(),
+                Classrooms = ConstantStrings.GetClassroomsSl(),
+                Days = ConstantStrings.GetSchoolDaysSl(),
+                Hours = ConstantStrings.GetSchoolHoursSl(),
+                Teachers = ConstantStrings.GetTeachersSl(),
                 ClassroomId = subject.ClassroomId,
                 ClasssId = subject.ClasssId,
                 Day = subject.Day,
@@ -228,9 +410,9 @@ namespace edziennik.Controllers
                     TeacherId = subjectVm.TeacherId
                 };
 
-                subjectRepo.Update(subject);
-                subjectRepo.Save();
-                Logs.SaveLog("Edit", User.Identity.GetUserId(), 
+                _subjectRepo.Update(subject);
+                _subjectRepo.Save();
+                Logs.SaveLog("Edit", User.Identity.GetUserId(),
                              "Subject", subject.Id.ToString(), Request.UserHostAddress);
                 return RedirectToAction("Index");
             }
@@ -245,7 +427,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Subject subject = subjectRepo.FindById((int) id);
+            Subject subject = _subjectRepo.FindById((int)id);
             if (subject == null)
             {
                 return HttpNotFound();
@@ -258,16 +440,41 @@ namespace edziennik.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            subjectRepo.Delete(id);
-            subjectRepo.Save();
+            _subjectRepo.Delete(id);
+            _subjectRepo.Save();
             Logs.SaveLog("Delete", User.Identity.GetUserId(),
                          "Subject", id.ToString(), Request.UserHostAddress);
             return RedirectToAction("Index");
         }
 
+        public ActionResult Hours(string classroom, string day)
+        {         
+            var hours = ConstantStrings.GetSchoolHoursSl();
+
+            int cr;
+            int  dy;
+            if (Int32.TryParse(classroom, out cr) && Int32.TryParse(day, out dy))
+            {
+                var subjects = _subjectRepo.FindByClassroomAndDay(cr, dy).ToList();
+                foreach (var t in subjects)
+                {
+                    for (int j = hours.Count - 1; j >= 0; j--)
+                    {
+                        if (t.Hour == Int32.Parse(hours[j].Value))
+                        {
+                            hours.Remove(hours[j]);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return Json(hours, JsonRequestBehavior.AllowGet);
+        }
+
         protected override void Dispose(bool disposing)
         {
-            subjectRepo.Dispose();
+            _subjectRepo.Dispose();
             base.Dispose(disposing);
         }
     }

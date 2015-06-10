@@ -1,32 +1,38 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using Models.Interfaces;
 using Models.Models;
-using System;
 
 namespace Repositories.Repositories
 {
-    public class SubjectRepository : ISubjectRepository, IDisposable
+    public class SubjectRepository : ISubjectRepository
     {
-        EDziennikContext db = new EDziennikContext();
-        public List<Subject> GetAll()
+        readonly EDziennikContext _db = new EDziennikContext();
+        public IQueryable<Subject> GetAll()
         {
-            return db.Subjects.ToList();
+            return _db.Subjects.AsNoTracking();
         }
+
+        public IQueryable<Subject> GetPage(int? page = 1, int? pageSize = 10)
+        {
+            var items = _db.Subjects.OrderByDescending(o => o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
+
+            return items;
+        } 
 
         public Subject FindById(int id)
         {
-            return db.Subjects.SingleOrDefault(a => a.Id == id);
+            return _db.Subjects.SingleOrDefault(a => a.Id == id);
         }
 
         public void Insert(Subject item)
         {
-            db.Subjects.Add(item);
+            _db.Subjects.Add(item);
         }
 
         public void Update(Subject item)
         {
-            var subject = db.Subjects.Single(a => a.Id == item.Id);
+            var subject = _db.Subjects.Single(a => a.Id == item.Id);
             subject.ClasssId = item.Id;
             subject.ClassroomId = item.ClassroomId;
             subject.Id = item.Id;
@@ -36,48 +42,64 @@ namespace Repositories.Repositories
 
         public void Delete(int id)
         {
-            var subject = db.Subjects.Single(a => a.Id == id);
-            db.Subjects.Remove(subject);
+            var subject = _db.Subjects.Single(a => a.Id == id);
+            _db.Subjects.Remove(subject);
         }
 
         public void Save()
         {
-            db.SaveChanges();
+            _db.SaveChanges();
         }
 
-        public List<Subject> FindByClassId(int classId)
+        public IQueryable<Subject> FindByClassroomAndDate(int classroomId, int day, int hour)
         {
-            var subjects = db.Subjects.Where(a => a.ClasssId == classId).ToList();
+            return _db.Subjects.Where(a => a.ClassroomId == classroomId 
+                                      && a.Day == ((SchoolDay)day) && a.Hour == hour);
+        }
+
+        public IQueryable<Subject> FindByClassroomAndDay(int classroomId, int day)
+        {
+           return _db.Subjects.Where(a => a.ClassroomId == classroomId && a.Day == ((SchoolDay)day));
+        }
+
+        public IQueryable<Subject> FindByClassroomId(int classroomId)
+        {
+            return _db.Subjects.Where(a => a.ClassroomId == classroomId);
+        }
+
+        public IQueryable<Subject> FindByClassId(int classId)
+        {
+            var subjects = _db.Subjects.Where(a => a.ClasssId == classId);
             
             return subjects;
         }
 
-        public List<Subject> FindByTeacherId(string teacherId)
+        public IQueryable<Subject> FindByTeacherId(string teacherId)
         {
-            var subjects = db.Subjects.Where(a => a.TeacherId == teacherId).ToList();
+            var subjects = _db.Subjects.Where(a => a.TeacherId == teacherId);
 
             return subjects;
         }
 
-        public List<Subject> FindByStudentId(string studentId)
+        public IQueryable<Subject> FindByStudentId(string studentId)
         {
-            var classId = db.Students.Single(a => a.Id == studentId).ClasssId;
-            var subjects = db.Subjects.Where(a => a.ClasssId == classId).ToList();
+            var classId = _db.Students.Single(a => a.Id == studentId).ClasssId;
+            var subjects = _db.Subjects.Where(a => a.ClasssId == classId);
 
             return subjects;
         }
 
-        private bool disposed = false;
+        private bool _disposed = false;
         protected virtual void Dispose(bool disposing)
         {
-            if (!this.disposed)
+            if (!_disposed)
             {
                 if (disposing)
                 {
-                    db.Dispose();
+                    _db.Dispose();
                 }
             }
-            this.disposed = true;
+            _disposed = true;
         }
 
         public void Dispose()

@@ -1,32 +1,39 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using Models.Interfaces;
 using Models.Models;
-using System;
 
 namespace Repositories.Repositories
 {
-    public class ClassroomRepository : IClassroomRepository, IDisposable
+    public class ClassroomRepository : IClassroomRepository
     {
-        EDziennikContext db = new EDziennikContext();
-        public List<Classroom> GetAll()
+        private readonly EDziennikContext _db = new EDziennikContext();
+
+        public IQueryable<Classroom> GetAll()
         {
-            return db.Classrooms.ToList();
+            return _db.Classrooms.AsNoTracking();
         }
+
+        public IQueryable<Classroom> GetPage(int? page = 1, int? pageSize = 10)
+        {
+            var items = _db.Classrooms.OrderByDescending(o=>o.Id).Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
+
+            return items;
+        } 
 
         public Classroom FindById(int id)
         {
-            return db.Classrooms.SingleOrDefault(a => a.Id == id);
+            return _db.Classrooms.SingleOrDefault(a => a.Id == id);
         }
 
         public void Insert(Classroom item)
         {
-            db.Classrooms.Add(item);
+            _db.Classrooms.Add(item);
         }
 
         public void Update(Classroom item)
         {
-            var classRoom = db.Classrooms.Single(a => a.Id == item.Id);
+            var classRoom = _db.Classrooms.Single(a => a.Id == item.Id);
             classRoom.Id = item.Id;
             classRoom.Name = item.Name;
             classRoom.Subjects = item.Subjects;
@@ -34,31 +41,31 @@ namespace Repositories.Repositories
 
         public void Delete(int id)
         {
-            var classRoom = db.Classrooms.Single(a => a.Id == id);
-            db.Classrooms.Remove(classRoom);
+            var classRoom = _db.Classrooms.Single(a => a.Id == id);
+            _db.Classrooms.Remove(classRoom);
         }
 
         public void Save()
         {
-            db.SaveChanges();
+            _db.SaveChanges();
         }
 
-        public List<Subject> GetSubjects(int classroomId)
+        public IQueryable<Subject> GetSubjects(int classroomId)
         {
-            return db.Subjects.Where(a => a.ClassroomId == classroomId).ToList();
+            return _db.Subjects.Where(a => a.ClassroomId == classroomId);
         }
 
-        private bool disposed = false;
+        private bool _disposed = false;
         protected virtual void Dispose(bool disposing)
         {
-            if (!this.disposed)
+            if (!_disposed)
             {
                 if (disposing)
                 {
-                    db.Dispose();
+                    _db.Dispose();
                 }
             }
-            this.disposed = true;
+            _disposed = true;
         }
 
         public void Dispose()

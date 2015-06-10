@@ -1,0 +1,29 @@
+﻿@model PagedList.IPagedList<Models.Models.Classroom>
+
+<table class="table">
+    <tr>
+        <th>
+            @Ajax.ActionLink("Nazwa", "Index", new { sortOrder = ViewBag.NameSort, page = Model.PageNumber },
+            new AjaxOptions
+            {
+                HttpMethod = "GET",
+                InsertionMode = InsertionMode.Replace,
+                UpdateTargetId = "ClassroomList"
+            }, null)
+        </th>
+        <th></th>
+
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.ActionLink("Edycja", "Edit", new { id = item.Id }, new { @class = "btn btn-warning" })
+                @Html.ActionLink("Szczegóły", "Details", new { id = item.Id }, new { @class = "btn btn-primary" })
+                @Html.ActionLink("Usuń", "Delete", new { id = item.Id }, new { @class = "btn btn-danger" })
+            </td>
+        </tr>
+        }
+    </table>

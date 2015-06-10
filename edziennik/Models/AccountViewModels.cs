@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
 
-
 namespace edziennik.Models
 {
     public class ExternalLoginConfirmationViewModel
@@ -52,6 +51,7 @@ namespace edziennik.Models
         public string UserName { get; set; }
         [Display(Name = "Email potwierdzony")]
         public bool EmailConfirmed { get; set; }
+        public string Role { get; set; }
     }
 
     public class UserDetailsViewModel : UserListItemViewModel
@@ -104,6 +104,19 @@ namespace edziennik.Models
         public bool RememberMe { get; set; }
     }
 
+    public class UserCreateViewModel
+    {
+        [Required(ErrorMessage = "Pole Login jest wymagane.")]
+        [Display(Name = "Login")]
+        public string Login { get; set; }
+
+        [Required(ErrorMessage = "Pole Email jest wymagane.")]
+        [EmailAddress]
+        [Display(Name = "Email")]
+        public string Email { get; set; }
+
+    }
+
     public class RegisterViewModel
     {
         [Required(ErrorMessage = "Pole Pesel jest wymagane.")]
@@ -113,13 +126,16 @@ namespace edziennik.Models
         public string Login { get; set; }
 
         [Required(ErrorMessage = "Pole Imię jest wymagane.")]
+        [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "Imię może składac się tylko z liter")]
         [StringLength(30, ErrorMessage = "{0} musi się składać minimum z {2} znaków.", MinimumLength = 2)]
         [Display(Name = "Imię")]
         public string FirstName { get; set; }
 
+        [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "Drugie imię może składac się tylko z liter")]
         [Display(Name = "Drugie imię")]
         public string SecondName { get; set; }
 
+        [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "Nazwisko może składac się tylko z liter")]
         [Required(ErrorMessage = "Pole Nazwisko jest wymagane.")]
         [StringLength(100, ErrorMessage = "{0} musi się składać minimum z {2} znaków.", MinimumLength = 2)]
         [Display(Name = "Nazwisko")]

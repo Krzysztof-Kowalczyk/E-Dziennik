@@ -1,0 +1,71 @@
+﻿@model PagedList.IPagedList<edziennik.Models.ViewModels.ClassroomSubjectViewModel>
+@{
+    var ajaxOptions = new AjaxOptions
+                     {
+                         HttpMethod = "GET",
+                         InsertionMode = InsertionMode.Replace,
+                         UpdateTargetId = "SubjectList"
+                     };
+}
+
+<table class="table">
+    <tr>
+        <th>
+            @Ajax.ActionLink("Nazwa", "ClassroomSubjects", new { sortOrder = ViewBag.NameSort, page = Model.PageNumber, classroomId = Model[0].ClassroomId }, ajaxOptions, null)
+        </th>
+        <th>
+            @Ajax.ActionLink("Nauczyciel", "ClassroomSubjects", new { sortOrder = ViewBag.TeacherSort, page = Model.PageNumber, classroomId = Model[0].ClassroomId }, ajaxOptions, null)
+        </th>
+        <th>
+            @Ajax.ActionLink("Klasa", "ClassroomSubjects", new { sortOrder = ViewBag.ClassSort, page = Model.PageNumber, classroomId = Model[0].ClassroomId }, ajaxOptions, null)
+        </th>
+        <th>
+            @Ajax.ActionLink("Sala", "ClassroomSubjects", new { sortOrder = ViewBag.ClassroomSort, page = Model.PageNumber, classroomId = Model[0].ClassroomId }, ajaxOptions, null)
+        </th>
+        <th>
+            @Ajax.ActionLink("Godzina zajęć", "ClassroomSubjects", new { sortOrder = ViewBag.HourSort, page = Model.PageNumber, classroomId = Model[0].ClassroomId }, ajaxOptions, null)
+        </th>
+        <th>
+            @Ajax.ActionLink("Dzień zajęć", "ClassroomSubjects", new { sortOrder = ViewBag.DaySort, page = Model.PageNumber, classroomId = Model[0].ClassroomId }, ajaxOptions, null)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Teacher)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Classs)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Classroom)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Hour)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Day)
+            </td>
+            <td>
+                @if (User.IsInRole("Admins") || User.IsInRole("Editors"))
+                {
+                    @Html.ActionLink("Edycja", "Edit", new { id = item.Id }, new { @class = "btn btn-warning" })
+                }
+                @Html.ActionLink("Szczegóły", "Details", new { id = item.Id }, new { @class = "btn btn-primary" })
+                @if (User.IsInRole("Admins") || User.IsInRole("Editors"))
+                {
+                    @Html.ActionLink("Usuń", "Delete", new { id = item.Id }, new { @class = "btn btn-danger" })
+                }
+            </td>
+        </tr>
+    }
+
+</table>
+
+

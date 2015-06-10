@@ -1,0 +1,55 @@
+﻿@using PagedList.Mvc
+@model PagedList.IPagedList<edziennik.Models.ViewModels.ClassroomSubjectViewModel>
+@section scripts{
+    @Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.min.js")
+}
+
+<link href="~/Content/PagedList.css" rel="stylesheet"
+      type="text/css" />
+
+@{
+    ViewBag.Title = "Index";
+}
+@if (Model.Any())
+{
+    <h2>Przedmioty sali: @Model[0].Classroom </h2>
+}
+else
+{
+    <br>
+}
+
+<div id="CreateError">
+    @Html.Partial("_CreateError")
+</div>
+
+@if (User.IsInRole("Admins"))
+{
+    <p>
+        @Ajax.ActionLink("Stwórz nowy", "Create", null,
+        new AjaxOptions
+        {
+            HttpMethod = "GET",
+            InsertionMode = InsertionMode.Replace,
+            UpdateTargetId = "CreateError"
+        },
+         new { @class = "btn btn-primary" })
+    </p>
+}
+
+@if (Model.Any())
+{
+    <div id="SubjectList">
+        @Html.Partial("_ClassroomSubjectsList")
+    </div>
+
+    @Html.PagedListPager(Model, page => Url.Action("ClassroomSubjects", new { page, pageSize = Model.PageSize, classId = Model[0].ClassroomId }))
+}
+else
+{
+    <br>
+    <p>Brak przedmiotów do wyswietlenia</p>
+}
+
+
+

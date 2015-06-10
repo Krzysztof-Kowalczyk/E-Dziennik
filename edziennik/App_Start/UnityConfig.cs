@@ -1,14 +1,12 @@
 using System;
-using System.Data.Entity;
-using edziennik.Controllers;
+using System.Web;
 using edziennik.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.Owin.Security;
 using Microsoft.Practices.Unity;
 using Models.Interfaces;
 using Repositories.Repositories;
-using Microsoft.Owin.Security;
-using System.Web;
 
 namespace edziennik.App_Start
 {

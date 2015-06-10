@@ -1,11 +1,14 @@
-﻿using edziennik.Resources;
-using Microsoft.AspNet.Identity;
-using Models.Models;
-using Repositories.Repositories;
+﻿using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using edziennik.Models.ViewModels;
+using edziennik.Resources;
+using Microsoft.AspNet.Identity;
+using Models.Models;
+using PagedList;
+using Repositories.Repositories;
 
 namespace edziennik.Controllers
 {
@@ -13,22 +16,75 @@ namespace edziennik.Controllers
     public class TeachersController : PersonController
     {
         private readonly TeacherRepository _teacherRepo;
-        private readonly ClasssRepository _classRepo;
-        private readonly SubjectRepository _subjectRepo;
 
-        public TeachersController(ApplicationUserManager userManager,TeacherRepository teacherRepo,
-                                  ClasssRepository classRepo, SubjectRepository subjectRepo )
+        public TeachersController(ApplicationUserManager userManager,TeacherRepository teacheRepo)
             :base(userManager)
         {
-            _teacherRepo = teacherRepo;
-            _classRepo = classRepo;
-            _subjectRepo = subjectRepo;
+            _teacherRepo = teacheRepo;
         }
 
         // GET: Teachers
-        public ActionResult Index()
-        {              
-            return View(_teacherRepo.GetAll());
+        public ActionResult Index(int? page, string sortOrder)
+        {
+            int currentPage = page ?? 1;
+            var items = SortItems(sortOrder);
+
+            var teacherPl = items.ToList().ToPagedList(currentPage, 10);
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_TeacherList", teacherPl);
+            }
+
+            return View(teacherPl);        
+        }
+
+        [NonAction]
+        private IQueryable<Teacher> SortItems(string sortOrder)
+        {
+            var items = _teacherRepo.GetAll();
+
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.IdSort = String.IsNullOrEmpty(sortOrder) ? "IdAsc" : "";
+            ViewBag.PeselSort = sortOrder == "PeselAsc" ? "Pesel" : "PeselAsc";
+            ViewBag.FirstNameSort = sortOrder == "FirstNameAsc" ? "FirstName" : "FirstNameAsc";
+            ViewBag.SecondNameSort = sortOrder == "SecondNameAsc" ? "SecondName" : "SecondNameAsc";
+            ViewBag.SurnameSort = sortOrder == "SurnameAsc" ? "Surname" : "SurnameAsc";
+
+            switch (sortOrder)
+            {
+                case "Pesel":
+                    items = items.OrderByDescending(s => s.Pesel);
+                    break;
+                case "PeselAsc":
+                    items = items.OrderBy(s => s.Pesel);
+                    break;
+                case "FirstName":
+                    items = items.OrderByDescending(s => s.FirstName);
+                    break;
+                case "FirstNameAsc":
+                    items = items.OrderBy(s => s.FirstName);
+                    break;
+                case "SecondName":
+                    items = items.OrderByDescending(s => s.SecondName);
+                    break;
+                case "SecondNameAsc":
+                    items = items.OrderBy(s => s.SecondName);
+                    break;
+                case "Surname":
+                    items = items.OrderByDescending(s => s.Surname);
+                    break;
+                case "SurnameAsc":
+                    items = items.OrderBy(s => s.Surname);
+                    break;
+                case "IdAsc":
+                    items = items.OrderBy(s => s.Id);
+                    break;
+                default:    // id descending
+                    items = items.OrderByDescending(s => s.Id);
+                    break;
+            }
+            return items;
         }
 
         // GET: Teachers/Details/5ff
@@ -43,15 +99,17 @@ namespace edziennik.Controllers
             {
                 return HttpNotFound();
             }
+            var user = UserManager.FindById(teacher.Id);
+            
             var teacherVm = new TeacherDetailsViewModel
             {
-                EmailConfirmed = userManager.FindById(teacher.Id).EmailConfirmed,
+                EmailConfirmed = user.EmailConfirmed,
                 FirstName = teacher.FirstName,
                 Id = teacher.Id,
                 Pesel = teacher.Pesel,
                 SecondName = teacher.SecondName,
-                Surname =  teacher.Surname
-
+                Surname =  teacher.Surname,
+                AvatarUrl = user.AvatarUrl
             };
             return View(teacherVm);
         }
@@ -106,16 +164,17 @@ namespace edziennik.Controllers
                 return HttpNotFound();
             }
 
+            var user = UserManager.FindById(teacher.Id);
             var teacherEditVm = new TeacherEditViewModel
             {
                 FirstName = teacher.FirstName,
-                Email = userManager.FindById(teacher.Id).Email,
+                Email = user.Email,
                 Id = teacher.Id,
                 Login = teacher.Pesel,
                 SecondName = teacher.SecondName,
                 Surname = teacher.Surname,
-                EmailConfirmed = userManager.FindById(teacher.Id).EmailConfirmed,
-                AvatarUrl = userManager.FindById(teacher.Id).AvatarUrl
+                EmailConfirmed = user.EmailConfirmed,
+                AvatarUrl = user.AvatarUrl
             };
 
             return View(teacherEditVm);
@@ -142,7 +201,7 @@ namespace edziennik.Controllers
                 _teacherRepo.Update(teacher);
                 _teacherRepo.Save();
                 
-                var user = await userManager.FindByIdAsync(teacherVm.Id);
+                var user = await UserManager.FindByIdAsync(teacherVm.Id);
                 await UpdateUser(user, teacher, teacherVm.Email,teacherVm.EmailConfirmed);
                 Logs.SaveLog("Edit", User.Identity.GetUserId(), 
                              "Teacher", teacher.Id, Request.UserHostAddress);
@@ -164,8 +223,6 @@ namespace edziennik.Controllers
             {
                 return HttpNotFound();
             }
-
-            if(_classRepo)
             return View(teacher);
         }
 
