@@ -12,18 +12,23 @@ namespace edziennik.Controllers
     [Authorize(Roles = "Admins")]
     public class TeachersController : PersonController
     {
-        private readonly TeacherRepository teacherRepo;
+        private readonly TeacherRepository _teacherRepo;
+        private readonly ClasssRepository _classRepo;
+        private readonly SubjectRepository _subjectRepo;
 
-        public TeachersController(ApplicationUserManager userManager,TeacherRepository _repo)
+        public TeachersController(ApplicationUserManager userManager,TeacherRepository teacherRepo,
+                                  ClasssRepository classRepo, SubjectRepository subjectRepo )
             :base(userManager)
         {
-            teacherRepo = _repo;
+            _teacherRepo = teacherRepo;
+            _classRepo = classRepo;
+            _subjectRepo = subjectRepo;
         }
 
         // GET: Teachers
         public ActionResult Index()
         {              
-            return View(teacherRepo.GetAll());
+            return View(_teacherRepo.GetAll());
         }
 
         // GET: Teachers/Details/5ff
@@ -33,7 +38,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Teacher teacher = teacherRepo.FindById(id);
+            Teacher teacher = _teacherRepo.FindById(id);
             if (teacher == null)
             {
                 return HttpNotFound();
@@ -78,8 +83,8 @@ namespace edziennik.Controllers
                     Surname = teacherVm.Surname,
                     Pesel = teacherVm.Login
                 };
-                teacherRepo.Insert(teacher);
-                teacherRepo.Save();
+                _teacherRepo.Insert(teacher);
+                _teacherRepo.Save();
                 Logs.SaveLog("Create", User.Identity.GetUserId(), 
                              "Teacher", teacher.Id, Request.UserHostAddress);
                 return RedirectToAction("Index");
@@ -95,7 +100,7 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Teacher teacher = teacherRepo.FindById(id);
+            Teacher teacher = _teacherRepo.FindById(id);
             if (teacher == null)
             {
                 return HttpNotFound();
@@ -134,8 +139,8 @@ namespace edziennik.Controllers
                     Surname = teacherVm.Surname
                 };
 
-                teacherRepo.Update(teacher);
-                teacherRepo.Save();
+                _teacherRepo.Update(teacher);
+                _teacherRepo.Save();
                 
                 var user = await userManager.FindByIdAsync(teacherVm.Id);
                 await UpdateUser(user, teacher, teacherVm.Email,teacherVm.EmailConfirmed);
@@ -154,11 +159,13 @@ namespace edziennik.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Teacher teacher = teacherRepo.FindById(id);
+            Teacher teacher = _teacherRepo.FindById(id);
             if (teacher == null)
             {
                 return HttpNotFound();
             }
+
+            if(_classRepo)
             return View(teacher);
         }
 
@@ -167,8 +174,8 @@ namespace edziennik.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(string id)
         {
-            teacherRepo.Delete(id);
-            teacherRepo.Save();
+            _teacherRepo.Delete(id);
+            _teacherRepo.Save();
             DeleteUser(id);
             Logs.SaveLog("Delete", User.Identity.GetUserId(), 
                          "Teacher", id, Request.UserHostAddress);
@@ -176,7 +183,7 @@ namespace edziennik.Controllers
         }
         protected override void Dispose(bool disposing)
         {
-            teacherRepo.Dispose();
+            _teacherRepo.Dispose();
             base.Dispose(disposing);
         }
 
