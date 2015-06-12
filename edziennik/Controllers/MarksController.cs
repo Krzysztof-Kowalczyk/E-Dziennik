@@ -12,7 +12,6 @@ using Repositories.Repositories;
 
 namespace edziennik.Controllers
 {
-    [Authorize(Roles = "Teachers")]
     public class MarksController : Controller
     {
         private readonly MarkRepository _markRepo;
@@ -37,7 +36,8 @@ namespace edziennik.Controllers
         public ActionResult Index(int? page, string sortOrder)
         {
             int currentPage = page ?? 1;
-            var items = SortItems(sortOrder);
+            var items = _markRepo.GetAll();
+            items = SortItems(sortOrder, items);
 
             var marks = items.ToList().Select(a=> new MarkListItemViewModel
                 {
@@ -59,10 +59,8 @@ namespace edziennik.Controllers
         }
 
         [NonAction]
-        private IQueryable<Mark> SortItems(string sortOrder)
+        private IQueryable<Mark> SortItems(string sortOrder, IQueryable<Mark> items)
         {
-            var items = _markRepo.GetAll();
-
             ViewBag.CurrentSort = sortOrder;
             ViewBag.IdSort = String.IsNullOrEmpty(sortOrder) ? "IdAsc" : "";
             ViewBag.StudentSort = sortOrder == "StudentAsc" ? "Student" : "StudentAsc";
@@ -107,10 +105,14 @@ namespace edziennik.Controllers
         }
        
         [Authorize(Roles = "Students, Teachers, Admins")]
-        public ActionResult StudentSubjectMarks(string studentId, int subjectId)
+        public ActionResult StudentSubjectMarks(string studentId, int subjectId, int? page, string sortOrder)
         {
-            var marks = _markRepo.FindByStudentIdAndSubjectId
-                                (studentId,subjectId).Select(a => new MarkListItemViewModel
+            
+            int currentPage = page ?? 1;
+            var items = _markRepo.FindByStudentId(studentId);
+                items = SortItems(sortOrder, items);
+            
+            var marks= items.ToList().Select(a => new MarkListItemViewModel
             {
                 Student = _studentRepo.FindById(a.StudentId).FullName,
                 Teacher = _teacherRepo.FindById(a.TeacherId).FullName,
@@ -119,12 +121,39 @@ namespace edziennik.Controllers
                 Classs = _classRepo.FindByMarkId(a.Id).Name,
                 Id = a.Id,
                 TeacherId = a.TeacherId
-            });
+            }).ToPagedList(currentPage, 10);
+
+            return View("Index", marks);
+        }
+
+        [Authorize(Roles = "Students")]
+        public ActionResult StudentMarks(string studentId, int subjectId, int? page, string sortOrder)
+        {
+            int currentPage = page ?? 1;
+            var items = _markRepo.FindByStudentIdAndSubjectId(studentId, subjectId);
+            items = SortItems(sortOrder, items);
+            var marks = items.ToList().Select(a => new StudentMarkListItemViewModel
+                                {
+                                    Student = _studentRepo.FindById(a.StudentId).FullName,
+                                    Teacher = _teacherRepo.FindById(a.TeacherId).FullName,
+                                    Subject = _subjectRepo.FindById(a.SubjectId).Name,
+                                    Value = a.Value,
+                                    Classs = _classRepo.FindByMarkId(a.Id).Name,
+                                    Id = a.Id,
+                                    TeacherId = a.TeacherId,
+                                    StudentId = a.StudentId,
+                                    SubjectId = a.SubjectId
+                                }).ToPagedList(currentPage, 10);
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_StudentMarkList",marks);
+            }
 
             return View(marks);
         }
 
-        [Authorize(Roles = "Teachers,Admins")]
+        [Authorize(Roles = "Teachers,Admins,Students")]
         public ActionResult Details(int? id)
         {
             if (id == null)

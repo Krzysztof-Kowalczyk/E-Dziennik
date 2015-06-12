@@ -56,7 +56,14 @@ namespace Repositories.Repositories
             return _db.Classes.Single(a => a.Id == student.ClasssId);
         }
 
-       public  Classs FindByMarkId(int markId)
+        public IQueryable<Classs> FindByTeacherId(string teacherId)
+        {
+            var classes = _db.Classes.Where(a => a.TeacherId == teacherId);
+
+            return classes;
+        }
+
+        public  Classs FindByMarkId(int markId)
         {
             var mark = _db.Marks.Single(a => a.Id == markId);
 

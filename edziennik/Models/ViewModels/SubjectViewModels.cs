@@ -57,6 +57,8 @@ namespace edziennik.Models.ViewModels
         [Display(Name = "Klasa")]
         public string Classs { get; set; }
 
+        public int ClassId { get; set; }
+
         [Display(Name = "Sala")]
         public string Classroom { get; set; }
 
@@ -81,7 +83,6 @@ namespace edziennik.Models.ViewModels
 
     public class ClassSubjectViewModel : SubjectViewModel
     {
-        public int ClassId { get; set; }
     }
 
     public class ClassroomSubjectViewModel : SubjectViewModel

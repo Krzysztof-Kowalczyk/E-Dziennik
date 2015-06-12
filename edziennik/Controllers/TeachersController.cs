@@ -16,16 +16,24 @@ namespace edziennik.Controllers
     public class TeachersController : PersonController
     {
         private readonly TeacherRepository _teacherRepo;
+        private readonly ClasssRepository _classRepo;
+        private readonly SubjectRepository _subjectRepo;
 
-        public TeachersController(ApplicationUserManager userManager,TeacherRepository teacheRepo)
-            :base(userManager)
+        public TeachersController(ApplicationUserManager userManager, TeacherRepository teacheRepo,
+                                  ClasssRepository classRepo, SubjectRepository subjectRepo)
+            : base(userManager)
         {
             _teacherRepo = teacheRepo;
+            _classRepo = classRepo;
+            _subjectRepo = subjectRepo;
         }
 
         // GET: Teachers
-        public ActionResult Index(int? page, string sortOrder)
+        public ActionResult Index(int? page, int? error, string sortOrder)
         {
+            if (error.HasValue)
+                ViewBag.Error = ConstantStrings.TeacherDeleteError;
+
             int currentPage = page ?? 1;
             var items = SortItems(sortOrder);
 
@@ -36,7 +44,7 @@ namespace edziennik.Controllers
                 return PartialView("_TeacherList", teacherPl);
             }
 
-            return View(teacherPl);        
+            return View(teacherPl);
         }
 
         [NonAction]
@@ -100,7 +108,7 @@ namespace edziennik.Controllers
                 return HttpNotFound();
             }
             var user = UserManager.FindById(teacher.Id);
-            
+
             var teacherVm = new TeacherDetailsViewModel
             {
                 EmailConfirmed = user.EmailConfirmed,
@@ -108,7 +116,7 @@ namespace edziennik.Controllers
                 Id = teacher.Id,
                 Pesel = teacher.Pesel,
                 SecondName = teacher.SecondName,
-                Surname =  teacher.Surname,
+                Surname = teacher.Surname,
                 AvatarUrl = user.AvatarUrl
             };
             return View(teacherVm);
@@ -130,9 +138,9 @@ namespace edziennik.Controllers
             if (ModelState.IsValid)
             {
                 var userid = await CreateUser(teacherVm, "Teachers");
-                
+
                 if (userid == "Error") return View(teacherVm);
-                
+
                 var teacher = new Teacher()
                 {
                     Id = userid,
@@ -143,7 +151,7 @@ namespace edziennik.Controllers
                 };
                 _teacherRepo.Insert(teacher);
                 _teacherRepo.Save();
-                Logs.SaveLog("Create", User.Identity.GetUserId(), 
+                Logs.SaveLog("Create", User.Identity.GetUserId(),
                              "Teacher", teacher.Id, Request.UserHostAddress);
                 return RedirectToAction("Index");
             }
@@ -200,10 +208,10 @@ namespace edziennik.Controllers
 
                 _teacherRepo.Update(teacher);
                 _teacherRepo.Save();
-                
+
                 var user = await UserManager.FindByIdAsync(teacherVm.Id);
-                await UpdateUser(user, teacher, teacherVm.Email,teacherVm.EmailConfirmed);
-                Logs.SaveLog("Edit", User.Identity.GetUserId(), 
+                await UpdateUser(user, teacher, teacherVm.Email, teacherVm.EmailConfirmed);
+                Logs.SaveLog("Edit", User.Identity.GetUserId(),
                              "Teacher", teacher.Id, Request.UserHostAddress);
 
                 return RedirectToAction("Index");
@@ -223,6 +231,19 @@ namespace edziennik.Controllers
             {
                 return HttpNotFound();
             }
+            if (_subjectRepo.FindByTeacherId(teacher.Id) != null ||
+                _classRepo.FindByTeacherId(teacher.Id) != null)
+            {
+
+                if (Request.IsAjaxRequest())
+                {
+                    ViewBag.Error = ConstantStrings.TeacherDeleteError;
+                    return PartialView("_CreateError");
+                }
+
+                return RedirectToAction("Index", new {error = 1});
+            }
+
             return View(teacher);
         }
 
@@ -234,7 +255,7 @@ namespace edziennik.Controllers
             _teacherRepo.Delete(id);
             _teacherRepo.Save();
             DeleteUser(id);
-            Logs.SaveLog("Delete", User.Identity.GetUserId(), 
+            Logs.SaveLog("Delete", User.Identity.GetUserId(),
                          "Teacher", id, Request.UserHostAddress);
             return RedirectToAction("Index");
         }

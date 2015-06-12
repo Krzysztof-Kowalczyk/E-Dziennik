@@ -1,5 +1,5 @@
 ﻿@using Microsoft.AspNet.Identity
-@model PagedList.IPagedList<edziennik.Models.ViewModels.MarkListItemViewModel>
+@model PagedList.IPagedList<edziennik.Models.ViewModels.StudentMarkListItemViewModel>
 @{
     var ajaxOptions = new AjaxOptions
                      {
@@ -12,19 +12,19 @@
 <table class="table">
     <tr>
         <th>
-            @Ajax.ActionLink("Klasa", "Index", new { sortOrder = ViewBag.ClassSort, page = Model.PageNumber }, ajaxOptions, null)
+            @Ajax.ActionLink("Klasa", "StudentMarks", new { sortOrder = ViewBag.ClassSort, page = Model.PageNumber, studentId = Model[0].StudentId, subjectId = Model[0].SubjectId }, ajaxOptions, null)
         </th>
         <th>
-            @Ajax.ActionLink("Uczeń", "Index", new { sortOrder = ViewBag.StudentSort, page = Model.PageNumber }, ajaxOptions, null)
+            @Ajax.ActionLink("Uczeń", "StudentMarks", new { sortOrder = ViewBag.StudentSort, page = Model.PageNumber, studentId = Model[0].StudentId, subjectId = Model[0].SubjectId }, ajaxOptions, null)
         </th>
         <th>
-            @Ajax.ActionLink("Nauczyciel", "Index", new { sortOrder = ViewBag.TeacherSort, page = Model.PageNumber }, ajaxOptions, null)
+            @Ajax.ActionLink("Nauczyciel", "StudentMarks", new { sortOrder = ViewBag.TeacherSort, page = Model.PageNumber, studentId = Model[0].StudentId, subjectId = Model[0].SubjectId }, ajaxOptions, null)
         </th>
         <th>
-            @Ajax.ActionLink("Przedmiot", "Index", new { sortOrder = ViewBag.SubjectSort, page = Model.PageNumber }, ajaxOptions, null)
+            @Ajax.ActionLink("Przedmiot", "StudentMarks", new { sortOrder = ViewBag.SubjectSort, page = Model.PageNumber, studentId = Model[0].StudentId, subjectId = Model[0].SubjectId }, ajaxOptions, null)
         </th>
         <th>
-            @Ajax.ActionLink("Ocena", "Index", new { sortOrder = ViewBag.ValueSort, page = Model.PageNumber }, ajaxOptions, null)
+            @Ajax.ActionLink("Ocena", "StudentMarks", new { sortOrder = ViewBag.ValueSort, page = Model.PageNumber, studentId = Model[0].StudentId, subjectId = Model[0].SubjectId }, ajaxOptions, null)
         </th>
         <th></th>
     </tr>
@@ -48,12 +48,12 @@
                 @Html.DisplayFor(modelItem => item.Value)
             </td>
             <td>
-                @if (User.IsInRole("Admins") || User.Identity.GetUserId() == item.TeacherId)
+                @if (User.IsInRole("Teachers") || User.Identity.GetUserId() == item.TeacherId)
                 {
                     @Html.ActionLink("Edycja", "Edit", new { id = item.Id }, new { @class = "btn btn-warning" })
                 }
                 @Html.ActionLink("Szczegóły", "Details", new { id = item.Id }, new { @class = "btn btn-primary" })
-                @if (User.IsInRole("Admins") || User.Identity.GetUserId() == item.TeacherId)
+                @if (User.IsInRole("Teachers") || User.Identity.GetUserId() == item.TeacherId)
                 {
                     @Html.ActionLink("Usuń", "Delete", new { id = item.Id }, new { @class = "btn btn-danger" })
                 }

@@ -26,9 +26,8 @@ namespace edziennik.Controllers
         // GET: Classses
         public ActionResult Index(int? page, int? error, string sortOrder)
         {
-            if (error.HasValue)
+            if (error.HasValue && error == 1)
                 ViewBag.Error = ConstantStrings.ClassCreateError;
-
 
             int currentPage = page ?? 1;
             var items = SortItems(sortOrder);

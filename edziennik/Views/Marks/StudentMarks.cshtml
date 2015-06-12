@@ -1,0 +1,29 @@
+﻿@using PagedList.Mvc
+@model PagedList.IPagedList<edziennik.Models.ViewModels.StudentMarkListItemViewModel>
+@section scripts{
+    @Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.min.js")
+}
+
+<link href="~/Content/PagedList.css" rel="stylesheet"
+      type="text/css" />
+
+@{
+    ViewBag.Title = "Index";
+}
+
+@if (Model.Any())
+{
+    <h2>Index</h2>
+
+    <div id="MarkList">
+        @Html.Partial("_StudentMarkList")
+    </div>
+
+    @Html.PagedListPager(Model, page => Url.Action("StudentMarks", new {page, pageSize = Model.PageSize, studentId = Model[0].StudentId, sujectId = Model[0].SubjectId}))
+
+}
+else
+{
+    <br/>
+    <p>Brak ocen do wyświetlenia</p>
+}

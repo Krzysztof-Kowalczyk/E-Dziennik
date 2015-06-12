@@ -57,7 +57,14 @@ namespace Repositories.Repositories
             return marks;
         }
 
-                private bool _disposed = false;
+        public IQueryable<Mark> FindByStudentId(string studentId)
+        {
+            var marks = _db.Marks.Where(a => a.StudentId == studentId);
+
+            return marks;
+        }
+
+        private bool _disposed = false;
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposed)

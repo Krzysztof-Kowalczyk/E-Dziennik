@@ -263,7 +263,8 @@ namespace edziennik.Controllers
                 Day = subject.Day,
                 Hour = subject.Hour,
                 Name = subject.Name,
-                Teacher = _teacherRepo.FindById(subject.TeacherId).FullName
+                Teacher = _teacherRepo.FindById(subject.TeacherId).FullName,
+                ClassId = subject.ClasssId
             };
 
             return View(subjectVm);

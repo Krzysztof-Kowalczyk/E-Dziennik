@@ -78,14 +78,17 @@
     <label>Lista ocen</label>
     @foreach (var mark in Model.Marks)
     {
-
         var name = mark.Subject + " " + mark.Teacher + " " + mark.Value;
         <p>@i. @name</p>
         i++;
     }
 </div>
 <p>
-    @Html.ActionLink("Przedmioty", "StudentSubjects","Subjects", new { studentId = Model.Id }, new { @class = "btn btn-info" })
+    @if (User.IsInRole("Teachers"))
+    {
+        @Html.ActionLink("Oceny", "StudentMarks", "Marks", new {studentId = Model.Id}, new {@class = "btn btn-info"})
+    }
+    @Html.ActionLink("Przedmioty", "StudentSubjects", "Subjects", new {studentId = Model.Id}, new {@class = "btn btn-info"})
     @if (User.IsInRole("Admins") || User.IsInRole("Editors"))
     {
         @Html.ActionLink("Edycja", "Edit", new {id = Model.Id}, new {@class = "btn btn-warning"})

@@ -43,7 +43,14 @@
             <td>
                 @Html.ActionLink("Edycja", "Edit", new { id = item.Id }, new { @class = "btn btn-warning" })
                 @Html.ActionLink("Szczegóły", "Details", new { id = item.Id }, new { @class = "btn btn-primary" })
-                @Html.ActionLink("Usuń", "Delete", new { id = item.Id }, new { @class = "btn btn-danger" })
+                @Ajax.ActionLink("Usuń", "Delete", new { id = item.Id },
+                     new AjaxOptions
+                    {
+                        HttpMethod = "GET",
+                        InsertionMode = InsertionMode.Replace,
+                        UpdateTargetId = "CreateError"
+                    },
+                    new { @class = "btn btn-danger" })
             </td>
         </tr>
     }

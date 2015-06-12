@@ -170,7 +170,7 @@ namespace edziennik.Controllers
                 Marks = markVm,
                 CellPhoneNumber = student.CellPhoneNumber,
                 EmailConfirmed = user.EmailConfirmed,
-                AvatarUrl = user.AvatarUrl
+                AvatarUrl = user.AvatarUrl,
             };
             return View(studentVm);
         }

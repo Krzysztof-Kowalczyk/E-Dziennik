@@ -60,6 +60,13 @@ namespace edziennik.Models.ViewModels
 
     }
 
+    public class StudentMarkListItemViewModel : MarkListItemViewModel
+    {
+        public string StudentId { get; set; }
+
+        public int SubjectId { get; set; }
+    }
+
     public class MarkDetailsViewModel : MarkListItemViewModel
     {
         [Display(Name = "Opis")]
