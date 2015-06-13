@@ -2,7 +2,6 @@
 
 @{
     ViewBag.Title = "Szczegóły";
-    var i = 1;
 }
 
 <h2>Szczegóły</h2>
@@ -36,14 +35,6 @@
         </dd>
 
     </dl>
-    @*<label>Lista uczniów</label>
-    @foreach (var student in Model.Students)
-    {
-        
-        var name = student.FirstName + " " + student.SecondName + " " + student.Surname;
-        <p>@i. @name</p>
-        i++;
-    }*@
 </div>
 <p>
     @Html.ActionLink("Lista uczniów", "ClassStudents","Students", new { classId = Model.Id }, new { @class = "btn btn-info" })
