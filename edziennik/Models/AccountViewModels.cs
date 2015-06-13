@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Web.Mvc;
+using edziennik.Validators;
 
 namespace edziennik.Models
 {
@@ -121,22 +122,22 @@ namespace edziennik.Models
     {
         [Required(ErrorMessage = "Pole Pesel jest wymagane.")]
         [Display(Name = "Pesel")]       
-        //[Pesel (ErrorMessage = "Wprowadzono nieprawidłowy numer pesel")]
-        //[UniquePesel(ErrorMessage = "Podany numer pesel już istnieje ")]
+        [Pesel (ErrorMessage = "Wprowadzono nieprawidłowy numer pesel")]
+        [UniquePesel(ErrorMessage = "Podany numer pesel już istnieje ")]
         public string Login { get; set; }
 
         [Required(ErrorMessage = "Pole Imię jest wymagane.")]
-        [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "Imię może składac się tylko z liter")]
+        [RegularExpression(@"^[a-zA-Z ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+$", ErrorMessage = "Imię może składac się tylko z liter")]
         [StringLength(30, ErrorMessage = "{0} musi się składać minimum z {2} znaków.", MinimumLength = 2)]
         [Display(Name = "Imię")]
         public string FirstName { get; set; }
 
-        [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "Drugie imię może składac się tylko z liter")]
+        [RegularExpression(@"^[a-zA-Z ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+$", ErrorMessage = "Imię może składac się tylko z liter")]
         [Display(Name = "Drugie imię")]
         public string SecondName { get; set; }
 
-        [RegularExpression(@"^[a-zA-Z]+$", ErrorMessage = "Nazwisko może składac się tylko z liter")]
         [Required(ErrorMessage = "Pole Nazwisko jest wymagane.")]
+        [RegularExpression(@"^[a-zA-Z ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+$", ErrorMessage = "Imię może składac się tylko z liter")]
         [StringLength(100, ErrorMessage = "{0} musi się składać minimum z {2} znaków.", MinimumLength = 2)]
         [Display(Name = "Nazwisko")]
         public string Surname { get; set; }

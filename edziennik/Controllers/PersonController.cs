@@ -64,7 +64,7 @@ namespace edziennik.Controllers
 
             var callbackUrl = Url.Action(
 
-                "ConfirmEmails",
+                "ConfirmEmail",
 
                 "Account",
 
