@@ -13,17 +13,19 @@
 
 @if (Model.Any())
 {
-    <h2>Index</h2>
+    <h2>Oceny ucznia: @Model[0].Student</h2>
+    
+    <h4>@Html.DisplayNameFor(model => model[0].AverageGrade): @Html.DisplayFor(model => model[0].AverageGrade)</h4>
 
     <div id="MarkList">
         @Html.Partial("_StudentMarkList")
     </div>
 
-    @Html.PagedListPager(Model, page => Url.Action("StudentMarks", new {page, pageSize = Model.PageSize, studentId = Model[0].StudentId}))
+    @Html.PagedListPager(Model, page => Url.Action("StudentSubjectMarks", new { page, pageSize = Model.PageSize, studentId = Model[0].StudentId, sujectId = Model[0].SubjectId }))
 
 }
 else
 {
-    <br/>
+    <br />
     <p>Brak ocen do wyświetlenia</p>
 }

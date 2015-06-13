@@ -4,11 +4,11 @@ using System.Web.Mvc;
 
 namespace edziennik.Models.ViewModels
 {
-    public class MarkCreateViewModel
+    public class MarkCreateForSubjectViewModel
     {
         public int Id { get; set; }
 
-        [Display(Name = "Wartość")]
+        [Display(Name = "Ocena")]
         [Required]
         public double Value { get; set; }
 
@@ -16,7 +16,7 @@ namespace edziennik.Models.ViewModels
         [Required]
         public string StudentId { get; set; }
 
-        [Display(Name = "Id przedmiotu")]
+        [Display(Name = "Nazwa przedmiotu")]
         [Required]
         public int SubjectId { get; set; }
 
@@ -28,9 +28,13 @@ namespace edziennik.Models.ViewModels
         [Required]
         public string Description { get; set; }
 
-        public List<SelectListItem> Subjects { get; set; }
-
         public List<SelectListItem> Values { get; set; }
+        
+    }
+
+    public class MarkCreateViewModel : MarkCreateForSubjectViewModel
+    {
+       public List<SelectListItem> Subjects { get; set; }
     }
 
     public class MarkViewModel
@@ -65,6 +69,9 @@ namespace edziennik.Models.ViewModels
         public string StudentId { get; set; }
 
         public int SubjectId { get; set; }
+
+        [Display(Name = "Średnia")]
+        public double AverageGrade { get; set; }
     }
 
     public class MarkDetailsViewModel : MarkListItemViewModel

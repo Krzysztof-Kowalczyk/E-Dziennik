@@ -12,19 +12,19 @@
 <table class="table">
     <tr>
         <th>
-            @Ajax.ActionLink("Klasa", "StudentMarks", new { sortOrder = ViewBag.ClassSort, page = Model.PageNumber, studentId = Model[0].StudentId }, ajaxOptions, null)
+            @Ajax.ActionLink("Klasa", "StudentSubjectMarks", new { sortOrder = ViewBag.ClassSort, page = Model.PageNumber, studentId = Model[0].StudentId, subjectId = Model[0].SubjectId }, ajaxOptions, null)
         </th>
         <th>
-            @Ajax.ActionLink("Uczeń", "StudentMarks", new { sortOrder = ViewBag.StudentSort, page = Model.PageNumber, studentId = Model[0].StudentId }, ajaxOptions, null)
+            @Ajax.ActionLink("Uczeń", "StudentSubjectMarks", new { sortOrder = ViewBag.StudentSort, page = Model.PageNumber, studentId = Model[0].StudentId, subjectId = Model[0].SubjectId }, ajaxOptions, null)
         </th>
         <th>
-            @Ajax.ActionLink("Nauczyciel", "StudentMarks", new { sortOrder = ViewBag.TeacherSort, page = Model.PageNumber, studentId = Model[0].StudentId }, ajaxOptions, null)
+            @Ajax.ActionLink("Nauczyciel", "StudentSubjectMarks", new { sortOrder = ViewBag.TeacherSort, page = Model.PageNumber, studentId = Model[0].StudentId, subjectId = Model[0].SubjectId }, ajaxOptions, null)
         </th>
         <th>
-            @Ajax.ActionLink("Przedmiot", "StudentMarks", new { sortOrder = ViewBag.SubjectSort, page = Model.PageNumber, studentId = Model[0].StudentId }, ajaxOptions, null)
+            @Ajax.ActionLink("Przedmiot", "StudentSubjectMarks", new { sortOrder = ViewBag.SubjectSort, page = Model.PageNumber, studentId = Model[0].StudentId, subjectId = Model[0].SubjectId }, ajaxOptions, null)
         </th>
         <th>
-            @Ajax.ActionLink("Ocena", "StudentMarks", new { sortOrder = ViewBag.ValueSort, page = Model.PageNumber, studentId = Model[0].StudentId, subjectId = Model[0].SubjectId }, ajaxOptions, null)
+            @Ajax.ActionLink("Ocena", "StudentSubjectMarks", new { sortOrder = ViewBag.ValueSort, page = Model.PageNumber, studentId = Model[0].StudentId, subjectId = Model[0].SubjectId }, ajaxOptions, null)
         </th>
         <th></th>
     </tr>
@@ -62,3 +62,4 @@
     }
 
 </table>
+

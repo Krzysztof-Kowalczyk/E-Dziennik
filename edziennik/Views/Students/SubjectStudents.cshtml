@@ -1,0 +1,42 @@
+﻿@using PagedList.Mvc
+@model PagedList.IPagedList<edziennik.Models.ViewModels.SubjectStudentViewModel>
+@section scripts{
+    @Scripts.Render("~/Scripts/jquery.unobtrusive-ajax.min.js")
+}
+
+<link href="~/Content/PagedList.css" rel="stylesheet"
+      type="text/css" />
+
+@{
+    ViewBag.Title = "Index";
+}
+
+@if (Model.Any())
+{
+    <h2>Uczniowie na przedmiocie: @Model[0].SubjectName</h2>
+}
+else
+{
+    <br>
+}
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger" role="alert">@Html.Raw(ViewBag.Error)</div>
+}
+
+
+@if (Model.Any())
+{
+    <div id="StudentList">
+        @Html.Partial("_SubjectStudentList")
+    </div>
+
+    @Html.PagedListPager(Model, page => Url.Action("ClassStudents", new { page, pageSize = Model.PageSize, subjectId = Model[0].SubjectId }))
+}
+else
+{
+    <br />
+    <p>Brak uczniów do wyświetlenia</p>
+}
+

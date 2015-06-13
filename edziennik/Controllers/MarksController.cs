@@ -20,7 +20,7 @@ namespace edziennik.Controllers
         private readonly SubjectRepository _subjectRepo;
         private readonly ClasssRepository _classRepo;
 
-        public MarksController(MarkRepository markRepo, StudentRepository studentRepo, 
+        public MarksController(MarkRepository markRepo, StudentRepository studentRepo,
                                TeacherRepository teacherRepo, SubjectRepository subjectRepo,
                                ClasssRepository classRepo)
         {
@@ -39,13 +39,13 @@ namespace edziennik.Controllers
             var items = _markRepo.GetAll();
             items = SortItems(sortOrder, items);
 
-            var marks = items.ToList().Select(a=> new MarkListItemViewModel
+            var marks = items.ToList().Select(a => new MarkListItemViewModel
                 {
                     Student = _studentRepo.FindById(a.StudentId).FullName,
                     Teacher = _teacherRepo.FindById(a.TeacherId).FullName,
                     Subject = _subjectRepo.FindById(a.SubjectId).Name,
-                    Value   = a.Value,
-                    Classs  = _classRepo.FindByMarkId(a.Id).Name,
+                    Value = a.Value,
+                    Classs = _classRepo.FindByMarkId(a.Id).Name,
                     Id = a.Id,
                     TeacherId = a.TeacherId
                 }).ToPagedList(currentPage, 10);
@@ -54,7 +54,7 @@ namespace edziennik.Controllers
             {
                 return PartialView("_MarkList", marks);
             }
-           
+
             return View(marks);
         }
 
@@ -103,16 +103,16 @@ namespace edziennik.Controllers
             }
             return items;
         }
-       
+
         [Authorize(Roles = "Students, Teachers, Admins")]
         public ActionResult StudentSubjectMarks(string studentId, int subjectId, int? page, string sortOrder)
         {
-            
+
             int currentPage = page ?? 1;
-            var items = _markRepo.FindByStudentId(studentId);
-                items = SortItems(sortOrder, items);
-            
-            var marks= items.ToList().Select(a => new MarkListItemViewModel
+            var items = _markRepo.FindByStudentIdAndSubjectId(studentId, subjectId);
+
+            items = SortItems(sortOrder, items);
+            var marks = items.ToList().Select(a => new StudentMarkListItemViewModel
             {
                 Student = _studentRepo.FindById(a.StudentId).FullName,
                 Teacher = _teacherRepo.FindById(a.TeacherId).FullName,
@@ -120,17 +120,27 @@ namespace edziennik.Controllers
                 Value = a.Value,
                 Classs = _classRepo.FindByMarkId(a.Id).Name,
                 Id = a.Id,
-                TeacherId = a.TeacherId
+                TeacherId = a.TeacherId,
+                StudentId = a.StudentId,
+                SubjectId = a.SubjectId,
+                AverageGrade = items.Sum(b=>b.Value)/items.Count() 
+                
             }).ToPagedList(currentPage, 10);
 
-            return View("Index", marks);
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_StudentMarkList", marks);
+            }
+
+            return View(marks);
         }
 
-        [Authorize(Roles = "Students")]
-        public ActionResult StudentMarks(string studentId, int subjectId, int? page, string sortOrder)
+        [Authorize(Roles = "Students,Teachers,Admins")]
+        public ActionResult StudentMarks(string studentId, int? page, string sortOrder)
         {
             int currentPage = page ?? 1;
-            var items = _markRepo.FindByStudentIdAndSubjectId(studentId, subjectId);
+            var items = _markRepo.FindByStudentId(studentId);
             items = SortItems(sortOrder, items);
             var marks = items.ToList().Select(a => new StudentMarkListItemViewModel
                                 {
@@ -147,7 +157,7 @@ namespace edziennik.Controllers
 
             if (Request.IsAjaxRequest())
             {
-                return PartialView("_StudentMarkList",marks);
+                return PartialView("_StudentMarkList", marks);
             }
 
             return View(marks);
@@ -194,7 +204,7 @@ namespace edziennik.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             var subjects = ConstantStrings.GetStudentSubjectsSl(student.ClasssId, User.Identity.GetUserId());
-            if(!subjects.Any())
+            if (!subjects.Any())
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
@@ -230,14 +240,73 @@ namespace edziennik.Controllers
                 if (_studentRepo.FindById(markVm.StudentId).CellPhoneNumber != null)
                 {
                     var number = _studentRepo.FindById(markVm.StudentId).CellPhoneNumber;
-                    SmsSender.SendSms(markVm,number);
+                    SmsSender.SendSms(markVm, number);
                 }
-                Logs.SaveLog("Create", User.Identity.GetUserId(), 
+                Logs.SaveLog("Create", User.Identity.GetUserId(),
                              "Mark", mark.Id.ToString(), Request.UserHostAddress);
 
-                return RedirectToAction("Index");
+                return RedirectToAction("StudentSubjectMarks",new{studentId=mark.StudentId, subjectId=mark.SubjectId});
             }
-           
+
+            return View(markVm);
+        }
+
+        public ActionResult CreateForSubject(string studentId, int subjectId)
+        {
+            if (studentId == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            var student = _studentRepo.FindById(studentId);
+            if (student == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            var subjects = ConstantStrings.GetStudentSubjectsSl(student.ClasssId, User.Identity.GetUserId());
+            if (!subjects.Any())
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            var markVm = new MarkCreateForSubjectViewModel
+            {
+                StudentId = studentId,
+                TeacherId = User.Identity.GetUserId(),
+                SubjectId = subjectId,
+                Values = ConstantStrings.GetMarksSl()
+            };
+
+            return View(markVm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CreateForSubject(MarkCreateForSubjectViewModel markVm)
+        {
+            if (ModelState.IsValid)
+            {
+                var mark = new Mark
+                {
+                    Description = markVm.Description,
+                    Id = markVm.Id,
+                    StudentId = markVm.StudentId,
+                    SubjectId = markVm.SubjectId,
+                    TeacherId = markVm.TeacherId,
+                    Value = markVm.Value
+                };
+
+                _markRepo.Insert(mark);
+                _markRepo.Save();
+                if (_studentRepo.FindById(markVm.StudentId).CellPhoneNumber != null)
+                {
+                    var number = _studentRepo.FindById(markVm.StudentId).CellPhoneNumber;
+                    SmsSender.SendSms(markVm, number);
+                }
+                Logs.SaveLog("Create", User.Identity.GetUserId(),
+                             "Mark", mark.Id.ToString(), Request.UserHostAddress);
+
+                return RedirectToAction("StudentSubjectMarks",new{studentId=mark.StudentId, subjectId=mark.SubjectId});
+            }
+
             return View(markVm);
         }
 
@@ -321,10 +390,10 @@ namespace edziennik.Controllers
                 Value = mark.Value,
                 Classs = _classRepo.FindByMarkId(mark.Id).Name,
                 Id = mark.Id,
-                TeacherId= mark.TeacherId,
+                TeacherId = mark.TeacherId,
                 Description = mark.Description
             };
-            
+
             return View(markVm);
         }
 
@@ -337,7 +406,7 @@ namespace edziennik.Controllers
             _markRepo.Save();
             Logs.SaveLog("Delete", User.Identity.GetUserId(),
                          "Mark", id.ToString(), Request.UserHostAddress);
-            
+
             return RedirectToAction("Index");
         }
 

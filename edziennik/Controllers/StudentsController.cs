@@ -90,6 +90,71 @@ namespace edziennik.Controllers
             return View(students);
         }
 
+        public ActionResult TeacherClassStudents(int? page, int? error, string sortOrder, string teacherId)
+        {
+            if (teacherId == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
+            if (error.HasValue)
+                ViewBag.Error = ConstantStrings.StudentCreateNoClassesError;
+
+            int currentPage = page ?? 1;
+
+            var items = _studentRepo.FindByTutorId(teacherId);
+
+            items = SortItems(sortOrder, items);
+
+            var students = items.ToList().Select(a => new TeacherClassStudentViewModel
+            {
+                FirstName = a.FirstName,
+                SecondName = a.SecondName,
+                Surname = a.Surname,
+                ClassName = _classRepo.FindById(a.ClasssId).Name,
+                Pesel = a.Pesel,
+                Id = a.Id,
+                TeacherId = teacherId
+            }).ToPagedList(currentPage, 10);
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_ClassStudentList", students);
+            }
+
+            return View(students);
+        }
+
+        public ActionResult SubjectStudents(int? page, int? error, string sortOrder, int? subjectId)
+        {
+            if (subjectId == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+
+            if (error.HasValue)
+                ViewBag.Error = ConstantStrings.StudentCreateNoClassesError;
+
+            int currentPage = page ?? 1;
+
+            var items = _studentRepo.FindBySubjectId((int)subjectId);
+            items = SortItems(sortOrder, items);
+
+            var students = items.ToList().Select(a => new SubjectStudentViewModel
+            {
+                FirstName = a.FirstName,
+                SecondName = a.SecondName,
+                Surname = a.Surname,
+                ClassName = _classRepo.FindById(a.ClasssId).Name,
+                Pesel = a.Pesel,
+                Id = a.Id,
+                SubjectId = (int)subjectId,
+                SubjectName = _subjectRepo.FindById((int)subjectId).Name
+
+            }).ToPagedList(currentPage, 10);
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_StudentStudentList", students);
+            }
+
+            return View(students);
+        }
+
         [NonAction]
         private IQueryable<Student> SortItems(string sortOrder, IQueryable<Student> items)
         {

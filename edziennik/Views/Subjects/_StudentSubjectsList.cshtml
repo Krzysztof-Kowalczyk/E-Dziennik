@@ -53,9 +53,9 @@
                 @Html.DisplayFor(modelItem => item.Day)
             </td>
             <td>
-                @if (User.IsInRole("Students"))
+                @if (User.IsInRole("Students") || User.IsInRole("Teachers") || User.IsInRole("Admins"))
                 {
-                    @Html.ActionLink("Oceny", "StudentMarks", "Marks", new {subjectId = item.Id, studentId = item.StudentId}, new {@class = "btn btn-warning"})
+                    @Html.ActionLink("Oceny", "StudentSubjectMarks", "Marks", new {subjectId = item.Id, studentId = item.StudentId}, new {@class = "btn btn-warning"})
                 }
                 @if (User.IsInRole("Admins") || User.IsInRole("Editors"))
                 {

@@ -65,6 +65,6 @@
     {
         @Html.ActionLink("Edycja", "Edit", new {id = Model.Id}, new {@class = "btn btn-warning"})
     }
-    @Html.ActionLink("Lista uczniów", "ClassStudents", "Students", new { classId = Model.ClassId }, new { @class = "btn btn-info" })
+    @Html.ActionLink("Lista uczniów", "SubjectStudents", "Students", new { subjectId = Model.Id }, new { @class = "btn btn-info" })
     @Html.ActionLink("Powrót do listy", "Index", null, new { @class = "btn btn-primary" })
 </p>

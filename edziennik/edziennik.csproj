@@ -335,6 +335,13 @@
     <Content Include="Views\Subjects\_ClassroomSubjectsList.cshtml" />
     <Content Include="Views\Marks\_StudentMarkList.cshtml" />
     <Content Include="Views\Marks\StudentMarks.cshtml" />
+    <Content Include="Views\Students\SubjectStudents.cshtml" />
+    <Content Include="Views\Students\_SubjectStudentList.cshtml" />
+    <Content Include="Views\Marks\CreateForSubject.cshtml" />
+    <Content Include="Views\Marks\StudentSubjectMarks.cshtml" />
+    <Content Include="Views\Marks\_StudentSubjectMarkList.cshtml" />
+    <Content Include="Views\Students\TeacherClassStudents.cshtml" />
+    <Content Include="Views\Students\_TeacherClassStudentList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -53,14 +53,15 @@
                 @Html.DisplayFor(modelItem => item.Day)
             </td>
             <td>
+                @Html.ActionLink("Lista uczniów", "SubjectStudents","Students", new { subjectId = item.Id }, new { @class = "btn btn-primary" })
                 @if (User.IsInRole("Admins") || User.IsInRole("Editors"))
                 {
-                    @Html.ActionLink("Edycja", "Edit", new { id = item.Id }, new { @class = "btn btn-warning" })
+                    @Html.ActionLink("Edycja", "Edit", new {id = item.Id}, new {@class = "btn btn-warning"})
                 }
-                @Html.ActionLink("Szczegóły", "Details", new { id = item.Id }, new { @class = "btn btn-primary" })
+                @Html.ActionLink("Szczegóły", "Details", new {id = item.Id}, new {@class = "btn btn-primary"})
                 @if (User.IsInRole("Admins") || User.IsInRole("Editors"))
                 {
-                    @Html.ActionLink("Usuń", "Delete", new { id = item.Id }, new { @class = "btn btn-danger" })
+                    @Html.ActionLink("Usuń", "Delete", new {id = item.Id}, new {@class = "btn btn-danger"})
                 }
             </td>
         </tr>

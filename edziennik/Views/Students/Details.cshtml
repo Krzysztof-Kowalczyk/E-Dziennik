@@ -84,7 +84,7 @@
     }
 </div>
 <p>
-    @if (User.IsInRole("Teachers"))
+    @if (User.IsInRole("Teachers,Students"))
     {
         @Html.ActionLink("Oceny", "StudentMarks", "Marks", new {studentId = Model.Id}, new {@class = "btn btn-info"})
     }

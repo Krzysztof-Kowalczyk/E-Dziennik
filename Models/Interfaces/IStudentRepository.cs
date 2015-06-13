@@ -7,6 +7,7 @@ namespace Models.Interfaces
     {
         Student FindByMarkId(int markId);
         IQueryable<Student> FindByClassId(int classId);
+        IQueryable<Student> FindBySubjectId(int subjectId);
 
     }
 }

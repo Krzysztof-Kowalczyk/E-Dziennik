@@ -15,15 +15,19 @@ namespace edziennik.Controllers
     public class ClassroomsController : Controller
     {
         private readonly ClassroomRepository _classroomRepo;
+        private readonly SubjectRepository _subjectRepo;
 
-        public ClassroomsController(ClassroomRepository classroomRepo)
+        public ClassroomsController(ClassroomRepository classroomRepo, SubjectRepository subjectRepo)
         {
             _classroomRepo = classroomRepo;
+            _subjectRepo = subjectRepo;
         }
 
         // GET: Classrooms
-        public ActionResult Index(int? page, string sortOrder)
+        public ActionResult Index(int? page, string sortOrder, int? error)
         {
+            if(error.HasValue)
+                ViewBag.Error = ConstantStrings.ClassroomDeleteError;
             int currentPage = page ?? 1;
             var items = SortItems(sortOrder);
             var itemsPl = items.ToPagedList(currentPage, 10);
@@ -154,6 +158,18 @@ namespace edziennik.Controllers
             {
                 return HttpNotFound();
             }
+
+            if (_subjectRepo.FindByClassroomId(classroom.Id).Any())
+            {
+                if (Request.IsAjaxRequest())
+                {
+                    ViewBag.Error = ConstantStrings.ClassroomDeleteError;
+                    return PartialView("_CreateError");
+                }
+
+                return RedirectToAction("Index", new { error = 1 });
+            }
+
             return View(classroom);
         }
 

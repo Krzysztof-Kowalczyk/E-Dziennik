@@ -35,6 +35,18 @@ namespace edziennik.Models.ViewModels
         public int ClassId { get; set; }
     }
 
+    public class TeacherClassStudentViewModel : StudentListItemViewModel
+    {
+        public string TeacherId { get; set; }
+    }
+
+    public class SubjectStudentViewModel : StudentListItemViewModel
+    {
+        public int SubjectId { get; set; }
+
+        public string SubjectName { get; set; }
+    }
+
     public class StudentRegisterViewModel : RegisterViewModel
     {
         [Display(Name = "Klasa")]

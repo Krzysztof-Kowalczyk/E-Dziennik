@@ -70,6 +70,20 @@ namespace Repositories.Repositories
             return _db.Students.Where(a => a.ClasssId == classId);
         }
 
+        public IQueryable<Student> FindBySubjectId(int subjectId)
+        {
+            var classId = _db.Subjects.Single(a => a.Id == subjectId).ClasssId;
+            
+            return _db.Students.Where(a => a.ClasssId == classId);
+        }
+
+        public IQueryable<Student> FindByTutorId(string tutorId)
+        {
+            var classId = _db.Classes.Single(a => a.TeacherId ==tutorId).Id;
+
+            return _db.Students.Where(a => a.ClasssId == classId);
+        }
+
         private bool _disposed = false;
         protected virtual void Dispose(bool disposing)
         {
