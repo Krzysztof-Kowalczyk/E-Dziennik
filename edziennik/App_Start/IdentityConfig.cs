@@ -17,9 +17,13 @@ namespace edziennik
         {
             // Plug in your email service here to send an email.
 
-            const string credentialUserName = "jedznaplus@gmail.com";
-            const string sentFrom = "jedznaplus@gmail.com";
-            const string pwd = "jedznaplus123";
+            //const string credentialUserName = "jedznaplus@gmail.com";
+            //const string sentFrom = "jedznaplus@gmail.com";
+            //const string pwd = "jedznaplus123";
+
+            const string credentialUserName = "edziennikpcz@gmail.com";
+            const string sentFrom = "edziennikpczs@gmail.com";
+            const string pwd = "Edziennik123";
             var credentials = new NetworkCredential(credentialUserName, pwd);
 
             // Configure the client:

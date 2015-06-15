@@ -53,54 +53,6 @@ namespace edziennik.Controllers
             return View(usersVm);
         }
 
-        //[NonAction]
-        //private IQueryable<ApplicationUser> SortItems(string sortOrder)
-        //{
-        //    var items = _userManager.Users;
-
-        //    ViewBag.CurrentSort = sortOrder;
-        //    ViewBag.IdSort = String.IsNullOrEmpty(sortOrder) ? "IdAsc" : "";
-        //    ViewBag.EmailSort = sortOrder == "EmailAsc" ? "Email" : "EmailAsc";
-        //    ViewBag.UserNameSort = sortOrder == "UserNameAsc" ? "UserName" : "UserNameAsc";
-        //    ViewBag.RoleSort = sortOrder == "RoleAsc" ? "Role" : "RoleAsc";
-        //    ViewBag.EmailConfirmedSort = sortOrder == "SurnameAsc" ? "Surname" : "SurnameAsc";
-
-        //    switch (sortOrder)
-        //    {
-        //        case "Class":
-        //            items = items.OrderByDescending(s => s.ClasssId);
-        //            break;
-        //        case "ClassAsc":
-        //            items = items.OrderBy(s => s.ClasssId);
-        //            break;
-        //        case "FirstName":
-        //            items = items.OrderByDescending(s => s.FirstName);
-        //            break;
-        //        case "FirstNameAsc":
-        //            items = items.OrderBy(s => s.FirstName);
-        //            break;
-        //        case "SecondName":
-        //            items = items.OrderByDescending(s => s.SecondName);
-        //            break;
-        //        case "SecondNameAsc":
-        //            items = items.OrderBy(s => s.SecondName);
-        //            break;
-        //        case "Surname":
-        //            items = items.OrderByDescending(s => s.Surname);
-        //            break;
-        //        case "SurnameAsc":
-        //            items = items.OrderBy(s => s.Surname);
-        //            break;
-        //        case "IdAsc":
-        //            items = items.OrderBy(s => s.Id);
-        //            break;
-        //        default:    // id descending
-        //            items = items.OrderByDescending(s => s.Id);
-        //            break;
-        //    }
-        //    return items;
-        //}
-
         [Authorize(Roles = "Admins")]
         public ActionResult Create()
         {
@@ -450,9 +402,9 @@ namespace edziennik.Controllers
 
                 "Rejestracja konta",
 
-                "Twoje hasło to trzy pierwsze litery nazwiska(pierwsza litera duża) + 4 ostatnie cyfry numer pesel + #." +
-                "Przykładowo hasło dla uzytkownika Jan Kowlaski numer pesel:12345678910, byłoby nastepujące: Kow8910# ." +
-                "Potwierdź swoją rejestracje klikając na podany link: " +
+                "Twoje hasło to trzy pierwsze litery nazwiska (pierwsza litera duża) + 4 ostatnie cyfry numer pesel + #." +
+                " Przykładowo hasło dla uzytkownika Jan Kowlaski numer pesel:12345678910, byłoby nastepujące: Kow8910# ." +
+                " Potwierdź swoją rejestracje klikając na podany link: " +
                 "<a href=\"" + callbackUrl + "\">Potwierdź</a>");
         }
 
