@@ -51,7 +51,7 @@ namespace edziennik.Controllers
                 {
                     await SendEmailActivationToken(user);
                 }
-                return user.Id;             
+                return user.Id;
             }
             AddErrors(result);
             return "Error";
@@ -75,16 +75,23 @@ namespace edziennik.Controllers
             ServicePointManager.ServerCertificateValidationCallback =
                 (s, certificate, chain, sslPolicyErrors) => true;
 
-            await UserManager.SendEmailAsync(
+            try
+            {
+                await UserManager.SendEmailAsync(
 
-                user.Id,
+                    user.Id,
 
-                "Rejestracja konta",
+                    "Rejestracja konta",
 
-                "Twoje hasło to trzy pierwsze litery nazwiska(pierwsza litera duża) + 4 ostatnie cyfry numer pesel + #." +
-                "Przykładowo hasło dla uzytkownika Jan Kowlaski numer pesel:12345678910, byłoby nastepujące: Kow8910# ." +
-                "Potwierdź swoją rejestracje klikając na podany link: " +
-                "<a href=\"" + callbackUrl + "\">Potwierdź</a>");
+                    "Twoje hasło to trzy pierwsze litery nazwiska (pierwsza litera duża) + 4 ostatnie cyfry numer pesel + #." +
+                    " Przykładowo hasło dla uzytkownika Jan Kowlaski numer pesel:12345678910, byłoby nastepujące: Kow8910# ." +
+                    " Potwierdź swoją rejestracje klikając na podany link: " +
+                    "<a href=\"" + callbackUrl + "\">Potwierdź</a>");
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
         }
 
         [NonAction]
