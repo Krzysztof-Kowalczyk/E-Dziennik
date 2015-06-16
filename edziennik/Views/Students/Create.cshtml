@@ -4,10 +4,7 @@
     ViewBag.Title = "Stwórz";
 }
 
-@section Scripts {
-    @Scripts.Render("~/bundles/jqueryval")
-    @Scripts.Render("~/Scripts/Validators.js");
-}
+
 
 <h2>Stwórz</h2>
 
@@ -101,3 +98,7 @@
     @Html.ActionLink("Powrót do listy", "Index", null, new { @class = "btn btn-primary" })
 </div>
 
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/Scripts/Validators.js");
+}

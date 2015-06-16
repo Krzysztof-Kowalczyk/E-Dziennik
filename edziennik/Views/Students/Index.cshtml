@@ -13,13 +13,19 @@
 
 <h2>Uczniowie</h2>
 
-@if (ViewBag.Error != null)
-{
-    <div class="alert alert-danger" role="alert">@Html.Raw(ViewBag.Error)</div>
-}
+<div id="CreateError">
+    @Html.Partial("_CreateError")
+</div>
 
 <p>
-    @Html.ActionLink("Stwórz nowy", "Create", null, new { @class = "btn btn-primary" })
+    @Ajax.ActionLink("Stwórz nowy", "Create", null,
+    new AjaxOptions
+    {
+        HttpMethod = "GET",
+        InsertionMode = InsertionMode.Replace,
+        UpdateTargetId = "CreateError"
+    },
+    new { @class = "btn btn-primary" })
 </p>
 
 <div id="StudentList">

@@ -246,6 +246,12 @@ namespace edziennik.Controllers
         {
             if (_classRepo.GetAll().ToList().Count == 0)
             {
+                if (Request.IsAjaxRequest())
+                {
+                    ViewBag.Error = ConstantStrings.StudentCreateNoClassesError;
+                    return PartialView("_CreateError");
+                }
+
                 return RedirectToAction("Index", new { error = 1 });
             }
 
@@ -253,6 +259,9 @@ namespace edziennik.Controllers
             {
                 Classes = ConstantStrings.GetClassesSl()
             };
+
+            if (Request.IsAjaxRequest())
+                return JavaScript("window.location = '" + Url.Action("Create", student) + "'");
 
             return View(student);
         }
