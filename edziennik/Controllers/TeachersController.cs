@@ -231,8 +231,8 @@ namespace edziennik.Controllers
             {
                 return HttpNotFound();
             }
-            if (_subjectRepo.FindByTeacherId(teacher.Id) != null ||
-                _classRepo.FindByTeacherId(teacher.Id) != null)
+            if (_subjectRepo.FindByTeacherId(teacher.Id).Any() ||
+                _classRepo.FindByTeacherId(teacher.Id).Any())
             {
 
                 if (Request.IsAjaxRequest())
@@ -243,6 +243,9 @@ namespace edziennik.Controllers
 
                 return RedirectToAction("Index", new {error = 1});
             }
+
+            if (Request.IsAjaxRequest())
+                return JavaScript("window.location = '" + Url.Action("Delete", teacher) + "'");
 
             return View(teacher);
         }

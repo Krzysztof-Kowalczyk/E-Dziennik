@@ -17,7 +17,7 @@
         <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-        @for (var i = 0; i < Model.Classes.Count; i++)
+        @for(var i = 0; i < Model.Classes.Count; i++)
         {
             @Html.HiddenFor(m => m.Classes[i].Text)
             @Html.HiddenFor(m => m.Classes[i].Value)
@@ -83,6 +83,7 @@
             @Html.LabelFor(model => model.ClassId, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @Html.DropDownListFor(m => m.ClassId, Model.Classes, "")
+                @Html.ValidationMessageFor(model => model.ClassId, "", new { @class = "text-danger" })
             </div>
         </div>
 

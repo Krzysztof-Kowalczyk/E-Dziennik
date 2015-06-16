@@ -20,9 +20,9 @@ namespace edziennik.Controllers
         private readonly SubjectRepository _subjectRepo;
         private readonly TeacherRepository _teacherRepo;
 
-        public StudentsController(ApplicationUserManager userManager,StudentRepository studentRepo, ClasssRepository classsRepo,
+        public StudentsController(ApplicationUserManager userManager, StudentRepository studentRepo, ClasssRepository classsRepo,
                                   SubjectRepository subjectRepo, TeacherRepository teacherRepo)
-            :base(userManager)
+            : base(userManager)
         {
             _studentRepo = studentRepo;
             _classRepo = classsRepo;
@@ -37,7 +37,7 @@ namespace edziennik.Controllers
                 ViewBag.Error = ConstantStrings.StudentCreateNoClassesError;
 
             int currentPage = page ?? 1;
-            
+
             var items = _studentRepo.GetAll();
             items = SortItems(sortOrder, items);
 
@@ -223,7 +223,7 @@ namespace edziennik.Controllers
             }).ToList();
 
             var user = UserManager.FindById(student.Id);
-            
+
             var studentVm = new StudentDetailsViewModel()
             {
                 ClassName = _classRepo.FindById(student.ClasssId).Name,
@@ -261,7 +261,7 @@ namespace edziennik.Controllers
             };
 
             if (Request.IsAjaxRequest())
-                return JavaScript("window.location = '" + Url.Action("Create", student) + "'");
+                return JavaScript("window.location = '" + Url.Action("Create") + "'");
 
             return View(student);
         }
@@ -281,7 +281,7 @@ namespace edziennik.Controllers
                 {
                     var userid = await CreateUser(studentVm, "Students");
                     if (userid == "Error") return View(studentVm);
-                    
+
                     var student = new Student
                     {
                         Id = userid,
@@ -293,10 +293,10 @@ namespace edziennik.Controllers
                         CellPhoneNumber = studentVm.CellPhoneNumber
 
                     };
-                        
+
                     _studentRepo.Insert(student);
                     _studentRepo.Save();
-                    Logs.SaveLog("Create", User.Identity.GetUserId(), 
+                    Logs.SaveLog("Create", User.Identity.GetUserId(),
                                  "Student", student.Id, Request.UserHostAddress);
                     return RedirectToAction("Index");
                 }
@@ -335,7 +335,7 @@ namespace edziennik.Controllers
                 EmailConfirmed = user.EmailConfirmed,
                 AvatarUrl = user.AvatarUrl
             };
-            
+
             return View(studentEditVm);
         }
 
@@ -361,13 +361,13 @@ namespace edziennik.Controllers
                 };
 
                 _studentRepo.Update(student);
-                _studentRepo.Save();               
+                _studentRepo.Save();
 
-                var user = await UserManager.FindByIdAsync(studentEvm.Id);                
-                await UpdateUser(user, student, studentEvm.Email,studentEvm.EmailConfirmed);
-                Logs.SaveLog("Edit", User.Identity.GetUserId(), 
+                var user = await UserManager.FindByIdAsync(studentEvm.Id);
+                await UpdateUser(user, student, studentEvm.Email, studentEvm.EmailConfirmed);
+                Logs.SaveLog("Edit", User.Identity.GetUserId(),
                              "Student", student.Id, Request.UserHostAddress);
-               
+
                 return RedirectToAction("Index");
             }
 

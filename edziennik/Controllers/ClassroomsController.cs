@@ -170,6 +170,9 @@ namespace edziennik.Controllers
                 return RedirectToAction("Index", new { error = 1 });
             }
 
+            if (Request.IsAjaxRequest())
+                return JavaScript("window.location = '" + Url.Action("Delete", classroom) + "'");
+
             return View(classroom);
         }
 

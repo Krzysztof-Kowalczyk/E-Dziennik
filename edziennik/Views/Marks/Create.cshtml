@@ -31,7 +31,7 @@
         <div class="form-group">
             @Html.LabelFor(model => model.Value, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.DropDownListFor(m=>m.Value,Model.Values)
+                @Html.DropDownListFor(m => m.Value, Model.Values, "")
                 @Html.ValidationMessageFor(model => model.Value, "", new { @class = "text-danger" })
             </div>
         </div>
@@ -39,7 +39,7 @@
         <div class="form-group">
             @Html.LabelFor(model => model.SubjectId, htmlAttributes: new {@class = "control-label col-md-2"})
             <div class="col-md-10">
-                @Html.DropDownListFor(m => m.SubjectId, Model.Subjects)
+                @Html.DropDownListFor(m => m.SubjectId, Model.Subjects,"")
                 @Html.ValidationMessageFor(model => model.SubjectId, "", new {@class = "text-danger"})
             </div>
         </div>
@@ -65,6 +65,3 @@
     </div>
 }
 
-<div>
-   @Html.ActionLink("Powrót do listy", "Index", null, new { @class = "btn btn-primary" })
-</div>
