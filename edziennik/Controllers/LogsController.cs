@@ -11,6 +11,7 @@ using Repositories.Repositories;
 namespace edziennik.Controllers
 {
     [Authorize(Roles = "Admins")]
+    [HandleError]
     public class LogsController : Controller
     {
         private readonly LogRepository _logRepository;

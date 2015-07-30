@@ -15,6 +15,7 @@ using Microsoft.Owin.Security;
 namespace edziennik.Controllers
 {
     [Authorize]
+    [HandleError]
     public class AccountController : Controller
     {
         private readonly ApplicationUserManager _userManager;

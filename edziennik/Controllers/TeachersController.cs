@@ -13,6 +13,7 @@ using Repositories.Repositories;
 namespace edziennik.Controllers
 {
     [Authorize(Roles = "Admins")]
+    [HandleError]
     public class TeachersController : PersonController
     {
         private readonly TeacherRepository _teacherRepo;

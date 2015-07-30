@@ -12,6 +12,7 @@ using Repositories.Repositories;
 
 namespace edziennik.Controllers
 {
+    [HandleError]
     public class MarksController : Controller
     {
         private readonly MarkRepository _markRepo;
@@ -251,9 +252,9 @@ namespace edziennik.Controllers
             return View(markVm);
         }
 
-        public ActionResult CreateForSubject(string studentId, int subjectId)
+        public ActionResult CreateForSubject(string studentId, int? subjectId)
         {
-            if (studentId == null)
+            if (studentId == null || subjectId == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
@@ -271,7 +272,7 @@ namespace edziennik.Controllers
             {
                 StudentId = studentId,
                 TeacherId = User.Identity.GetUserId(),
-                SubjectId = subjectId,
+                SubjectId = (int)subjectId,
                 Values = ConstantStrings.GetMarksSl()
             };
 
@@ -296,15 +297,16 @@ namespace edziennik.Controllers
 
                 _markRepo.Insert(mark);
                 _markRepo.Save();
-                if (_studentRepo.FindById(markVm.StudentId).CellPhoneNumber != null)
+
+                if (_studentRepo.FindById(mark.StudentId).CellPhoneNumber != null)
                 {
-                    var number = _studentRepo.FindById(markVm.StudentId).CellPhoneNumber;
+                    var number = _studentRepo.FindById(mark.StudentId).CellPhoneNumber;
                     SmsSender.SendSms(markVm, number);
                 }
-                Logs.SaveLog("Create", User.Identity.GetUserId(),
-                             "Mark", mark.Id.ToString(), Request.UserHostAddress);
 
-                return RedirectToAction("StudentSubjectMarks",new{studentId=mark.StudentId, subjectId=mark.SubjectId});
+                Logs.SaveLog("Create", User.Identity.Name, "Mark", mark.Id.ToString(),Request.UserHostAddress);
+
+                return RedirectToAction("StudentSubjectMarks", new { studentId = mark.StudentId, subjectId = mark.SubjectId });
             }
 
             return View(markVm);

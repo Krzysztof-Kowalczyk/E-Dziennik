@@ -120,8 +120,8 @@ namespace edziennik.Models
 
     public class RegisterViewModel
     {
-        [Required(ErrorMessage = "Pole Pesel jest wymagane.")]
-        [Display(Name = "Pesel")]       
+        //[Required(ErrorMessage = "Pole Pesel jest wymagane.")]
+        //[Display(Name = "Pesel")]       
         [Pesel (ErrorMessage = "Wprowadzono nieprawidłowy numer pesel")]
         [UniquePesel(ErrorMessage = "Podany numer pesel już istnieje ")]
         public string Login { get; set; }

@@ -9,6 +9,7 @@ using Models.Models;
 
 namespace edziennik.Controllers
 {
+    [HandleError]
     public abstract class PersonController : Controller
     {
         protected readonly ApplicationUserManager UserManager;

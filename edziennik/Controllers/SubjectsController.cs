@@ -17,7 +17,8 @@ namespace edziennik.Controllers
         NoClassrooms = 2,
         NoTeachers = 3
     }
-
+   
+    [HandleError]
     public class SubjectsController : Controller
     {
         private readonly SubjectRepository _subjectRepo;

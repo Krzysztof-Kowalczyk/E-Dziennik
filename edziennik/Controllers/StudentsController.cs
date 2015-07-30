@@ -12,7 +12,8 @@ using Repositories.Repositories;
 
 namespace edziennik.Controllers
 {
-    [Authorize]
+    [Authorize]    
+    [HandleError]
     public class StudentsController : PersonController
     {
         private readonly StudentRepository _studentRepo;
